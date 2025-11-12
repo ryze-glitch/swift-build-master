@@ -1,0 +1,117 @@
+import { useState } from "react";
+
+type Page = "dashboard" | "personnel" | "announcements";
+
+interface HeaderProps {
+  currentPage: Page;
+  onPageChange: (page: Page) => void;
+}
+
+export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const navItems = [
+    { id: "dashboard" as Page, icon: "fa-chart-line", label: "Dashboard" },
+    { id: "personnel" as Page, icon: "fa-users", label: "Personale" },
+    { id: "announcements" as Page, icon: "fa-bullhorn", label: "Comunicazioni" },
+  ];
+
+  return (
+    <header className="sticky top-0 z-50 glass-strong border-b shadow-lg">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo Section */}
+          <div className="flex items-center gap-4">
+            {/* Left Emblem */}
+            <div className="relative w-12 h-12 rounded-full bg-blue-800 border-4 border-yellow-400 flex flex-col items-center justify-center overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-green-500 via-white to-red-500 rounded-t-full"></div>
+              <i className="fas fa-crosshairs text-yellow-400 text-sm mb-1"></i>
+              <span className="text-[0.4rem] text-white font-bold">U.O.P.I.</span>
+            </div>
+
+            {/* Logo */}
+            <img 
+              src="https://i.imgur.com/B6E4u1X.png" 
+              alt="IPRP Logo" 
+              className="w-14 h-14 rounded-xl shadow-glow transition-transform hover:scale-110"
+            />
+
+            {/* Brand */}
+            <div className="hidden md:block">
+              <h1 className="text-2xl font-extrabold">U.O.P.I.</h1>
+              <p className="text-sm text-muted-foreground font-semibold">IPRP X</p>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex items-center gap-2 glass rounded-full px-3 py-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => onPageChange(item.id)}
+                className={`
+                  flex items-center gap-3 px-4 py-2.5 rounded-2xl font-semibold
+                  transition-all duration-300 group relative overflow-hidden
+                  ${currentPage === item.id 
+                    ? 'bg-gradient-to-r from-primary/90 to-primary w-40 text-foreground shadow-xl' 
+                    : 'w-14 text-muted-foreground hover:text-foreground hover:w-40 hover:bg-secondary'
+                  }
+                `}
+              >
+                <i className={`fas ${item.icon} text-lg flex-shrink-0`}></i>
+                <span className={`
+                  whitespace-nowrap transition-all duration-300 text-sm
+                  ${currentPage === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                `}>
+                  {item.label}
+                </span>
+              </button>
+            ))}
+          </nav>
+
+          {/* User Profile */}
+          <div className="relative">
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center gap-3 glass rounded-2xl px-4 py-2 hover:bg-secondary/50 transition-all"
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
+                AG
+              </div>
+              <div className="hidden sm:block text-left">
+                <div className="text-sm font-semibold">Agente</div>
+                <div className="text-xs text-muted-foreground">Operativo</div>
+              </div>
+              <i className={`fas fa-chevron-down text-xs transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
+            </button>
+
+            {/* Dropdown Menu */}
+            {isUserMenuOpen && (
+              <div className="absolute top-full right-0 mt-2 w-56 glass-strong rounded-2xl overflow-hidden shadow-2xl">
+                <div className="p-4 border-b border-border">
+                  <div className="font-semibold">Agente Operativo</div>
+                  <div className="text-sm text-muted-foreground">Matricola: #001</div>
+                </div>
+                <div className="p-2">
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-secondary/50 transition-colors text-left">
+                    <i className="fas fa-user-circle"></i>
+                    <span>Profilo</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-secondary/50 transition-colors text-left">
+                    <i className="fas fa-cog"></i>
+                    <span>Impostazioni</span>
+                  </button>
+                  <hr className="my-2 border-border" />
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-danger/10 text-danger transition-colors text-left">
+                    <i className="fas fa-sign-out-alt"></i>
+                    <span>Esci</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
