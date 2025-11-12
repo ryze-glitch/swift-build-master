@@ -16,7 +16,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <BrowserRouter basename="/swift-build-master">
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
