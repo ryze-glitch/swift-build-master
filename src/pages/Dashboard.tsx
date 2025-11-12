@@ -4,7 +4,7 @@ import { Personnel } from "@/components/dashboard/Personnel";
 import { Announcements } from "@/components/dashboard/Announcements";
 import { NotificationSystem } from "@/components/dashboard/NotificationSystem";
 
-type Page = "dashboard" | "personnel" | "announcements";
+type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits";
 
 const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
@@ -13,8 +13,50 @@ const Dashboard = () => {
     switch (currentPage) {
       case "personnel":
         return <Personnel />;
+      case "shifts":
+        return (
+          <div className="flex min-h-[60vh] items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center">
+                <i className="fas fa-calendar-alt text-3xl text-primary"></i>
+              </div>
+              <h2 className="text-3xl font-bold">Turni</h2>
+              <p className="text-muted-foreground max-w-md">
+                Gestione turni e pianificazione operativa.
+              </p>
+            </div>
+          </div>
+        );
       case "announcements":
         return <Announcements />;
+      case "status":
+        return (
+          <div className="flex min-h-[60vh] items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center">
+                <i className="fas fa-wave-square text-3xl text-primary"></i>
+              </div>
+              <h2 className="text-3xl font-bold">Status</h2>
+              <p className="text-muted-foreground max-w-md">
+                Monitoraggio stato operativo in tempo reale.
+              </p>
+            </div>
+          </div>
+        );
+      case "credits":
+        return (
+          <div className="flex min-h-[60vh] items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center">
+                <i className="fas fa-award text-3xl text-primary"></i>
+              </div>
+              <h2 className="text-3xl font-bold">Crediti</h2>
+              <p className="text-muted-foreground max-w-md">
+                Informazioni sul sistema e sviluppatori.
+              </p>
+            </div>
+          </div>
+        );
       default:
         return (
           <div className="flex min-h-[60vh] items-center justify-center">
@@ -22,7 +64,7 @@ const Dashboard = () => {
               <div className="w-20 h-20 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center">
                 <i className="fas fa-chart-line text-3xl text-primary"></i>
               </div>
-              <h2 className="text-3xl font-bold">Dashboard U.O.P.I.</h2>
+              <h2 className="text-3xl font-bold">Panoramica U.O.P.I.</h2>
               <p className="text-muted-foreground max-w-md">
                 Sistema di gestione operativa integrato. Seleziona una sezione dal menu di navigazione.
               </p>

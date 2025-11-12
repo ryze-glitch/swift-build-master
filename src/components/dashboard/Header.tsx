@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-type Page = "dashboard" | "personnel" | "announcements";
+type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits";
 
 interface HeaderProps {
   currentPage: Page;
@@ -11,9 +11,12 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const navItems = [
-    { id: "dashboard" as Page, icon: "fa-chart-line", label: "Dashboard" },
-    { id: "personnel" as Page, icon: "fa-users", label: "Personale" },
-    { id: "announcements" as Page, icon: "fa-bullhorn", label: "Comunicazioni" },
+    { id: "dashboard" as Page, icon: "fa-chart-line", label: "Panoramica" },
+    { id: "personnel" as Page, icon: "fa-users", label: "Gerarchia" },
+    { id: "shifts" as Page, icon: "fa-calendar-alt", label: "Turni" },
+    { id: "announcements" as Page, icon: "fa-bullhorn", label: "Comunicati" },
+    { id: "status" as Page, icon: "fa-wave-square", label: "Status" },
+    { id: "credits" as Page, icon: "fa-award", label: "Crediti" },
   ];
 
   return (
