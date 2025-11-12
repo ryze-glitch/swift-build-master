@@ -9,15 +9,7 @@ interface SystemStatus {
 }
 
 export const Status = () => {
-  const [lastUpdate, setLastUpdate] = useState(new Date().toLocaleString('it-IT', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  }));
-  
+  const [lastUpdate, setLastUpdate] = useState(new Date().toLocaleString('it-IT'));
   const [systemsStatus] = useState<SystemStatus[]>([
     {
       name: "Database Operativo",
@@ -47,15 +39,8 @@ export const Status = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setLastUpdate(new Date().toLocaleString('it-IT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      }));
-    }, 1000);
+      setLastUpdate(new Date().toLocaleString('it-IT'));
+    }, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -88,33 +73,30 @@ export const Status = () => {
 
   return (
     <div className="space-y-6">
-      {/* Hero */}
       <div className="glass-strong rounded-3xl p-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-blue-500/10 pointer-events-none"></div>
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-4xl font-extrabold mb-2">Status Sistema</h2>
               <p className="text-muted-foreground">
                 Monitoraggio stato operativo in tempo reale
               </p>
             </div>
-            <div className="text-right glass rounded-2xl p-4">
-              <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold">Ultimo aggiornamento</div>
-              <div className="text-xl font-bold text-primary font-mono">{lastUpdate}</div>
+            <div className="text-right">
+              <div className="text-sm text-muted-foreground mb-1">Ultimo aggiornamento</div>
+              <div className="text-lg font-bold text-primary">{lastUpdate}</div>
             </div>
           </div>
-          
           <div className="flex gap-2 mt-4">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/20 text-green-500 text-sm font-bold uppercase tracking-wider">
-              <i className="fas fa-wave-square animate-pulse"></i>
+              <i className="fas fa-wave-square"></i>
               Live Monitoring
             </span>
           </div>
         </div>
       </div>
 
-      {/* Overall Health */}
       <div className="glass-strong rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold">Salute Generale Sistema</h3>
@@ -137,7 +119,6 @@ export const Status = () => {
         </p>
       </div>
 
-      {/* Systems Status Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {systemsStatus.map((system, index) => (
           <Card key={index} className="glass p-6 hover:shadow-lg transition-all">
@@ -162,7 +143,6 @@ export const Status = () => {
         ))}
       </div>
 
-      {/* Activity Log */}
       <div className="glass-strong rounded-2xl p-6">
         <h3 className="text-xl font-bold mb-4">
           <i className="fas fa-history mr-2 text-primary"></i>
@@ -174,15 +154,14 @@ export const Status = () => {
             { time: "09:20", action: "Backup automatico completato", type: "success" },
             { time: "09:35", action: "Aggiornamento database operativo", type: "info" },
             { time: "09:42", action: "Sincronizzazione turni completata", type: "success" },
-            { time: "09:48", action: "Verifica integrità dati completata", type: "success" },
           ].map((log, index) => (
-            <div key={index} className="flex items-center gap-4 p-3 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors">
+            <div key={index} className="flex items-center gap-4 p-3 rounded-xl bg-secondary/30">
               <div className={`w-2 h-2 rounded-full ${
-                log.type === 'success' ? 'bg-green-500 animate-pulse' : 
+                log.type === 'success' ? 'bg-green-500' : 
                 log.type === 'info' ? 'bg-blue-500' : 
                 'bg-yellow-500'
               }`}></div>
-              <span className="text-sm font-mono text-muted-foreground w-16">{log.time}</span>
+              <span className="text-sm font-mono text-muted-foreground">{log.time}</span>
               <span className="flex-1 text-sm">{log.action}</span>
             </div>
           ))}
