@@ -26,11 +26,11 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           {/* Logo Section */}
           <div className="flex items-center gap-4">
             {/* Left Emblem */}
-            <div className="relative w-12 h-12 rounded-full bg-blue-800 border-4 border-yellow-400 flex flex-col items-center justify-center overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-green-500 via-white to-red-500 rounded-t-full"></div>
-              <i className="fas fa-crosshairs text-yellow-400 text-sm mb-1"></i>
-              <span className="text-[0.4rem] text-white font-bold">U.O.P.I.</span>
-            </div>
+            <img 
+              src="https://i.imgur.com/4T6qvKV.png" 
+              alt="U.O.P.I. Emblem" 
+              className="w-12 h-12 rounded-full shadow-lg transition-transform hover:scale-110"
+            />
 
             {/* Logo */}
             <img 

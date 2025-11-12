@@ -1,3 +1,5 @@
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
+
 interface Announcement {
   id: string;
   title: string;
@@ -77,7 +79,7 @@ export const AnnouncementCard = ({ announcement, onAcknowledge }: AnnouncementCa
 
       {/* Acknowledgment */}
       <div className="glass rounded-xl p-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
           <div 
             className={`w-10 h-10 rounded-lg flex items-center justify-center ${
               announcement.acknowledged 
@@ -87,24 +89,22 @@ export const AnnouncementCard = ({ announcement, onAcknowledge }: AnnouncementCa
           >
             <i className={`fas ${announcement.acknowledged ? 'fa-check-circle' : 'fa-envelope'} text-lg`}></i>
           </div>
-          <div>
+          <div className="flex-1">
             <div className="font-semibold text-sm">
               {announcement.acknowledged ? 'Presa Visione' : 'Conferma Lettura'}
             </div>
             <div className="text-xs text-muted-foreground">
-              {announcement.acknowledged ? 'Letto e confermato' : 'Clicca per confermare'}
+              {announcement.acknowledged ? 'Letto e confermato' : 'Spunta per confermare'}
             </div>
           </div>
         </div>
 
-        {!announcement.acknowledged && (
-          <button
-            onClick={onAcknowledge}
-            className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white font-semibold text-sm transition-all shadow-lg hover:shadow-xl"
-          >
-            Conferma
-          </button>
-        )}
+        <CustomCheckbox
+          id={`acknowledge-${announcement.id}`}
+          checked={announcement.acknowledged}
+          onChange={onAcknowledge}
+          size={1.5}
+        />
       </div>
     </div>
   );
