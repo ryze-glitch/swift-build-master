@@ -12,6 +12,13 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CUSTOMER-PORTAL] ${step}${detailsStr}`);
 };
 
+// Input validation
+const validateAuthHeader = (header: string | null): boolean => {
+  if (!header) return false;
+  const parts = header.split(' ');
+  return parts.length === 2 && parts[0] === 'Bearer' && parts[1].length > 0;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -31,10 +38,13 @@ serve(async (req) => {
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
-    logStep("Authorization header found");
+    if (!validateAuthHeader(authHeader)) {
+      logStep("Invalid authorization header");
+      throw new Error("Invalid authorization header");
+    }
+    logStep("Authorization header validated");
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader!.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
