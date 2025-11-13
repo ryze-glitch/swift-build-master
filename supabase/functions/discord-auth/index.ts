@@ -202,7 +202,7 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate a magic link for authentication
+    // Generate a one-time password (OTP) for authentication
     const { data: sessionData, error: sessionError } = 
       await supabaseClient.auth.admin.generateLink({
         type: 'magiclink',
@@ -214,6 +214,28 @@ serve(async (req) => {
       throw sessionError;
     }
 
+    // Extract the token from the magic link URL
+    const url = new URL(sessionData.properties.action_link);
+    const token = url.searchParams.get('token');
+    const tokenHash = url.searchParams.get('token_hash');
+
+    if (!token || !tokenHash) {
+      logStep("Error: No token in magic link");
+      throw new Error("Failed to generate authentication token");
+    }
+
+    // Verify the OTP to create a real session
+    const { data: verifyData, error: verifyError } = await supabaseClient.auth.verifyOtp({
+      email: authUser.email || email,
+      token: token,
+      type: 'magiclink'
+    });
+
+    if (verifyError) {
+      logStep("Error verifying OTP", { error: verifyError.message });
+      throw verifyError;
+    }
+
     logStep("Session created successfully", { 
       userId: authUser.id,
       isNewUser 
@@ -221,8 +243,8 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        access_token: sessionData.properties.hashed_token,
-        refresh_token: sessionData.properties.hashed_token,
+        access_token: verifyData.session?.access_token,
+        refresh_token: verifyData.session?.refresh_token,
         user: {
           id: authUser.id,
           email: authUser.email,
