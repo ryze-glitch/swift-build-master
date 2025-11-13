@@ -202,49 +202,27 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate a one-time password (OTP) for authentication
-    const { data: sessionData, error: sessionError } = 
-      await supabaseClient.auth.admin.generateLink({
-        type: 'magiclink',
-        email: authUser.email || email,
-      });
-
-    if (sessionError) {
-      logStep("Error generating session", { error: sessionError.message });
-      throw sessionError;
-    }
-
-    // Extract the token from the magic link URL
-    const url = new URL(sessionData.properties.action_link);
-    const token = url.searchParams.get('token');
-    const tokenHash = url.searchParams.get('token_hash');
-
-    if (!token || !tokenHash) {
-      logStep("Error: No token in magic link");
-      throw new Error("Failed to generate authentication token");
-    }
-
-    // Verify the OTP to create a real session
-    const { data: verifyData, error: verifyError } = await supabaseClient.auth.verifyOtp({
+    // Sign in the user using admin API
+    const { data: signInData, error: signInError } = await supabaseClient.auth.admin.generateLink({
+      type: 'magiclink',
       email: authUser.email || email,
-      token: token,
-      type: 'magiclink'
     });
 
-    if (verifyError) {
-      logStep("Error verifying OTP", { error: verifyError.message });
-      throw verifyError;
+    if (signInError) {
+      logStep("Error generating auth link", { error: signInError.message });
+      throw signInError;
     }
 
-    logStep("Session created successfully", { 
+    logStep("Auth link generated successfully", { 
       userId: authUser.id,
       isNewUser 
     });
 
+    // Return the hashed token which the client will use with verifyOtp
     return new Response(
       JSON.stringify({
-        access_token: verifyData.session?.access_token,
-        refresh_token: verifyData.session?.refresh_token,
+        hashed_token: signInData.properties.hashed_token,
+        email: authUser.email || email,
         user: {
           id: authUser.id,
           email: authUser.email,
