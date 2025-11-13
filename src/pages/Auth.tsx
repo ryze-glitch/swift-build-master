@@ -62,7 +62,14 @@ const Auth = () => {
         return;
       }
 
+      // Show success message
+      toast({
+        title: "Accesso autorizzato",
+        description: `Benvenuto ${data.user.discord_tag}!`,
+      });
+      
       // Redirect to magic link for automatic authentication
+      console.log("Redirecting to:", data.redirect_url);
       window.location.href = data.redirect_url;
     } catch (error) {
       // Error logged server-side
