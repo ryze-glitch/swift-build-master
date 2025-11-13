@@ -62,13 +62,14 @@ const Auth = () => {
         return;
       }
 
-      // Sign in with the tokens received from Discord
-      const { error: signInError } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
+      // Verify the hashed token to create a session
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: data.email,
+        token: data.hashed_token,
+        type: 'email'
       });
 
-      if (signInError) throw signInError;
+      if (verifyError) throw verifyError;
 
       toast({
         title: "Accesso effettuato",
