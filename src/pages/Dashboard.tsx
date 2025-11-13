@@ -26,128 +26,195 @@ const Dashboard = () => {
         return <Credits />;
       default:
         return (
-          <div className="space-y-6">
-            {/* Hero Dashboard */}
-            <div className="glass-strong rounded-3xl p-8 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none"></div>
-              <div className="relative z-10 text-center">
-                <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center">
-                  <i className="fas fa-chart-line text-4xl text-white"></i>
+          <div className="space-y-8 px-4 py-6">
+            {/* Hero with Quick Stats */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Hero Card */}
+              <div className="lg:col-span-2 glass-strong rounded-3xl p-8 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none"></div>
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h1 className="text-5xl font-extrabold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        Dashboard U.O.P.I.
+                      </h1>
+                      <p className="text-muted-foreground text-lg">
+                        Sistema di gestione operativa integrato
+                      </p>
+                    </div>
+                    <div className="glass rounded-2xl px-5 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
+                        <span className="font-bold text-success">Sistema Attivo</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Access Grid */}
+                  <div className="grid grid-cols-2 gap-4 mt-8">
+                    {[
+                      { icon: "fa-users", label: "Personale", value: "24", page: "personnel", color: "primary" },
+                      { icon: "fa-calendar-alt", label: "Turni", value: "8", page: "shifts", color: "success" },
+                      { icon: "fa-bullhorn", label: "Comunicati", value: "12", page: "announcements", color: "accent" },
+                      { icon: "fa-wave-square", label: "Status", value: "100%", page: "status", color: "warning" },
+                    ].map((stat) => (
+                      <button
+                        key={stat.page}
+                        onClick={() => setCurrentPage(stat.page as Page)}
+                        className="glass rounded-2xl p-5 hover:scale-105 transition-all text-left group relative overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
+                             style={{ background: `linear-gradient(135deg, hsl(var(--${stat.color})) 0%, transparent 100%)` }}></div>
+                        <div className="relative z-10">
+                          <i className={`fas ${stat.icon} text-3xl mb-3 transition-transform group-hover:scale-110`}
+                             style={{ color: `hsl(var(--${stat.color}))` }}></i>
+                          <div className="text-3xl font-extrabold mb-1">{stat.value}</div>
+                          <div className="text-sm text-muted-foreground">{stat.label}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <h2 className="text-5xl font-extrabold mb-3">Panoramica U.O.P.I.</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                  Sistema di gestione operativa integrato. Benvenuto nella dashboard centrale.
-                </p>
-                <div className="flex gap-2 justify-center mt-4">
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/20 text-green-500 text-sm font-bold uppercase tracking-wider">
-                    <i className="fas fa-circle animate-pulse"></i>
-                    Sistema Operativo
-                  </span>
+              </div>
+
+              {/* Premium Features Sidebar */}
+              <div className="space-y-4">
+                {/* Premium Badge */}
+                <div className="glass-strong rounded-3xl p-6 relative overflow-hidden border-2 border-warning/50">
+                  <div className="absolute inset-0 bg-gradient-to-br from-warning/20 via-transparent to-warning/10 pointer-events-none"></div>
+                  <div className="relative z-10 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-warning to-warning/50 rounded-2xl flex items-center justify-center">
+                      <i className="fas fa-crown text-3xl text-warning-foreground"></i>
+                    </div>
+                    <h3 className="text-2xl font-extrabold mb-2">Premium</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Sblocca funzionalità avanzate
+                    </p>
+                    <button className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-warning to-warning/80 text-warning-foreground font-bold hover:shadow-lg hover:shadow-warning/50 transition-all">
+                      Passa a Premium
+                    </button>
+                  </div>
+                </div>
+
+                {/* System Status */}
+                <div className="glass rounded-2xl p-6">
+                  <h4 className="font-bold mb-4 flex items-center gap-2">
+                    <i className="fas fa-server text-primary"></i>
+                    Sistema
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Uptime</span>
+                      <span className="font-bold text-success">99.9%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Versione</span>
+                      <span className="font-mono text-sm font-bold">v2.1.0</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[
-                { icon: "fa-users", label: "Personale", value: "24", color: "blue-500", page: "personnel" },
-                { icon: "fa-calendar-alt", label: "Turni Attivi", value: "8", color: "green-500", page: "shifts" },
-                { icon: "fa-bullhorn", label: "Comunicazioni", value: "12", color: "purple-500", page: "announcements" },
-                { icon: "fa-wave-square", label: "Status", value: "100%", color: "cyan-500", page: "status" },
-              ].map((stat, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentPage(stat.page as Page)}
-                  className="glass rounded-2xl p-6 hover:shadow-lg transition-all text-left group"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <i className={`fas ${stat.icon} text-3xl text-${stat.color} group-hover:scale-110 transition-transform`}></i>
-                    <i className="fas fa-arrow-right text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            {/* Premium Features Grid */}
+            <div className="glass-strong rounded-3xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-3xl font-extrabold">
+                  <i className="fas fa-sparkles mr-3 text-warning"></i>
+                  Funzionalità Premium
+                </h3>
+                <span className="px-4 py-2 rounded-full bg-warning/20 text-warning text-sm font-bold">
+                  Richiede Premium
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  {
+                    icon: "fa-chart-line",
+                    title: "Analytics Avanzati",
+                    description: "Grafici dettagliati e report personalizzati",
+                    color: "primary"
+                  },
+                  {
+                    icon: "fa-robot",
+                    title: "AI Assistant",
+                    description: "Assistente intelligente per ottimizzazione turni",
+                    color: "accent"
+                  },
+                  {
+                    icon: "fa-clock-rotate-left",
+                    title: "Storico Completo",
+                    description: "Accesso illimitato a tutti i dati storici",
+                    color: "success"
+                  },
+                  {
+                    icon: "fa-file-export",
+                    title: "Export Avanzato",
+                    description: "Esporta in Excel, PDF e formati personalizzati",
+                    color: "warning"
+                  },
+                  {
+                    icon: "fa-bell",
+                    title: "Notifiche Push",
+                    description: "Notifiche real-time via email e mobile",
+                    color: "danger"
+                  },
+                  {
+                    icon: "fa-shield-halved",
+                    title: "Sicurezza Avanzata",
+                    description: "Autenticazione a due fattori e audit log",
+                    color: "primary"
+                  },
+                ].map((feature, idx) => (
+                  <div key={idx} className="glass rounded-2xl p-6 hover:scale-105 transition-all group cursor-pointer relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
+                         style={{ background: `linear-gradient(135deg, hsl(var(--${feature.color})) 0%, transparent 100%)` }}></div>
+                    <div className="relative z-10">
+                      <div className="w-14 h-14 mb-4 bg-gradient-to-br rounded-2xl flex items-center justify-center"
+                           style={{ background: `linear-gradient(135deg, hsl(var(--${feature.color})) 0%, hsl(var(--${feature.color})) 100%)` }}>
+                        <i className={`fas ${feature.icon} text-2xl text-white`}></i>
+                      </div>
+                      <h4 className="font-bold text-lg mb-2">{feature.title}</h4>
+                      <p className="text-sm text-muted-foreground">{feature.description}</p>
+                      <div className="mt-4 flex items-center gap-2 text-warning text-sm font-semibold">
+                        <i className="fas fa-lock"></i>
+                        <span>Premium</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-3xl font-extrabold mb-1">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </button>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="glass-strong rounded-2xl p-6">
-              <h3 className="text-2xl font-bold mb-4">
-                <i className="fas fa-bolt mr-2 text-primary"></i>
-                Azioni Rapide
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button
-                  onClick={() => setCurrentPage("announcements")}
-                  className="p-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 hover:from-primary/30 hover:to-primary/10 transition-all text-left group"
-                >
-                  <i className="fas fa-bullhorn text-2xl text-primary mb-2 block group-hover:scale-110 transition-transform"></i>
-                  <div className="font-bold mb-1">Nuova Comunicazione</div>
-                  <div className="text-sm text-muted-foreground">Pubblica un annuncio</div>
-                </button>
-                <button
-                  onClick={() => setCurrentPage("shifts")}
-                  className="p-4 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 hover:from-green-500/30 hover:to-green-500/10 transition-all text-left group"
-                >
-                  <i className="fas fa-calendar-plus text-2xl text-green-500 mb-2 block group-hover:scale-110 transition-transform"></i>
-                  <div className="font-bold mb-1">Nuovo Turno</div>
-                  <div className="text-sm text-muted-foreground">Pianifica un turno</div>
-                </button>
-                <button
-                  onClick={() => setCurrentPage("personnel")}
-                  className="p-4 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 hover:from-blue-500/30 hover:to-blue-500/10 transition-all text-left group"
-                >
-                  <i className="fas fa-user-plus text-2xl text-blue-500 mb-2 block group-hover:scale-110 transition-transform"></i>
-                  <div className="font-bold mb-1">Aggiungi Personale</div>
-                  <div className="text-sm text-muted-foreground">Nuovo membro</div>
-                </button>
-              </div>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <button
+                onClick={() => setCurrentPage("announcements")}
+                className="glass rounded-2xl p-6 hover:scale-105 transition-all text-left group"
+              >
+                <i className="fas fa-plus-circle text-3xl text-primary mb-3 group-hover:scale-110 transition-transform"></i>
+                <h4 className="font-bold text-lg mb-1">Nuovo Comunicato</h4>
+                <p className="text-sm text-muted-foreground">Pubblica un annuncio importante</p>
+              </button>
 
-            {/* System Info */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="glass rounded-2xl p-6">
-                <h4 className="font-bold text-lg mb-3">
-                  <i className="fas fa-info-circle mr-2 text-primary"></i>
-                  Informazioni Sistema
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Versione</span>
-                    <span className="font-semibold">v2.0.0</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Ultimo Aggiornamento</span>
-                    <span className="font-semibold">12/11/2025</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Sviluppatore</span>
-                    <span className="font-semibold">Ryze</span>
-                  </div>
-                </div>
-              </div>
+              <button
+                onClick={() => setCurrentPage("shifts")}
+                className="glass rounded-2xl p-6 hover:scale-105 transition-all text-left group"
+              >
+                <i className="fas fa-calendar-plus text-3xl text-success mb-3 group-hover:scale-110 transition-transform"></i>
+                <h4 className="font-bold text-lg mb-1">Crea Turno</h4>
+                <p className="text-sm text-muted-foreground">Pianifica nuovo turno operativo</p>
+              </button>
 
-              <div className="glass rounded-2xl p-6">
-                <h4 className="font-bold text-lg mb-3">
-                  <i className="fas fa-check-circle mr-2 text-green-500"></i>
-                  Stato Servizi
-                </h4>
-                <div className="space-y-2">
-                  {[
-                    { name: "Database", status: "operativo" },
-                    { name: "API", status: "operativo" },
-                    { name: "Notifiche", status: "operativo" },
-                  ].map((service, index) => (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{service.name}</span>
-                      <span className="flex items-center gap-2 text-green-500 font-semibold">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        {service.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <button
+                onClick={() => setCurrentPage("personnel")}
+                className="glass rounded-2xl p-6 hover:scale-105 transition-all text-left group"
+              >
+                <i className="fas fa-user-plus text-3xl text-accent mb-3 group-hover:scale-110 transition-transform"></i>
+                <h4 className="font-bold text-lg mb-1">Aggiungi Personale</h4>
+                <p className="text-sm text-muted-foreground">Registra nuovo membro</p>
+              </button>
             </div>
           </div>
         );

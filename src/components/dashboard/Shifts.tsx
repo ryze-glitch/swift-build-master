@@ -70,40 +70,26 @@ export const Shifts = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Hero */}
-      <div className="glass-strong rounded-3xl p-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none"></div>
-        <div className="relative z-10 grid md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <h2 className="text-4xl font-extrabold">Gestione Turni</h2>
-            <p className="text-muted-foreground">
-              Pianificazione e monitoraggio dei turni operativi
-            </p>
-            <div className="flex gap-2">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-success/20 text-success text-sm font-bold uppercase tracking-wider">
-                <i className="fas fa-calendar-check"></i>
-                Turni Attivi: {stats.active}
-              </span>
-            </div>
-          </div>
-
-          <div className="glass rounded-2xl p-5 space-y-3">
-            <div className="text-sm font-semibold text-muted-foreground">Copertura Operativa</div>
-            <div className="h-2.5 bg-secondary/50 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-success to-primary transition-all duration-500"
-                style={{ width: `${(stats.active / stats.total) * 100}%` }}
-              ></div>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {stats.active} turni attivi su {stats.total} totali
-            </div>
-          </div>
+    <div className="space-y-6 px-4 py-6">
+      {/* Header with Actions */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-extrabold mb-2">Turni di Servizio</h1>
+          <p className="text-muted-foreground">Pianificazione e gestione operativa</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold hover:shadow-lg hover:shadow-primary/50 transition-all">
+            <i className="fas fa-plus mr-2"></i>
+            Nuovo Turno
+          </button>
+          <button className="px-6 py-3 rounded-xl glass font-bold hover:bg-secondary transition-all">
+            <i className="fas fa-crown mr-2 text-warning"></i>
+            AI Planner
+          </button>
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         {[
           { label: "Totali", value: stats.total, icon: "fa-list", color: "primary" },
@@ -111,85 +97,120 @@ export const Shifts = () => {
           { label: "Completati", value: stats.completed, icon: "fa-check-circle", color: "muted-foreground" },
           { label: "Programmati", value: stats.scheduled, icon: "fa-clock", color: "warning" },
         ].map((stat) => (
-          <div key={stat.label} className="glass rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-2">
+          <div key={stat.label} className="glass rounded-2xl p-6 hover:scale-105 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <i className={`fas ${stat.icon} text-3xl`} style={{ color: `hsl(var(--${stat.color}))` }}></i>
               <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{stat.label}</span>
-              <i className={`fas ${stat.icon} text-2xl`} style={{ color: `hsl(var(--${stat.color}))` }}></i>
             </div>
-            <div className="text-3xl font-extrabold">{stat.value}</div>
+            <div className="text-4xl font-extrabold">{stat.value}</div>
           </div>
         ))}
       </div>
 
+      {/* Premium AI Features Banner */}
+      <div className="glass-strong rounded-2xl p-6 border-2 border-warning/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-warning/10 to-transparent pointer-events-none"></div>
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-warning to-warning/80 flex items-center justify-center">
+              <i className="fas fa-robot text-2xl text-warning-foreground"></i>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-1">
+                Ottimizzazione AI dei Turni
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Lascia che l'AI organizzi automaticamente i turni in base a disponibilità e competenze
+              </p>
+            </div>
+          </div>
+          <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-warning to-warning/80 text-warning-foreground font-bold hover:shadow-lg hover:shadow-warning/50 transition-all whitespace-nowrap">
+            <i className="fas fa-crown mr-2"></i>
+            Sblocca Premium
+          </button>
+        </div>
+      </div>
+
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex gap-2">
         {[
           { id: "all", label: "Tutti", icon: "fa-list" },
           { id: "active", label: "In Corso", icon: "fa-circle" },
           { id: "completed", label: "Completati", icon: "fa-check-circle" },
           { id: "scheduled", label: "Programmati", icon: "fa-clock" },
-        ].map((f) => (
+        ].map((btn) => (
           <button
-            key={f.id}
-            onClick={() => setFilter(f.id as any)}
-            className={`px-5 py-2.5 rounded-xl font-semibold transition-all ${
-              filter === f.id
-                ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg"
-                : "glass hover:shadow-md"
+            key={btn.id}
+            onClick={() => setFilter(btn.id as typeof filter)}
+            className={`px-5 py-3 rounded-xl font-semibold transition-all ${
+              filter === btn.id
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/50"
+                : "glass hover:bg-secondary"
             }`}
           >
-            <i className={`fas ${f.icon} mr-2`}></i>
-            {f.label}
+            <i className={`fas ${btn.icon} mr-2`}></i>
+            {btn.label}
           </button>
         ))}
       </div>
 
       {/* Shifts Grid */}
-      <div className="grid gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredShifts.map((shift) => {
-          const status = statusConfig[shift.status];
+          const config = statusConfig[shift.status];
           return (
-            <Card key={shift.id} className="glass p-6 hover:shadow-xl transition-all">
+            <div key={shift.id} className="glass rounded-2xl p-6 hover:scale-105 transition-all group">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold mb-2">{shift.name}</h3>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-2">
-                      <i className="fas fa-clock"></i>
-                      {shift.start} - {shift.end}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <i className="fas fa-user-shield"></i>
-                      {shift.role}
-                    </span>
+                  <h3 className="text-xl font-bold mb-2">{shift.name}</h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <i className="fas fa-clock"></i>
+                    <span>{shift.start} - {shift.end}</span>
                   </div>
                 </div>
-                <span 
-                  className="px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2"
-                  style={{ 
-                    backgroundColor: `${status.color}20`, 
-                    color: status.color 
-                  }}
-                >
-                  <i className={`fas ${status.icon}`}></i>
-                  {status.label}
-                </span>
+                <div className="px-3 py-1.5 rounded-full text-xs font-bold"
+                     style={{ 
+                       backgroundColor: `${config.color}20`,
+                       color: config.color
+                     }}>
+                  <i className={`fas ${config.icon} mr-1`}></i>
+                  {config.label}
+                </div>
               </div>
 
-              <div className="glass rounded-xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold">Personale Assegnato</span>
-                  <span className="text-sm font-bold text-primary">{shift.personnel.length} unità</span>
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <i className="fas fa-briefcase text-muted-foreground"></i>
+                  <span className="font-semibold">{shift.role}</span>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {shift.personnel.map((p) => (
-                    <span key={p} className="px-3 py-1.5 rounded-lg bg-primary/15 text-primary text-sm font-semibold">
-                      {p}
-                    </span>
-                  ))}
+                
+                <div>
+                  <div className="text-xs text-muted-foreground mb-2 font-semibold">
+                    Personale ({shift.personnel.length})
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {shift.personnel.map((matricola) => (
+                      <span 
+                        key={matricola}
+                        className="px-3 py-1 rounded-lg bg-primary/20 text-primary text-xs font-bold"
+                      >
+                        {matricola}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </Card>
+
+              <div className="flex gap-2 pt-4 border-t border-border">
+                <button className="flex-1 px-4 py-2 rounded-xl bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all">
+                  <i className="fas fa-edit mr-2"></i>
+                  Modifica
+                </button>
+                <button className="px-4 py-2 rounded-xl bg-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground font-semibold transition-all">
+                  <i className="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
           );
         })}
       </div>
