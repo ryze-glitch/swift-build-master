@@ -26,7 +26,17 @@ const Auth = () => {
   }, [searchParams]);
 
   const handleDiscordLogin = () => {
-    const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID || "1387801645743869982";
+    const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
+    
+    if (!clientId) {
+      toast({
+        title: "Configurazione mancante",
+        description: "Discord Client ID non configurato. Contatta l'amministratore.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const redirectUri = `${window.location.origin}/auth`;
     const scope = "identify email";
 
