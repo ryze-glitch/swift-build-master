@@ -202,26 +202,26 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate session token
+    // Create a session for the user
     const { data: sessionData, error: sessionError } = 
-      await supabaseClient.auth.admin.generateLink({
-        type: 'magiclink',
-        email: authUser.email || email,
+      await supabaseClient.auth.admin.createSession({
+        user_id: authUser.id,
       });
 
     if (sessionError) {
-      logStep("Error generating session", { error: sessionError.message });
+      logStep("Error creating session", { error: sessionError.message });
       throw sessionError;
     }
 
-    logStep("Session generated successfully", { 
+    logStep("Session created successfully", { 
       userId: authUser.id,
       isNewUser 
     });
 
     return new Response(
       JSON.stringify({
-        access_token: sessionData.properties.hashed_token,
+        access_token: sessionData.access_token,
+        refresh_token: sessionData.refresh_token,
         user: {
           id: authUser.id,
           email: authUser.email,
