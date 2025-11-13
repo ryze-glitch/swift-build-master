@@ -76,14 +76,19 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                       )}
                     </div>
                     <span className={`
-                      whitespace-nowrap transition-all duration-300 text-sm
+                      flex items-center gap-2 whitespace-nowrap transition-all duration-300 text-sm
                       ${currentPage === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                     `}>
                       {item.label}
+                      {item.id === "announcements" && unreadCount > 0 && currentPage === item.id && (
+                        <span className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
                     </span>
                   </button>
                 </TooltipTrigger>
-                {item.id === "announcements" && unreadCount > 0 && (
+                {item.id === "announcements" && unreadCount > 0 && currentPage !== item.id && (
                   <TooltipContent side="bottom" className="bg-destructive text-destructive-foreground border-destructive">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-destructive-foreground rounded-full" />
