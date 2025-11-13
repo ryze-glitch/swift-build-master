@@ -73,7 +73,8 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in customer-portal", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // Return generic error message to client, log details server-side only
+    return new Response(JSON.stringify({ error: "Si è verificato un errore durante l'accesso al portale clienti." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

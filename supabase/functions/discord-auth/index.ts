@@ -6,23 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Whitelist of authorized Discord users from operatori_reparto.json
-const AUTHORIZED_USERS = {
-  // Dirigenza (Admin)
-  "_frascones_": { role: "admin", discordId: "817121576217870348", name: "Tonino Frasca" },
-  "dxrk.ryze": { role: "admin", discordId: "1387684968536477756", name: "Gabriel Martinelli" },
-  "0_matte_0": { role: "admin", discordId: "814941325916241930", name: "Matteo Rossi" },
-  "estensione": { role: "admin", discordId: "796078170176487454", name: "Simone Sottaceto" },
-  "fastweb.mvp": { role: "admin", discordId: "1249738701081153658", name: "Simone Brighella" },
-  "kekkozalone89": { role: "admin", discordId: "1062981395644948550", name: "Franco Costa" },
-  "ghostfede": { role: "admin", discordId: "1336335921968058399", name: "Francesco Vanni" },
-  
-  // Operatori (User)
-  "gavonet": { role: "user", discordId: "732317078559653909", name: "Diego Bianchi" },
-  "marcucx": { role: "user", discordId: "732317078559653909", name: "Marco Alessis" },
-  // Add more users as needed from the JSON
-};
-
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[DISCORD-AUTH] ${step}${detailsStr}`);
@@ -37,8 +20,16 @@ serve(async (req) => {
     logStep("Discord auth request started");
 
     const { code } = await req.json();
-    if (!code) {
-      throw new Error("No authorization code provided");
+    
+    // Input validation for Discord authorization code
+    if (!code || typeof code !== 'string' || code.length < 20 || code.length > 50) {
+      return new Response(
+        JSON.stringify({ error: "Richiesta non valida." }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
     }
 
     const clientId = Deno.env.get("DISCORD_CLIENT_ID");
@@ -89,9 +80,31 @@ serve(async (req) => {
     const discordId = discordUser.id;
     logStep("Discord user retrieved", { discordTag, discordId });
 
-    // Check if user is authorized
-    const authorizedUser = AUTHORIZED_USERS[discordTag as keyof typeof AUTHORIZED_USERS];
-    if (!authorizedUser) {
+    // Create Supabase client with service role to check authorization
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Check if user is authorized by querying user_roles table
+    const { data: roleData, error: authCheckError } = await supabaseClient
+      .from("user_roles")
+      .select("role, user_id")
+      .eq("discord_id", discordId)
+      .maybeSingle();
+
+    if (authCheckError) {
+      logStep("Error checking user authorization", { error: authCheckError.message });
+      return new Response(
+        JSON.stringify({ error: "Errore durante la verifica dell'autorizzazione." }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        }
+      );
+    }
+
+    if (!roleData) {
       logStep("Unauthorized user attempted login", { discordTag, discordId });
       return new Response(
         JSON.stringify({ error: "Non sei autorizzato ad accedere a questa applicazione." }),
@@ -102,44 +115,34 @@ serve(async (req) => {
       );
     }
 
-    logStep("User authorized", { discordTag, role: authorizedUser.role });
+    logStep("User authorized", { discordTag, role: roleData.role });
 
-    // Create Supabase client with service role
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
-
-    // Create or update user in Supabase Auth
-    const email = `${discordId}@discord.uopi.local`;
+    // Get or create user
+    const email = discordUser.email || `${discordId}@discord.local`;
     const avatarUrl = discordUser.avatar
       ? `https://cdn.discordapp.com/avatars/${discordId}/${discordUser.avatar}.png`
       : null;
 
-    // Check if user exists
-    const { data: existingUsers } = await supabaseClient.auth.admin.listUsers();
-    const existingUser = existingUsers?.users.find(
-      (u) => u.email === email || u.user_metadata?.discord_id === discordId
-    );
+    let authUser;
+    let isNewUser = false;
 
-    let userId: string;
+    // Check if user already exists
+    if (roleData.user_id) {
+      const { data: existingUser, error: getUserError } = await supabaseClient.auth.admin.getUserById(
+        roleData.user_id
+      );
 
-    if (existingUser) {
-      logStep("Updating existing user", { userId: existingUser.id });
-      userId = existingUser.id;
+      if (getUserError) {
+        logStep("Error getting existing user", { error: getUserError.message });
+      } else if (existingUser.user) {
+        authUser = existingUser.user;
+        logStep("Found existing user", { userId: authUser.id });
+      }
+    }
 
-      // Update user metadata
-      await supabaseClient.auth.admin.updateUserById(userId, {
-        user_metadata: {
-          discord_id: discordId,
-          discord_tag: discordTag,
-          discord_avatar_url: avatarUrl,
-          full_name: authorizedUser.name,
-        },
-      });
-    } else {
-      logStep("Creating new user");
+    // Create new user if needed
+    if (!authUser) {
+      isNewUser = true;
       const { data: newUser, error: createError } = await supabaseClient.auth.admin.createUser({
         email,
         email_confirm: true,
@@ -147,70 +150,84 @@ serve(async (req) => {
           discord_id: discordId,
           discord_tag: discordTag,
           discord_avatar_url: avatarUrl,
-          full_name: authorizedUser.name,
+          full_name: discordTag,
         },
       });
 
-      if (createError || !newUser.user) {
-        throw new Error(`Failed to create user: ${createError?.message}`);
+      if (createError) {
+        logStep("Error creating user", { error: createError.message });
+        throw createError;
       }
 
-      userId = newUser.user.id;
-      logStep("User created", { userId });
+      authUser = newUser.user;
+      logStep("Created new user", { userId: authUser.id });
+
+      // Link the user_id to the role record
+      const { error: linkError } = await supabaseClient
+        .from("user_roles")
+        .update({ user_id: authUser.id })
+        .eq("discord_id", discordId);
+
+      if (linkError) {
+        logStep("Error linking user to role", { error: linkError.message });
+      }
     }
 
-    // Update profile
+    // Update or create profile
     const { error: profileError } = await supabaseClient
       .from("profiles")
       .upsert({
-        id: userId,
-        email,
-        full_name: authorizedUser.name,
+        id: authUser.id,
         discord_id: discordId,
         discord_tag: discordTag,
         discord_avatar_url: avatarUrl,
+        email: email,
+        full_name: discordTag,
+        updated_at: new Date().toISOString(),
       });
 
     if (profileError) {
-      logStep("Profile update error", { error: profileError.message });
+      logStep("Error upserting profile", { error: profileError.message });
     }
 
-    // Update or insert role
-    const { error: roleError } = await supabaseClient
+    // Update user_roles discord_tag if it changed
+    const { error: updateTagError } = await supabaseClient
       .from("user_roles")
-      .upsert({
-        user_id: userId,
-        role: authorizedUser.role,
-        discord_id: discordId,
+      .update({
         discord_tag: discordTag,
-      });
+      })
+      .eq("user_id", authUser.id);
 
-    if (roleError) {
-      logStep("Role update error", { error: roleError.message });
+    if (updateTagError) {
+      logStep("Error updating user role", { error: updateTagError.message });
     }
 
     // Generate session token
-    const { data: sessionData, error: sessionError } =
+    const { data: sessionData, error: sessionError } = 
       await supabaseClient.auth.admin.generateLink({
-        type: "magiclink",
-        email,
+        type: 'magiclink',
+        email: authUser.email || email,
       });
 
-    if (sessionError || !sessionData) {
-      throw new Error(`Failed to generate session: ${sessionError?.message}`);
+    if (sessionError) {
+      logStep("Error generating session", { error: sessionError.message });
+      throw sessionError;
     }
 
-    logStep("Session generated successfully");
+    logStep("Session generated successfully", { 
+      userId: authUser.id,
+      isNewUser 
+    });
 
     return new Response(
       JSON.stringify({
         access_token: sessionData.properties.hashed_token,
         user: {
-          id: userId,
-          email,
-          discord_id: discordId,
+          id: authUser.id,
+          email: authUser.email,
           discord_tag: discordTag,
-          role: authorizedUser.role,
+          discord_id: discordId,
+          role: roleData.role,
         },
       }),
       {
@@ -221,7 +238,8 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // Return generic error message to client, log details server-side only
+    return new Response(JSON.stringify({ error: "Si è verificato un errore durante l'autenticazione." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

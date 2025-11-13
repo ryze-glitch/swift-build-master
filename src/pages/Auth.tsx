@@ -77,7 +77,7 @@ const Auth = () => {
 
       navigate("/dashboard");
     } catch (error) {
-      console.error("Discord auth error:", error);
+      // Error logged server-side
       toast({
         title: "Errore durante l'accesso",
         description: "Si è verificato un errore durante l'autenticazione con Discord",

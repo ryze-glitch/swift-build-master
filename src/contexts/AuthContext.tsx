@@ -40,14 +40,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       
       if (error) {
-        console.error("Error checking subscription:", error);
+        // Error logged server-side, silent fail for user
         return;
       }
 
       setSubscribed(data.subscribed || false);
       setSubscriptionEnd(data.subscription_end || null);
     } catch (error) {
-      console.error("Error checking subscription:", error);
+      // Error logged server-side, silent fail for user
     }
   };
 
