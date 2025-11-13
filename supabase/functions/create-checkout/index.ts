@@ -80,7 +80,8 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // Return generic error message to client, log details server-side only
+    return new Response(JSON.stringify({ error: "Si è verificato un errore durante la creazione della sessione di checkout." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
