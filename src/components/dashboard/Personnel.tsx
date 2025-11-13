@@ -1,26 +1,24 @@
 import { useState } from "react";
 import { PersonnelCard } from "./PersonnelCard";
+import operatoriData from "@/data/operatori_reparto.json";
 
 interface Person {
-  id: string;
+  id: number;
   name: string;
   role: "dirigenziale" | "amministrativo" | "operativo";
   qualification: string;
   matricola: string;
-  status: "available" | "busy";
-  avatar?: string;
+  status: string;
+  avatarUrl?: string;
+  discordTag: string;
+  roleName: string;
+  addedDate: string;
 }
 
-const mockPersonnel: Person[] = [
-  { id: "1", name: "Marco Rossi", role: "dirigenziale", qualification: "Comandante", matricola: "DIR-001", status: "available" },
-  { id: "2", name: "Laura Bianchi", role: "dirigenziale", qualification: "Vice Comandante", matricola: "DIR-002", status: "available" },
-  { id: "3", name: "Giuseppe Verdi", role: "amministrativo", qualification: "Responsabile Amministrativo", matricola: "AMM-001", status: "available" },
-  { id: "4", name: "Francesca Neri", role: "amministrativo", qualification: "Segretaria", matricola: "AMM-002", status: "busy" },
-  { id: "5", name: "Antonio Russo", role: "operativo", qualification: "Agente Senior", matricola: "OPE-001", status: "available" },
-  { id: "6", name: "Stefania Colombo", role: "operativo", qualification: "Agente", matricola: "OPE-002", status: "available" },
-  { id: "7", name: "Paolo Ferrari", role: "operativo", qualification: "Agente", matricola: "OPE-003", status: "busy" },
-  { id: "8", name: "Elena Ricci", role: "operativo", qualification: "Agente Junior", matricola: "OPE-004", status: "available" },
-];
+const mockPersonnel: Person[] = operatoriData.operators.map(op => ({
+  ...op,
+  role: op.role as "dirigenziale" | "amministrativo" | "operativo"
+}));
 
 export const Personnel = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -38,6 +36,12 @@ export const Personnel = () => {
     dirigenziale: mockPersonnel.filter(p => p.role === "dirigenziale").length,
     amministrativo: mockPersonnel.filter(p => p.role === "amministrativo").length,
     operativo: mockPersonnel.filter(p => p.role === "operativo").length,
+  };
+
+  const roleGroups = {
+    dirigenziale: mockPersonnel.filter(p => p.role === "dirigenziale"),
+    amministrativo: mockPersonnel.filter(p => p.role === "amministrativo"),
+    operativo: mockPersonnel.filter(p => p.role === "operativo"),
   };
 
   return (
@@ -126,12 +130,45 @@ export const Personnel = () => {
         </div>
       </div>
 
-      {/* Personnel Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filteredPersonnel.map((person) => (
-          <PersonnelCard key={person.id} person={person} />
-        ))}
-      </div>
+      {/* Personnel Grid by Role */}
+      {!activeFilter ? (
+        <div className="space-y-8">
+          {Object.entries(roleGroups).map(([role, people]) => {
+            const filtered = people.filter(person => 
+              person.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              person.matricola.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            
+            if (filtered.length === 0) return null;
+
+            const roleLabel = role === "dirigenziale" ? "🏅 Nucleo Dirigenziale" : 
+                            role === "amministrativo" ? "📋 Nucleo Amministrativo" : 
+                            "🛡️ Nucleo Operativo";
+
+            return (
+              <div key={role} className="space-y-4">
+                <div className="glass rounded-2xl p-4 border-l-4" style={{ borderLeftColor: `hsl(var(--role-${role}))` }}>
+                  <h3 className="text-2xl font-bold flex items-center gap-3">
+                    {roleLabel}
+                    <span className="text-lg text-muted-foreground">({filtered.length})</span>
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {filtered.map((person) => (
+                    <PersonnelCard key={person.id} person={person} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredPersonnel.map((person) => (
+            <PersonnelCard key={person.id} person={person} />
+          ))}
+        </div>
+      )}
 
       {filteredPersonnel.length === 0 && (
         <div className="text-center py-12 glass rounded-2xl">
