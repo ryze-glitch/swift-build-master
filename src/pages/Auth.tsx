@@ -44,6 +44,8 @@ const Auth = () => {
     setLoading(true);
     try {
       await signUp(signupEmail, signupPassword, signupFullName);
+      // Redirect to verify email page after successful signup
+      navigate("/verify-email");
     } catch (error) {
       console.error("Signup error:", error);
     } finally {
