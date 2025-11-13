@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     toast({
       title: "Registrazione completata",
-      description: "Accesso effettuato con successo",
+      description: "Controlla la tua email per verificare l'account",
     });
   };
 

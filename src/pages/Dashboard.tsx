@@ -23,6 +23,8 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user && !loading) {
       navigate("/auth");
+    } else if (user && !user.email_confirmed_at && !loading) {
+      navigate("/verify-email");
     }
   }, [user, loading, navigate]);
 
