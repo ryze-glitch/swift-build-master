@@ -13,17 +13,19 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    // Redirect to dashboard if user is already logged in
     if (user) {
-      navigate("/dashboard");
+      console.log("User already logged in, redirecting to dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [user, navigate]);
 
   useEffect(() => {
     const code = searchParams.get("code");
-    if (code) {
+    if (code && !user) {
       handleDiscordCallback(code);
     }
-  }, [searchParams]);
+  }, [searchParams, user]);
 
   const handleDiscordLogin = () => {
     const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
@@ -62,14 +64,8 @@ const Auth = () => {
         return;
       }
 
-      // Show success message
-      toast({
-        title: "Accesso autorizzato",
-        description: `Benvenuto ${data.user.discord_tag}!`,
-      });
-      
       // Redirect to magic link for automatic authentication
-      console.log("Redirecting to:", data.redirect_url);
+      console.log("Redirecting to magic link:", data.redirect_url);
       window.location.href = data.redirect_url;
     } catch (error) {
       // Error logged server-side
