@@ -62,10 +62,10 @@ const Auth = () => {
         return;
       }
 
-      // Sign in with the token received from Discord
+      // Sign in with the tokens received from Discord
       const { error: signInError } = await supabase.auth.setSession({
         access_token: data.access_token,
-        refresh_token: data.access_token, // Using same token for simplicity
+        refresh_token: data.refresh_token,
       });
 
       if (signInError) throw signInError;
