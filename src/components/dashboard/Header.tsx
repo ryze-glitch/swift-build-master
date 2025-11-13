@@ -1,4 +1,10 @@
 import { useState } from "react";
+import { useNotifications } from "@/contexts/NotificationContext";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits";
 
@@ -9,6 +15,7 @@ interface HeaderProps {
 
 export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const navItems = [
     { id: "dashboard" as Page, icon: "fa-chart-line", label: "Panoramica" },
@@ -49,26 +56,44 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           {/* Navigation */}
           <nav className="flex items-center gap-2 glass rounded-full px-3 py-2">
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onPageChange(item.id)}
-                className={`
-                  flex items-center gap-3 px-4 py-2.5 rounded-2xl font-semibold
-                  transition-all duration-300 group relative overflow-hidden
-                  ${currentPage === item.id 
-                    ? 'bg-gradient-to-r from-primary/90 to-primary w-40 text-foreground shadow-xl' 
-                    : 'w-14 text-muted-foreground hover:text-foreground hover:w-40 hover:bg-secondary'
-                  }
-                `}
-              >
-                <i className={`fas ${item.icon} text-lg flex-shrink-0`}></i>
-                <span className={`
-                  whitespace-nowrap transition-all duration-300 text-sm
-                  ${currentPage === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-                `}>
-                  {item.label}
-                </span>
-              </button>
+              <Tooltip key={item.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => onPageChange(item.id)}
+                    className={`
+                      flex items-center gap-3 px-4 py-2.5 rounded-2xl font-semibold
+                      transition-all duration-300 group relative overflow-hidden
+                      ${currentPage === item.id 
+                        ? 'bg-gradient-to-r from-primary/90 to-primary w-40 text-foreground shadow-xl' 
+                        : 'w-14 text-muted-foreground hover:text-foreground hover:w-40 hover:bg-secondary'
+                      }
+                    `}
+                  >
+                    <div className="relative">
+                      <i className={`fas ${item.icon} text-lg flex-shrink-0`}></i>
+                      {item.id === "announcements" && unreadCount > 0 && (
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                      )}
+                    </div>
+                    <span className={`
+                      whitespace-nowrap transition-all duration-300 text-sm
+                      ${currentPage === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                    `}>
+                      {item.label}
+                    </span>
+                  </button>
+                </TooltipTrigger>
+                {item.id === "announcements" && unreadCount > 0 && (
+                  <TooltipContent side="bottom" className="bg-destructive text-destructive-foreground border-destructive">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-destructive-foreground rounded-full" />
+                      <span className="font-semibold">
+                        {unreadCount > 9 ? "9+" : unreadCount} {unreadCount === 1 ? "notifica" : "notifiche"}
+                      </span>
+                    </div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
             ))}
           </nav>
 

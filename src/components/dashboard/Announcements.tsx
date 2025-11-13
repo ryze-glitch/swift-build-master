@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { Card } from "@/components/ui/card";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 interface TrainingVote {
   userId: string;
@@ -77,11 +78,22 @@ export const Announcements = () => {
   const [announcements, setAnnouncements] = useState(mockAnnouncements);
   const [isComposing, setIsComposing] = useState(false);
   const [newAnnouncementType, setNewAnnouncementType] = useState<"normal" | "training">("normal");
+  const { markAsRead } = useNotifications();
+
+  // Marca tutti i comunicati come letti quando la pagina viene visualizzata
+  useEffect(() => {
+    announcements.forEach(announcement => {
+      if (!announcement.acknowledged) {
+        markAsRead(announcement.id);
+      }
+    });
+  }, []);
 
   const handleAcknowledge = (id: string) => {
     setAnnouncements(prev => 
       prev.map(a => a.id === id ? { ...a, acknowledged: true } : a)
     );
+    markAsRead(id);
   };
 
   const handleTrainingVote = (announcementId: string, choice: "presenza" | "assenza") => {
