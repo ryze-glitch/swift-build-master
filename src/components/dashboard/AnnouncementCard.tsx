@@ -6,7 +6,7 @@ interface Announcement {
   content: string;
   author: string;
   date: string;
-  category: "urgent" | "info" | "update";
+  category: "urgent" | "info" | "update" | "training";
   acknowledged: boolean;
   tags: string[];
 }
@@ -20,6 +20,7 @@ const categoryConfig = {
   urgent: { color: "hsl(var(--danger))", icon: "fa-exclamation-triangle", label: "Urgente" },
   info: { color: "hsl(var(--primary))", icon: "fa-info-circle", label: "Info" },
   update: { color: "hsl(var(--accent))", icon: "fa-sync-alt", label: "Aggiornamento" },
+  training: { color: "hsl(var(--warning))", icon: "fa-graduation-cap", label: "Addestramento" },
 };
 
 export const AnnouncementCard = ({ announcement, onAcknowledge }: AnnouncementCardProps) => {
