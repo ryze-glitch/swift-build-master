@@ -16,7 +16,6 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <BrowserRouter basename="/swift-build-master">
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
