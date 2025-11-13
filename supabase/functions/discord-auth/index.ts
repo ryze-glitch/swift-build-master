@@ -202,7 +202,7 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Sign in the user using admin API
+    // Generate magic link for automatic sign-in
     const { data: signInData, error: signInError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: authUser.email || email,
@@ -218,11 +218,10 @@ serve(async (req) => {
       isNewUser 
     });
 
-    // Return the hashed token which the client will use with verifyOtp
+    // Return the magic link URL for automatic redirect
     return new Response(
       JSON.stringify({
-        hashed_token: signInData.properties.hashed_token,
-        email: authUser.email || email,
+        redirect_url: signInData.properties.action_link,
         user: {
           id: authUser.id,
           email: authUser.email,

@@ -62,21 +62,8 @@ const Auth = () => {
         return;
       }
 
-      // Verify the hashed token to create a session
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: data.email,
-        token: data.hashed_token,
-        type: 'email'
-      });
-
-      if (verifyError) throw verifyError;
-
-      toast({
-        title: "Accesso effettuato",
-        description: `Benvenuto ${data.user.discord_tag}!`,
-      });
-
-      navigate("/dashboard");
+      // Redirect to magic link for automatic authentication
+      window.location.href = data.redirect_url;
     } catch (error) {
       // Error logged server-side
       toast({
