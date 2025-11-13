@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/dashboard/Header";
 import { Personnel } from "@/components/dashboard/Personnel";
 import { Announcements } from "@/components/dashboard/Announcements";
@@ -6,11 +8,38 @@ import { Status } from "@/components/dashboard/Status";
 import { Shifts } from "@/components/dashboard/Shifts";
 import { Credits } from "@/components/dashboard/Credits";
 import { NotificationSystem } from "@/components/dashboard/NotificationSystem";
+import { PremiumModal } from "@/components/dashboard/PremiumModal";
+import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, loading, subscribed } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!user && !loading) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Caricamento...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const renderContent = () => {
     switch (currentPage) {
@@ -80,19 +109,47 @@ const Dashboard = () => {
               {/* Premium Features Sidebar */}
               <div className="space-y-4">
                 {/* Premium Badge */}
-                <div className="glass-strong rounded-3xl p-6 relative overflow-hidden border-2 border-warning/50">
-                  <div className="absolute inset-0 bg-gradient-to-br from-warning/20 via-transparent to-warning/10 pointer-events-none"></div>
+                <div className={`glass-strong rounded-3xl p-6 relative overflow-hidden border-2 ${
+                  subscribed ? 'border-success/50' : 'border-warning/50'
+                }`}>
+                  <div className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${
+                    subscribed ? 'from-success/20 via-transparent to-success/10' : 'from-warning/20 via-transparent to-warning/10'
+                  }`}></div>
                   <div className="relative z-10 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-warning to-warning/50 rounded-2xl flex items-center justify-center">
-                      <i className="fas fa-crown text-3xl text-warning-foreground"></i>
+                    <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+                      subscribed ? 'bg-gradient-to-br from-success to-success/50' : 'bg-gradient-to-br from-warning to-warning/50'
+                    }`}>
+                      <i className={`fas ${subscribed ? 'fa-check-circle' : 'fa-crown'} text-3xl ${
+                        subscribed ? 'text-success-foreground' : 'text-warning-foreground'
+                      }`}></i>
                     </div>
-                    <h3 className="text-2xl font-extrabold mb-2">Premium</h3>
+                    <h3 className="text-2xl font-extrabold mb-2">
+                      {subscribed ? 'Piano Premium Attivo' : 'Premium'}
+                    </h3>
                     <p className="text-sm text-muted-foreground mb-6">
-                      Sblocca funzionalità avanzate
+                      {subscribed ? 'Accesso completo alle funzionalità' : 'Sblocca funzionalità avanzate'}
                     </p>
-                    <button className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-warning to-warning/80 text-warning-foreground font-bold hover:shadow-lg hover:shadow-warning/50 transition-all">
-                      Passa a Premium
-                    </button>
+                    <Button 
+                      onClick={() => setPremiumModalOpen(true)}
+                      className={`w-full ${
+                        subscribed 
+                          ? 'bg-gradient-to-r from-success to-success/80 hover:shadow-lg hover:shadow-success/50' 
+                          : 'bg-gradient-to-r from-warning to-warning/80 hover:shadow-lg hover:shadow-warning/50'
+                      }`}
+                      size="lg"
+                    >
+                      {subscribed ? (
+                        <>
+                          <i className="fas fa-cog mr-2"></i>
+                          Gestisci
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-5 w-5" />
+                          Passa a Premium
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
 
@@ -230,6 +287,7 @@ const Dashboard = () => {
       </main>
 
       <NotificationSystem />
+      <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
     </div>
   );
 };
