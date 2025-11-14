@@ -20,13 +20,16 @@ const Auth = () => {
       window.location.replace("/dashboard");
     }
   }, [user]);
+  
   useEffect(() => {
     const code = searchParams.get("code");
     if (code && !user) {
-      // Execute callback immediately
+      // Clear the URL immediately to prevent reuse
+      window.history.replaceState({}, document.title, "/auth");
+      // Execute callback
       handleDiscordCallback(code);
     }
-  }, [searchParams]);
+  }, [searchParams, user]);
   const handleDiscordLogin = () => {
     const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
     if (!clientId) {
