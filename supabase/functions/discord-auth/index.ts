@@ -58,7 +58,22 @@ serve(async (req) => {
     });
 
     if (!tokenResponse.ok) {
-      throw new Error("Failed to exchange code for token");
+      const errorText = await tokenResponse.text();
+      logStep("Discord token exchange failed", { 
+        status: tokenResponse.status, 
+        statusText: tokenResponse.statusText,
+        error: errorText,
+        redirectUri: redirectUri
+      });
+      return new Response(
+        JSON.stringify({ 
+          error: "Errore nell'autenticazione con Discord. Riprova o contatta l'amministratore." 
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        }
+      );
     }
 
     const tokenData = await tokenResponse.json();
