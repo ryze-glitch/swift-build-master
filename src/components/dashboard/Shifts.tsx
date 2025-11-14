@@ -1,219 +1,371 @@
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Plus, Calendar, Users, CheckCircle2, Clock, Sparkles, Crown, Pencil, Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ShiftForm } from "./ShiftForm";
+
+interface Person {
+  id: string;
+  name: string;
+  role: string;
+}
 
 interface Shift {
   id: string;
   name: string;
-  start: string;
-  end: string;
+  start_time: string;
+  end_time: string;
   role: string;
-  status: "active" | "completed" | "scheduled";
-  personnel: string[];
+  status: "scheduled" | "active" | "completed";
+  assigned_personnel: Person[];
+  created_by: string;
 }
 
-const mockShifts: Shift[] = [
-  {
-    id: "1",
-    name: "Pattuglia Notturna A",
-    start: "22:00",
-    end: "06:00",
-    role: "Operativo",
-    status: "active",
-    personnel: ["M.001", "M.005", "M.012"]
-  },
-  {
-    id: "2",
-    name: "Pattuglia Diurna B",
-    start: "06:00",
-    end: "14:00",
-    role: "Operativo",
-    status: "completed",
-    personnel: ["M.002", "M.007"]
-  },
-  {
-    id: "3",
-    name: "Sorveglianza Serale",
-    start: "14:00",
-    end: "22:00",
-    role: "Operativo",
-    status: "active",
-    personnel: ["M.003", "M.009", "M.015"]
-  },
-  {
-    id: "4",
-    name: "Coordinamento Centrale",
-    start: "08:00",
-    end: "20:00",
-    role: "Amministrativo",
-    status: "active",
-    personnel: ["M.004", "M.010"]
-  },
-];
-
 const statusConfig = {
-  active: { color: "hsl(var(--success))", icon: "fa-circle", label: "In Corso" },
-  completed: { color: "hsl(var(--muted-foreground))", icon: "fa-check-circle", label: "Completato" },
-  scheduled: { color: "hsl(var(--warning))", icon: "fa-clock", label: "Programmato" },
+  active: { 
+    color: "bg-success/10 text-success", 
+    icon: <CheckCircle2 className="h-3 w-3" />, 
+    label: "In Corso" 
+  },
+  completed: { 
+    color: "bg-muted text-muted-foreground", 
+    icon: <CheckCircle2 className="h-3 w-3" />, 
+    label: "Completato" 
+  },
+  scheduled: { 
+    color: "bg-warning/10 text-warning", 
+    icon: <Clock className="h-3 w-3" />, 
+    label: "Programmato" 
+  },
 };
 
 export const Shifts = () => {
-  const [shifts] = useState(mockShifts);
+  const { user } = useAuth();
+  const [shifts, setShifts] = useState<Shift[]>([]);
   const [filter, setFilter] = useState<"all" | "active" | "completed" | "scheduled">("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingShift, setEditingShift] = useState<Shift | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const filteredShifts = filter === "all" ? shifts : shifts.filter(s => s.status === filter);
+  useEffect(() => {
+    loadShifts();
+  }, []);
+
+  const loadShifts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("shifts")
+        .select("*")
+        .order("start_time", { ascending: true });
+
+      if (error) throw error;
+
+      setShifts(
+        data.map((shift) => ({
+          id: shift.id,
+          name: shift.name,
+          start_time: shift.start_time,
+          end_time: shift.end_time,
+          role: shift.role,
+          status: shift.status as "scheduled" | "active" | "completed",
+          assigned_personnel: (shift.assigned_personnel as any) || [],
+          created_by: shift.created_by,
+        }))
+      );
+    } catch (error) {
+      console.error("Error loading shifts:", error);
+      toast.error("Errore nel caricamento dei turni");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateShift = async (shiftData: {
+    name: string;
+    start_time: string;
+    end_time: string;
+    role: string;
+    status: string;
+    assigned_personnel: Person[];
+  }) => {
+    try {
+      const { error } = await supabase.from("shifts").insert({
+        name: shiftData.name,
+        start_time: shiftData.start_time,
+        end_time: shiftData.end_time,
+        role: shiftData.role,
+        status: shiftData.status,
+        assigned_personnel: shiftData.assigned_personnel as any,
+        created_by: user?.id,
+      });
+
+      if (error) throw error;
+
+      toast.success("Turno creato con successo");
+      setIsDialogOpen(false);
+      loadShifts();
+    } catch (error) {
+      console.error("Error creating shift:", error);
+      toast.error("Errore nella creazione del turno");
+    }
+  };
+
+  const handleUpdateShift = async (shiftData: {
+    name: string;
+    start_time: string;
+    end_time: string;
+    role: string;
+    status: string;
+    assigned_personnel: Person[];
+  }) => {
+    if (!editingShift) return;
+
+    try {
+      const { error } = await supabase
+        .from("shifts")
+        .update({
+          name: shiftData.name,
+          start_time: shiftData.start_time,
+          end_time: shiftData.end_time,
+          role: shiftData.role,
+          status: shiftData.status,
+          assigned_personnel: shiftData.assigned_personnel as any,
+        })
+        .eq("id", editingShift.id);
+
+      if (error) throw error;
+
+      toast.success("Turno aggiornato con successo");
+      setIsDialogOpen(false);
+      setEditingShift(null);
+      loadShifts();
+    } catch (error) {
+      console.error("Error updating shift:", error);
+      toast.error("Errore nell'aggiornamento del turno");
+    }
+  };
+
+  const handleDeleteShift = async (shiftId: string) => {
+    try {
+      const { error } = await supabase.from("shifts").delete().eq("id", shiftId);
+
+      if (error) throw error;
+
+      toast.success("Turno eliminato con successo");
+      loadShifts();
+    } catch (error) {
+      console.error("Error deleting shift:", error);
+      toast.error("Errore nell'eliminazione del turno");
+    }
+  };
+
+  const openCreateDialog = () => {
+    setEditingShift(null);
+    setIsDialogOpen(true);
+  };
+
+  const openEditDialog = (shift: Shift) => {
+    setEditingShift(shift);
+    setIsDialogOpen(true);
+  };
+
+  const filteredShifts =
+    filter === "all" ? shifts : shifts.filter((shift) => shift.status === filter);
 
   const stats = {
     total: shifts.length,
-    active: shifts.filter(s => s.status === "active").length,
-    completed: shifts.filter(s => s.status === "completed").length,
-    scheduled: shifts.filter(s => s.status === "scheduled").length,
+    active: shifts.filter((s) => s.status === "active").length,
+    completed: shifts.filter((s) => s.status === "completed").length,
+    scheduled: shifts.filter((s) => s.status === "scheduled").length,
   };
 
+  if (loading) {
+    return <div className="p-6">Caricamento...</div>;
+  }
+
   return (
-    <div className="space-y-6 px-4 py-6">
-      {/* Header with Actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-extrabold mb-2">Turni di Servizio</h1>
-          <p className="text-muted-foreground">Pianificazione e gestione operativa</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold hover:shadow-lg hover:shadow-primary/50 transition-all">
-            <i className="fas fa-plus mr-2"></i>
-            Nuovo Turno
-          </button>
-          <button className="px-6 py-3 rounded-xl glass font-bold hover:bg-secondary transition-all">
-            <i className="fas fa-crown mr-2 text-warning"></i>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">Turni di Servizio</h2>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Sparkles className="mr-2 h-4 w-4" />
             AI Planner
-          </button>
+          </Button>
+          <Button onClick={openCreateDialog}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuovo Turno
+          </Button>
         </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        {[
-          { label: "Totali", value: stats.total, icon: "fa-list", color: "primary" },
-          { label: "In Corso", value: stats.active, icon: "fa-circle", color: "success" },
-          { label: "Completati", value: stats.completed, icon: "fa-check-circle", color: "muted-foreground" },
-          { label: "Programmati", value: stats.scheduled, icon: "fa-clock", color: "warning" },
-        ].map((stat) => (
-          <div key={stat.label} className="glass rounded-2xl p-6 hover:scale-105 transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <i className={`fas ${stat.icon} text-3xl`} style={{ color: `hsl(var(--${stat.color}))` }}></i>
-              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{stat.label}</span>
-            </div>
-            <div className="text-4xl font-extrabold">{stat.value}</div>
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-card rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <Users className="h-5 w-5 text-primary" />
+            <span className="text-2xl font-bold">{stats.total}</span>
           </div>
-        ))}
+          <p className="text-sm text-muted-foreground mt-2">Totali</p>
+        </div>
+        <div className="bg-card rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <Clock className="h-5 w-5 text-success" />
+            <span className="text-2xl font-bold">{stats.active}</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">In Corso</p>
+        </div>
+        <div className="bg-card rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
+            <span className="text-2xl font-bold">{stats.completed}</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">Completati</p>
+        </div>
+        <div className="bg-card rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <Calendar className="h-5 w-5 text-warning" />
+            <span className="text-2xl font-bold">{stats.scheduled}</span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">Programmati</p>
+        </div>
       </div>
 
-      {/* Premium AI Features Banner */}
-      <div className="glass-strong rounded-2xl p-6 border-2 border-warning/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-warning/10 to-transparent pointer-events-none"></div>
-        <div className="relative z-10 flex items-center justify-between">
+      {/* Premium AI Banner */}
+      <div className="bg-gradient-to-r from-warning/10 to-transparent border border-warning/30 rounded-lg p-6">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-warning to-warning/80 flex items-center justify-center">
-              <i className="fas fa-robot text-2xl text-warning-foreground"></i>
+            <div className="h-12 w-12 rounded-lg bg-warning/20 flex items-center justify-center">
+              <Sparkles className="h-6 w-6 text-warning" />
             </div>
             <div>
-              <h3 className="text-xl font-bold mb-1">
-                Ottimizzazione AI dei Turni
-              </h3>
+              <h3 className="font-semibold text-lg">Ottimizzazione AI dei Turni</h3>
               <p className="text-sm text-muted-foreground">
-                Lascia che l'AI organizzi automaticamente i turni in base a disponibilità e competenze
+                Lascia che l'AI organizzi automaticamente i turni
               </p>
             </div>
           </div>
-          <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-warning to-warning/80 text-warning-foreground font-bold hover:shadow-lg hover:shadow-warning/50 transition-all whitespace-nowrap">
-            <i className="fas fa-crown mr-2"></i>
+          <Button variant="outline" className="gap-2">
+            <Crown className="h-4 w-4" />
             Sblocca Premium
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex gap-2">
-        {[
-          { id: "all", label: "Tutti", icon: "fa-list" },
-          { id: "active", label: "In Corso", icon: "fa-circle" },
-          { id: "completed", label: "Completati", icon: "fa-check-circle" },
-          { id: "scheduled", label: "Programmati", icon: "fa-clock" },
-        ].map((btn) => (
-          <button
-            key={btn.id}
-            onClick={() => setFilter(btn.id as typeof filter)}
-            className={`px-5 py-3 rounded-xl font-semibold transition-all ${
-              filter === btn.id
-                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/50"
-                : "glass hover:bg-secondary"
-            }`}
+        {(["all", "active", "completed", "scheduled"] as const).map((status) => (
+          <Button
+            key={status}
+            variant={filter === status ? "default" : "outline"}
+            onClick={() => setFilter(status)}
+            size="sm"
           >
-            <i className={`fas ${btn.icon} mr-2`}></i>
-            {btn.label}
-          </button>
+            {status === "all" ? "Tutti" : statusConfig[status].label}
+          </Button>
         ))}
       </div>
 
       {/* Shifts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredShifts.map((shift) => {
-          const config = statusConfig[shift.status];
-          return (
-            <div key={shift.id} className="glass rounded-2xl p-6 hover:scale-105 transition-all group">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-2">{shift.name}</h3>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <i className="fas fa-clock"></i>
-                    <span>{shift.start} - {shift.end}</span>
-                  </div>
-                </div>
-                <div className="px-3 py-1.5 rounded-full text-xs font-bold"
-                     style={{ 
-                       backgroundColor: `${config.color}20`,
-                       color: config.color
-                     }}>
-                  <i className={`fas ${config.icon} mr-1`}></i>
-                  {config.label}
-                </div>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <i className="fas fa-briefcase text-muted-foreground"></i>
-                  <span className="font-semibold">{shift.role}</span>
-                </div>
-                
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredShifts.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-muted-foreground">
+            Nessun turno trovato
+          </div>
+        ) : (
+          filteredShifts.map((shift) => (
+            <div
+              key={shift.id}
+              className="bg-card rounded-lg border p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between mb-3">
                 <div>
-                  <div className="text-xs text-muted-foreground mb-2 font-semibold">
-                    Personale ({shift.personnel.length})
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {shift.personnel.map((matricola) => (
-                      <span 
-                        key={matricola}
-                        className="px-3 py-1 rounded-lg bg-primary/20 text-primary text-xs font-bold"
-                      >
-                        {matricola}
-                      </span>
-                    ))}
-                  </div>
+                  <h3 className="font-semibold text-lg">{shift.name}</h3>
+                  <p className="text-sm text-muted-foreground">{shift.role}</p>
+                </div>
+                <div
+                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                    statusConfig[shift.status].color
+                  }`}
+                >
+                  {statusConfig[shift.status].icon}
+                  {statusConfig[shift.status].label}
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-4 border-t border-border">
-                <button className="flex-1 px-4 py-2 rounded-xl bg-primary/20 text-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all">
-                  <i className="fas fa-edit mr-2"></i>
+              <div className="space-y-2 text-sm mb-4">
+                <div className="flex items-center text-muted-foreground">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span>
+                    {new Date(shift.start_time).toLocaleString("it-IT")} -{" "}
+                    {new Date(shift.end_time).toLocaleString("it-IT")}
+                  </span>
+                </div>
+                <div className="flex items-center text-muted-foreground">
+                  <Users className="h-4 w-4 mr-2" />
+                  <span>{shift.assigned_personnel.length} operatori assegnati</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => openEditDialog(shift)}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
                   Modifica
-                </button>
-                <button className="px-4 py-2 rounded-xl bg-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground font-semibold transition-all">
-                  <i className="fas fa-trash"></i>
-                </button>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteShift(shift.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-          );
-        })}
+          ))
+        )}
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingShift ? "Modifica Turno" : "Nuovo Turno"}
+            </DialogTitle>
+          </DialogHeader>
+          <ShiftForm
+            onSubmit={editingShift ? handleUpdateShift : handleCreateShift}
+            onCancel={() => {
+              setIsDialogOpen(false);
+              setEditingShift(null);
+            }}
+            initialData={
+              editingShift
+                ? {
+                    name: editingShift.name,
+                    start_time: editingShift.start_time,
+                    end_time: editingShift.end_time,
+                    role: editingShift.role,
+                    status: editingShift.status,
+                    assigned_personnel: editingShift.assigned_personnel,
+                  }
+                : undefined
+            }
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

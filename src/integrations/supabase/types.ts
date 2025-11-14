@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      shifts: {
+        Row: {
+          assigned_personnel: Json | null
+          created_at: string
+          created_by: string | null
+          end_time: string
+          id: string
+          name: string
+          role: string
+          start_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_personnel?: Json | null
+          created_at?: string
+          created_by?: string | null
+          end_time: string
+          id?: string
+          name: string
+          role: string
+          start_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_personnel?: Json | null
+          created_at?: string
+          created_by?: string | null
+          end_time?: string
+          id?: string
+          name?: string
+          role?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
