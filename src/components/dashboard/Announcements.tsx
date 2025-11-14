@@ -253,9 +253,9 @@ export const Announcements = () => {
     
     // Cerca tra tutti gli operatori nel JSON
     for (const [role, operators] of Object.entries(operatoriData)) {
-      const operator = (operators as any[]).find(op => op.discord_tag === email);
+      const operator = (operators as any[]).find(op => op.discordTag === email);
       if (operator) {
-        return operator.nome;
+        return operator.name;
       }
     }
     
