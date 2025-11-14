@@ -66,7 +66,7 @@ serve(async (req) => {
           quantity: 1,
         },
       ],
-      mode: "subscription",
+      mode: "payment",
       success_url: `${req.headers.get("origin")}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/dashboard`,
     });
