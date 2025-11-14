@@ -102,8 +102,8 @@ export const PremiumModal = ({ open, onOpenChange }: PremiumModalProps) => {
         <div className="space-y-6 py-4">
           {!subscribed && (
             <div className="glass rounded-2xl p-6 text-center">
-              <div className="text-5xl font-bold mb-2">€29<span className="text-2xl text-muted-foreground">/mese</span></div>
-              <p className="text-muted-foreground">Cancella quando vuoi</p>
+              <div className="text-5xl font-bold mb-2">€0.50<span className="text-2xl text-muted-foreground"> una tantum</span></div>
+              <p className="text-muted-foreground">Pagamento sicuro gestito da Stripe</p>
             </div>
           )}
 
