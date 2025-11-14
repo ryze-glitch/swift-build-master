@@ -251,12 +251,16 @@ export const Announcements = () => {
   const getUserDisplayName = (email: string | null): string => {
     if (!email) return "Anonimo";
     
-    // Cerca tra tutti gli operatori nel JSON
-    for (const [role, operators] of Object.entries(operatoriData)) {
-      const operator = (operators as any[]).find(op => op.discordTag === email);
-      if (operator) {
-        return operator.name;
+    try {
+      // Il JSON ha una struttura con "operators" come array principale
+      if (operatoriData && operatoriData.operators) {
+        const operator = operatoriData.operators.find((op: any) => op.discordTag === email);
+        if (operator) {
+          return operator.name;
+        }
       }
+    } catch (error) {
+      console.error("Error finding operator:", error);
     }
     
     return email;
