@@ -30,6 +30,7 @@ export const Announcements = () => {
   const [isComposing, setIsComposing] = useState(false);
   const [newAnnouncementType, setNewAnnouncementType] = useState<"normal" | "training">("normal");
   const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({ title: "", category: "info", content: "" });
   const { markAsRead } = useNotifications();
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
@@ -185,6 +186,67 @@ export const Announcements = () => {
     return vote ? vote.choice : null;
   };
 
+  const handlePublish = async () => {
+    if (!user) {
+      toast.error("Devi essere autenticato");
+      return;
+    }
+
+    if (!formData.title || !formData.content) {
+      toast.error("Compila tutti i campi");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("announcements")
+      .insert({
+        title: formData.title,
+        content: formData.content,
+        category: formData.category,
+        type: newAnnouncementType === "training" ? "training" : "standard",
+        author: user.email || "Anonimo",
+        created_by: user.id,
+      });
+
+    if (error) {
+      console.error("Error publishing announcement:", error);
+      toast.error("Errore nella pubblicazione");
+    } else {
+      toast.success("Comunicazione pubblicata con successo");
+      setIsComposing(false);
+      setFormData({ title: "", category: "info", content: "" });
+      setNewAnnouncementType("normal");
+      
+      // Reload announcements
+      const { data } = await supabase
+        .from("announcements")
+        .select("*")
+        .order("date", { ascending: false });
+      
+      if (data) {
+        const formattedAnnouncements: Announcement[] = data.map(a => ({
+          id: a.id,
+          title: a.title,
+          content: a.content,
+          author: a.author,
+          date: a.date,
+          category: a.category as any,
+          acknowledged: Array.isArray(a.acknowledged_by) && user ? a.acknowledged_by.includes(user.id) : false,
+          tags: [],
+          isTraining: a.type === "training",
+          trainingVotes: a.type === "training" && a.training_votes ? (() => {
+            const votes = a.training_votes as any;
+            return [
+              ...(Array.isArray(votes.presenza) ? votes.presenza : []).map((userId: string) => ({ userId, choice: "presenza" as const })),
+              ...(Array.isArray(votes.assenza) ? votes.assenza : []).map((userId: string) => ({ userId, choice: "assenza" as const }))
+            ];
+          })() : undefined
+        }));
+        setAnnouncements(formattedAnnouncements);
+      }
+    }
+  };
+
   const stats = {
     total: announcements.length,
     unread: announcements.filter(a => !a.acknowledged).length,
@@ -293,11 +355,20 @@ export const Announcements = () => {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Titolo</label>
-              <input type="text" className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+              <input 
+                type="text" 
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" 
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Categoria</label>
-              <select className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none">
+              <select 
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+              >
                 <option value="info">Info</option>
                 <option value="urgent">Urgente</option>
                 <option value="update">Aggiornamento</option>
@@ -307,13 +378,21 @@ export const Announcements = () => {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Contenuto</label>
-            <textarea rows={4} className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-none"></textarea>
+            <textarea 
+              rows={4} 
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+            />
           </div>
           <div className="flex gap-3 justify-end">
             <button onClick={() => setIsComposing(false)} className="px-5 py-2.5 rounded-xl bg-secondary font-semibold hover:bg-secondary/70 transition-colors">
               Annulla
             </button>
-            <button className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white font-semibold shadow-lg hover:shadow-xl transition-all">
+            <button 
+              onClick={handlePublish}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
               <i className="fas fa-paper-plane mr-2"></i>
               Pubblica
             </button>
