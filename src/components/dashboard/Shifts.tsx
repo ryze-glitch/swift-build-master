@@ -11,6 +11,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ShiftForm } from "./ShiftForm";
+import { ModuleSelector } from "./ModuleSelector";
+import { PatrolActivationForm } from "./PatrolActivationForm";
+import { PatrolDeactivationForm } from "./PatrolDeactivationForm";
+import { HeistActivationForm } from "./HeistActivationForm";
+import { HeistDeactivationForm } from "./HeistDeactivationForm";
 
 interface Person {
   id: string;
@@ -54,6 +59,7 @@ export const Shifts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedModuleType, setSelectedModuleType] = useState<string | null>(null);
 
   useEffect(() => {
     loadShifts();
@@ -88,34 +94,49 @@ export const Shifts = () => {
     }
   };
 
-  const handleCreateShift = async (shiftData: {
-    name: string;
-    start_time: string;
-    end_time: string;
-    role: string;
-    status: string;
-    assigned_personnel: Person[];
-  }) => {
+  const handleCreateShift = async (moduleData: any) => {
     try {
       const { error } = await supabase.from("shifts").insert({
-        name: shiftData.name,
-        start_time: shiftData.start_time,
-        end_time: shiftData.end_time,
-        role: shiftData.role,
-        status: shiftData.status,
-        assigned_personnel: shiftData.assigned_personnel as any,
+        name: getModuleName(moduleData.module_type),
+        start_time: new Date().toISOString(),
+        end_time: new Date().toISOString(),
+        role: moduleData.module_type,
+        status: "active",
+        module_type: moduleData.module_type,
+        managed_by: moduleData.managed_by || null,
+        intervention_type: moduleData.intervention_type || null,
+        vehicle_used: moduleData.vehicle_used || null,
+        operators_out: moduleData.operators_out || null,
+        operators_back: moduleData.operators_back || null,
+        coordinator: moduleData.coordinator || null,
+        negotiator: moduleData.negotiator || null,
+        operators_involved: moduleData.operators_involved || null,
+        activation_time: moduleData.activation_time || null,
+        deactivation_time: moduleData.deactivation_time || null,
+        assigned_personnel: [],
         created_by: user?.id,
       });
 
       if (error) throw error;
 
-      toast.success("Turno creato con successo");
+      toast.success("Modulo creato con successo");
       setIsDialogOpen(false);
+      setSelectedModuleType(null);
       loadShifts();
     } catch (error) {
       console.error("Error creating shift:", error);
-      toast.error("Errore nella creazione del turno");
+      toast.error("Errore nella creazione del modulo");
     }
+  };
+
+  const getModuleName = (moduleType: string): string => {
+    const names: Record<string, string> = {
+      patrol_activation: "🚓 Attivazione Pattugliamento",
+      patrol_deactivation: "🚓 Disattivazione Pattugliamento",
+      heist_activation: "💰 Attivazione Grandi Rapine",
+      heist_deactivation: "💰 Disattivazione Grandi Rapine",
+    };
+    return names[moduleType] || "Modulo Turno";
   };
 
   const handleUpdateShift = async (shiftData: {
@@ -169,7 +190,12 @@ export const Shifts = () => {
 
   const openCreateDialog = () => {
     setEditingShift(null);
+    setSelectedModuleType(null);
     setIsDialogOpen(true);
+  };
+
+  const handleModuleSelect = (moduleType: string) => {
+    setSelectedModuleType(moduleType);
   };
 
   const openEditDialog = (shift: Shift) => {
@@ -338,32 +364,85 @@ export const Shifts = () => {
         )}
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) setSelectedModuleType(null);
+      }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingShift ? "Modifica Turno" : "Nuovo Turno"}
+              {editingShift 
+                ? "Modifica Turno" 
+                : selectedModuleType 
+                ? getModuleName(selectedModuleType)
+                : "Seleziona Tipo di Modulo"}
             </DialogTitle>
           </DialogHeader>
-          <ShiftForm
-            onSubmit={editingShift ? handleUpdateShift : handleCreateShift}
-            onCancel={() => {
-              setIsDialogOpen(false);
-              setEditingShift(null);
-            }}
-            initialData={
-              editingShift
-                ? {
-                    name: editingShift.name,
-                    start_time: editingShift.start_time,
-                    end_time: editingShift.end_time,
-                    role: editingShift.role,
-                    status: editingShift.status,
-                    assigned_personnel: editingShift.assigned_personnel,
-                  }
-                : undefined
-            }
-          />
+          
+          {!selectedModuleType && !editingShift && (
+            <ModuleSelector
+              onSelectModule={handleModuleSelect}
+              onCancel={() => setIsDialogOpen(false)}
+            />
+          )}
+
+          {selectedModuleType === "patrol_activation" && !editingShift && (
+            <PatrolActivationForm
+              onSubmit={handleCreateShift}
+              onCancel={() => {
+                setSelectedModuleType(null);
+                setIsDialogOpen(false);
+              }}
+            />
+          )}
+
+          {selectedModuleType === "patrol_deactivation" && !editingShift && (
+            <PatrolDeactivationForm
+              onSubmit={handleCreateShift}
+              onCancel={() => {
+                setSelectedModuleType(null);
+                setIsDialogOpen(false);
+              }}
+            />
+          )}
+
+          {selectedModuleType === "heist_activation" && !editingShift && (
+            <HeistActivationForm
+              onSubmit={handleCreateShift}
+              onCancel={() => {
+                setSelectedModuleType(null);
+                setIsDialogOpen(false);
+              }}
+            />
+          )}
+
+          {selectedModuleType === "heist_deactivation" && !editingShift && (
+            <HeistDeactivationForm
+              onSubmit={handleCreateShift}
+              onCancel={() => {
+                setSelectedModuleType(null);
+                setIsDialogOpen(false);
+              }}
+            />
+          )}
+
+          {editingShift && (
+            <ShiftForm
+              onSubmit={handleUpdateShift}
+              onCancel={() => {
+                setIsDialogOpen(false);
+                setEditingShift(null);
+              }}
+              initialData={{
+                name: editingShift.name,
+                start_time: editingShift.start_time,
+                end_time: editingShift.end_time,
+                role: editingShift.role,
+                status: editingShift.status,
+                assigned_personnel: editingShift.assigned_personnel,
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
