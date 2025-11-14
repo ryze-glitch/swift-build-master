@@ -284,22 +284,27 @@ export const Announcements = () => {
     }
   };
 
-  const getUserDisplayName = (email: string | null): string => {
-    if (!email) return "Anonimo";
+  const getUserDisplayName = (discordTag: string | null): string => {
+    if (!discordTag) return "Anonimo";
     
     try {
       // Il JSON ha una struttura con "operators" come array principale
       if (operatoriData && operatoriData.operators) {
-        const operator = operatoriData.operators.find((op: any) => op.discordTag === email);
-        if (operator) {
+        const operator = operatoriData.operators.find((op: any) => 
+          op.discordTag?.toLowerCase() === discordTag.toLowerCase()
+        );
+        if (operator && operator.name) {
+          console.log(`Found operator: ${operator.name} for tag: ${discordTag}`);
           return operator.name;
+        } else {
+          console.log(`No operator found for tag: ${discordTag}`);
         }
       }
     } catch (error) {
       console.error("Error finding operator:", error);
     }
     
-    return email;
+    return discordTag;
   };
 
   const stats = {
