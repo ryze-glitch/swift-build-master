@@ -224,6 +224,15 @@ export const Announcements = () => {
       return;
     }
 
+    // Fetch user's discord tag from profile
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("discord_tag")
+      .eq("id", user.id)
+      .single();
+
+    const authorName = profileData?.discord_tag || user.email || "Anonimo";
+
     const { error } = await supabase
       .from("announcements")
       .insert({
@@ -231,7 +240,7 @@ export const Announcements = () => {
         content: formData.content,
         category: formData.category,
         type: newAnnouncementType === "training" ? "training" : "standard",
-        author: user.email || "Anonimo",
+        author: authorName,
         created_by: user.id,
       });
 
