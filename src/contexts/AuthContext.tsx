@@ -13,6 +13,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   checkSubscription: () => Promise<void>;
+  checkUserRole: (userId: string) => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,6 +49,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSubscriptionEnd(data.subscription_end || null);
     } catch (error) {
       // Error logged server-side, silent fail for user
+    }
+  };
+
+  const checkUserRole = async (userId: string): Promise<string | null> => {
+    try {
+      // Server-side role validation via RLS-protected query
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user role:", error);
+        return null;
+      }
+
+      return data?.role || null;
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      return null;
     }
   };
 
@@ -178,6 +200,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signIn,
         signOut,
         checkSubscription,
+        checkUserRole,
       }}
     >
       {children}
