@@ -114,7 +114,7 @@ export const Announcements = () => {
     }
   };
 
-  const handleTrainingVote = async (announcementId: string, choice: "presenza" | "assenza") => {
+  const handleTrainingVote = async (announcementId: string, choice: "presenza" | "assenza" | null) => {
     if (!user) return;
 
     const announcement = announcements.find(a => a.id === announcementId);
@@ -133,10 +133,10 @@ export const Announcements = () => {
     const newPresenza = (Array.isArray(currentVotes.presenza) ? currentVotes.presenza : []).filter((id: string) => id !== user.id);
     const newAssenza = (Array.isArray(currentVotes.assenza) ? currentVotes.assenza : []).filter((id: string) => id !== user.id);
 
-    // Add user to selected choice
+    // Add user to selected choice if not null (null means remove vote)
     if (choice === "presenza") {
       newPresenza.push(user.id);
-    } else {
+    } else if (choice === "assenza") {
       newAssenza.push(user.id);
     }
 
@@ -154,6 +154,11 @@ export const Announcements = () => {
       console.error("Error voting:", error);
       toast.error("Errore nella votazione");
     } else {
+      if (choice === null) {
+        toast.success("Voto rimosso");
+      } else {
+        toast.success("Voto registrato");
+      }
       setAnnouncements(prev => prev.map(a => {
         if (a.id !== announcementId) return a;
         return {
@@ -458,45 +463,50 @@ export const Announcements = () => {
                     </div>
 
                     {/* Vote Buttons */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <button
-                        onClick={() => handleTrainingVote(announcement.id, "presenza")}
-                        className={`group relative overflow-hidden p-6 rounded-2xl font-bold text-lg transition-all duration-300 ${
-                          getUserVote(announcement) === "presenza"
-                            ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl shadow-green-500/30 scale-105"
-                            : "bg-secondary/30 hover:bg-secondary/50 hover:scale-102 border-2 border-border"
-                        }`}
-                      >
-                        <div className="relative z-10 flex flex-col items-center gap-2">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                            getUserVote(announcement) === "presenza" ? "bg-white/20" : "bg-green-500/20"
-                          }`}>
-                            <i className={`fas fa-check text-2xl ${
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => handleTrainingVote(announcement.id, "presenza")}
+                          className={`group relative overflow-hidden px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                            getUserVote(announcement) === "presenza"
+                              ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/20"
+                              : "bg-secondary/30 hover:bg-secondary/50 border border-border"
+                          }`}
+                        >
+                          <div className="relative z-10 flex items-center justify-center gap-2">
+                            <i className={`fas fa-check ${
                               getUserVote(announcement) === "presenza" ? "text-white" : "text-green-500"
                             }`}></i>
+                            <span>Presenza</span>
                           </div>
-                          <span>Presenza</span>
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => handleTrainingVote(announcement.id, "assenza")}
-                        className={`group relative overflow-hidden p-6 rounded-2xl font-bold text-lg transition-all duration-300 ${
-                          getUserVote(announcement) === "assenza"
-                            ? "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-xl shadow-red-500/30 scale-105"
-                            : "bg-secondary/30 hover:bg-secondary/50 hover:scale-102 border-2 border-border"
-                        }`}
-                      >
-                        <div className="relative z-10 flex flex-col items-center gap-2">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                            getUserVote(announcement) === "assenza" ? "bg-white/20" : "bg-red-500/20"
-                          }`}>
-                            <i className={`fas fa-times text-2xl ${
+                        </button>
+                        <button
+                          onClick={() => handleTrainingVote(announcement.id, "assenza")}
+                          className={`group relative overflow-hidden px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                            getUserVote(announcement) === "assenza"
+                              ? "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/20"
+                              : "bg-secondary/30 hover:bg-secondary/50 border border-border"
+                          }`}
+                        >
+                          <div className="relative z-10 flex items-center justify-center gap-2">
+                            <i className={`fas fa-times ${
                               getUserVote(announcement) === "assenza" ? "text-white" : "text-red-500"
                             }`}></i>
+                            <span>Assenza</span>
                           </div>
-                          <span>Assenza</span>
-                        </div>
-                      </button>
+                        </button>
+                      </div>
+                      
+                      {/* Remove Vote Button */}
+                      {getUserVote(announcement) && (
+                        <button
+                          onClick={() => handleTrainingVote(announcement.id, null)}
+                          className="w-full px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <i className="fas fa-undo text-xs"></i>
+                          <span>Rimuovi voto</span>
+                        </button>
+                      )}
                     </div>
 
                     {/* Results */}
