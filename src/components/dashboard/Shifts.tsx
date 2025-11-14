@@ -16,6 +16,7 @@ import { PatrolActivationForm } from "./PatrolActivationForm";
 import { PatrolDeactivationForm } from "./PatrolDeactivationForm";
 import { HeistActivationForm } from "./HeistActivationForm";
 import { HeistDeactivationForm } from "./HeistDeactivationForm";
+import { ShiftDetailsCard } from "./ShiftDetailsCard";
 
 interface Person {
   id: string;
@@ -32,6 +33,17 @@ interface Shift {
   status: "scheduled" | "active" | "completed";
   assigned_personnel: Person[];
   created_by: string;
+  module_type?: string;
+  managed_by?: Person | null;
+  activation_time?: string | null;
+  deactivation_time?: string | null;
+  intervention_type?: string | null;
+  vehicle_used?: string | null;
+  operators_out?: Person[] | null;
+  operators_back?: Person[] | null;
+  coordinator?: Person | null;
+  negotiator?: Person | null;
+  operators_involved?: Person[] | null;
 }
 
 const statusConfig = {
@@ -84,6 +96,17 @@ export const Shifts = () => {
           status: shift.status as "scheduled" | "active" | "completed",
           assigned_personnel: (shift.assigned_personnel as any) || [],
           created_by: shift.created_by,
+          module_type: shift.module_type,
+          managed_by: shift.managed_by as any,
+          activation_time: shift.activation_time,
+          deactivation_time: shift.deactivation_time,
+          intervention_type: shift.intervention_type,
+          vehicle_used: shift.vehicle_used,
+          operators_out: shift.operators_out as any,
+          operators_back: shift.operators_back as any,
+          coordinator: shift.coordinator as any,
+          negotiator: shift.negotiator as any,
+          operators_involved: shift.operators_involved as any,
         }))
       );
     } catch (error) {
@@ -335,11 +358,25 @@ export const Shifts = () => {
                     {new Date(shift.end_time).toLocaleString("it-IT")}
                   </span>
                 </div>
-                <div className="flex items-center text-muted-foreground">
-                  <Users className="h-4 w-4 mr-2" />
-                  <span>{shift.assigned_personnel.length} operatori assegnati</span>
-                </div>
               </div>
+
+              {shift.module_type && (
+                <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                  <ShiftDetailsCard
+                    moduleType={shift.module_type}
+                    managedBy={shift.managed_by}
+                    activationTime={shift.activation_time}
+                    deactivationTime={shift.deactivation_time}
+                    interventionType={shift.intervention_type}
+                    vehicleUsed={shift.vehicle_used}
+                    operatorsOut={shift.operators_out}
+                    operatorsBack={shift.operators_back}
+                    coordinator={shift.coordinator}
+                    negotiator={shift.negotiator}
+                    operatorsInvolved={shift.operators_involved}
+                  />
+                </div>
+              )}
 
               <div className="flex gap-2">
                 <Button

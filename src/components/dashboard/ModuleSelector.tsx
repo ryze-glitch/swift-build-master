@@ -43,16 +43,16 @@ export const ModuleSelector = ({ onSelectModule }: ModuleSelectorProps) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-4">
         {modules.map((module) => (
           <Card
             key={module.type}
-            className={`p-4 cursor-pointer transition-all border-2 ${module.color}`}
+            className={`p-6 cursor-pointer transition-all border-2 ${module.color} hover:shadow-lg`}
             onClick={() => onSelectModule(module.type)}
           >
-            <div className="flex items-center gap-3">
-              <module.icon className="h-5 w-5" />
-              <span className="font-medium">{module.title}</span>
+            <div className="flex items-center gap-4">
+              <module.icon className="h-7 w-7" />
+              <span className="font-semibold text-lg">{module.title}</span>
             </div>
           </Card>
         ))}
