@@ -13,6 +13,7 @@ interface Person {
 
 interface PersonnelCardProps {
   person: Person;
+  showQualification?: boolean;
 }
 
 const roleConfig = {
@@ -28,7 +29,7 @@ const statusConfig: Record<string, { color: string; label: string; icon: string 
   "Non Disponibile": { color: "hsl(var(--danger))", label: "Non Disponibile", icon: "fa-times-circle" },
 };
 
-export const PersonnelCard = ({ person }: PersonnelCardProps) => {
+export const PersonnelCard = ({ person, showQualification = true }: PersonnelCardProps) => {
   const role = roleConfig[person.role];
   const status = statusConfig[person.status] || statusConfig["Disponibile"];
 
@@ -62,6 +63,9 @@ export const PersonnelCard = ({ person }: PersonnelCardProps) => {
             {person.name}
           </h3>
           <p className="text-xs text-muted-foreground truncate">Mat. {person.matricola}</p>
+          {showQualification && (
+            <p className="text-xs text-primary/80 truncate mt-0.5">{person.qualification}</p>
+          )}
         </div>
         <div 
           className="shrink-0 w-2 h-2 rounded-full"

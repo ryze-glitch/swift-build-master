@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { supabase } from "@/integrations/supabase/client";
+import operatoriData from "@/data/operatori_reparto.json";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +22,32 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const { user, signOut } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { unreadCount } = useNotifications();
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userOperator, setUserOperator] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      
+      if (data) {
+        setUserProfile(data);
+        
+        // Find operator by discord_tag
+        const operator = operatoriData.operators.find(
+          op => op.discordTag === data.discord_tag
+        );
+        setUserOperator(operator);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -117,22 +145,55 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="flex items-center gap-3 glass rounded-2xl px-4 py-2 hover:bg-secondary/50 transition-all"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                {user?.email?.charAt(0).toUpperCase()}
-              </div>
+              {userProfile?.discord_avatar_url ? (
+                <img 
+                  src={userProfile.discord_avatar_url} 
+                  alt="Avatar Discord"
+                  className="w-10 h-10 rounded-full"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
+                  {userProfile?.discord_tag?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div className="hidden sm:block text-left">
-                <div className="text-sm font-semibold">{user?.email?.split('@')[0]}</div>
-                <div className="text-xs text-muted-foreground">Operativo</div>
+                <div className="text-sm font-semibold">
+                  {userProfile?.discord_tag || user?.email?.split('@')[0]}
+                </div>
+                {userOperator && (
+                  <>
+                    <div className="text-xs text-muted-foreground">{userOperator.matricola}</div>
+                    <div className="text-xs text-primary/80 mt-0.5 leading-tight">
+                      {userOperator.qualification}
+                    </div>
+                  </>
+                )}
               </div>
               <i className={`fas fa-chevron-down text-xs transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
             </button>
 
             {/* Dropdown Menu */}
             {isUserMenuOpen && (
-              <div className="absolute top-full right-0 mt-2 w-56 glass-strong rounded-2xl overflow-hidden shadow-2xl">
+              <div className="absolute top-full right-0 mt-2 w-64 glass-strong rounded-2xl overflow-hidden shadow-2xl">
                 <div className="p-4 border-b border-border">
-                  <div className="font-semibold">{user?.email}</div>
-                  <div className="text-sm text-muted-foreground">Utente Operativo</div>
+                  <div className="flex items-center gap-3 mb-2">
+                    {userProfile?.discord_avatar_url && (
+                      <img 
+                        src={userProfile.discord_avatar_url} 
+                        alt="Avatar Discord"
+                        className="w-12 h-12 rounded-full"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <div className="font-semibold">{userProfile?.discord_tag || user?.email}</div>
+                      {userOperator && (
+                        <>
+                          <div className="text-xs text-muted-foreground">{userOperator.matricola}</div>
+                          <div className="text-xs text-primary/80 mt-1">{userOperator.qualification}</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="p-2">
                   <button className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-secondary/50 transition-colors text-left">
