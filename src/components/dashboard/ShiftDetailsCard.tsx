@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Person {
   id: string;
@@ -26,6 +28,8 @@ interface ShiftDetailsProps {
   operatorsInvolved?: Person[] | null;
   shiftId: string;
   onAcknowledge?: (shiftId: string) => void;
+  initialAcknowledgedBy?: any[];
+  onAcknowledgeUpdate?: () => void;
 }
 
 const formatInterventionType = (type: string): string => {
@@ -60,11 +64,58 @@ export const ShiftDetailsCard = ({
   operatorsInvolved,
   shiftId,
   onAcknowledge,
+  initialAcknowledgedBy = [],
+  onAcknowledgeUpdate,
 }: ShiftDetailsProps) => {
   const { isAdmin } = useUserRole();
   const { user } = useAuth();
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [acknowledgedBy, setAcknowledgedBy] = useState("");
+  const { toast } = useToast();
+  const [acknowledgedBy, setAcknowledgedBy] = useState<any[]>(initialAcknowledgedBy);
+  
+  useEffect(() => {
+    setAcknowledgedBy(initialAcknowledgedBy || []);
+  }, [initialAcknowledgedBy]);
+  
+  const isAcknowledgedByUser = acknowledgedBy.some((ack: any) => ack.userId === user?.id);
+  
+  const handleAcknowledge = async () => {
+    if (!user) return;
+    
+    try {
+      const newAcknowledgement = {
+        userId: user.id,
+        userName: user.email,
+        timestamp: new Date().toISOString(),
+      };
+      
+      const updatedAcknowledgements = [...acknowledgedBy, newAcknowledgement];
+      
+      const { error } = await supabase
+        .from('shifts')
+        .update({
+          acknowledged_by: updatedAcknowledgements,
+          acknowledged_at: new Date().toISOString()
+        })
+        .eq('id', shiftId);
+      
+      if (error) throw error;
+      
+      setAcknowledgedBy(updatedAcknowledgements);
+      if (onAcknowledgeUpdate) onAcknowledgeUpdate();
+      
+      toast({
+        title: "Presa visione confermata",
+        description: "La tua conferma è stata salvata con successo.",
+      });
+    } catch (error) {
+      console.error("Errore nella presa visione:", error);
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile salvare la presa visione.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -212,26 +263,6 @@ export const ShiftDetailsCard = ({
       )}
       </div>
       
-      {isAdmin && onAcknowledge && !acknowledged && (
-        <Button 
-          className="w-full bg-success hover:bg-success/90 text-white"
-          onClick={() => {
-            const fullName = user?.user_metadata?.full_name || user?.email || "Utente";
-            setAcknowledged(true);
-            setAcknowledgedBy(fullName);
-            onAcknowledge(shiftId);
-          }}
-        >
-          <CheckCircle className="h-4 w-4 mr-2" />
-          ✅・Presa Visione
-        </Button>
-      )}
-      
-      {acknowledged && (
-        <div className="text-sm text-success font-medium">
-          ✅・Presa Visione Confermata da: {acknowledgedBy}
-        </div>
-      )}
     </div>
   );
 };
