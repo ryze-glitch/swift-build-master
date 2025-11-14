@@ -89,7 +89,6 @@ export const Shifts = () => {
   const [selectedModuleType, setSelectedModuleType] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
-  const [deleteReason, setDeleteReason] = useState("");
 
   useEffect(() => {
     loadShifts();
@@ -222,20 +221,14 @@ export const Shifts = () => {
       return;
     }
 
-    if (!deleteReason.trim()) {
-      toast.error("È necessario inserire un motivo per l'eliminazione");
-      return;
-    }
-
     try {
       const { error } = await supabase.from("shifts").delete().eq("id", shiftId);
 
       if (error) throw error;
 
-      toast.success(`Modulo eliminato: ${deleteReason}`);
+      toast.success("Modulo eliminato con successo");
       setDeleteConfirmOpen(false);
       setShiftToDelete(null);
-      setDeleteReason("");
       loadShifts();
     } catch (error) {
       console.error("Error deleting shift:", error);
@@ -539,24 +532,13 @@ export const Shifts = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Conferma Eliminazione Modulo</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-4">
-              <p>Solo i membri della dirigenza possono eliminare i moduli.</p>
-              <p className="font-semibold">Inserisci il motivo dell'eliminazione:</p>
-              <div className="space-y-2">
-                <Label htmlFor="delete-reason">Motivo</Label>
-                <Textarea
-                  id="delete-reason"
-                  value={deleteReason}
-                  onChange={(e) => setDeleteReason(e.target.value)}
-                  placeholder="Esempio: Errore di inserimento, duplicato, ecc."
-                  className="min-h-[100px]"
-                />
-              </div>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare questo modulo? Questa azione non può essere annullata.
+              Solo i membri della dirigenza possono eliminare i moduli.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => {
-              setDeleteReason("");
               setShiftToDelete(null);
             }}>
               Annulla
@@ -564,7 +546,6 @@ export const Shifts = () => {
             <AlertDialogAction
               onClick={() => shiftToDelete && handleDeleteShift(shiftToDelete)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={!deleteReason.trim()}
             >
               Elimina
             </AlertDialogAction>
