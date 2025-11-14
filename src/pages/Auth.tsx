@@ -91,7 +91,7 @@ const Auth = () => {
             alt="U.O.P.I. Logo" 
             className="w-32 h-32 mx-auto mb-4 object-contain drop-shadow-2xl"
           />
-          <h1 className="text-5xl font-rajdhani font-bold text-foreground tracking-wide">
+          <h1 className="text-5xl font-lexend font-bold text-foreground tracking-wide">
             U.O.P.I. DASHBOARD
           </h1>
           <p className="text-lg text-muted-foreground">
