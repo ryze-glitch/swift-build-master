@@ -10,7 +10,7 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
-  const [unreadIds, setUnreadIds] = useState<Set<string>>(new Set(["1", "2", "4"])); // IDs dei comunicati non letti
+  const [unreadIds, setUnreadIds] = useState<Set<string>>(new Set());
 
   const unreadCount = unreadIds.size;
 

@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { AnnouncementCard } from "./AnnouncementCard";
 import { Card } from "@/components/ui/card";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import { toast } from "sonner";
 
 interface TrainingVote {
   userId: string;
@@ -21,100 +25,144 @@ interface Announcement {
   trainingVotes?: TrainingVote[];
 }
 
-const mockAnnouncements: Announcement[] = [
-  {
-    id: "1",
-    title: "Addestramento Operativo - Sabato 15/11",
-    content: "Si comunica che sabato 15 novembre alle ore 14:00 si terrà l'addestramento operativo mensile. La presenza è fortemente consigliata. Confermare la propria disponibilità.",
-    author: "Comando",
-    date: "2025-11-10",
-    category: "training",
-    acknowledged: false,
-    tags: ["Addestramento", "Operativo"],
-    isTraining: true,
-    trainingVotes: [
-      { userId: "user1", choice: "presenza" },
-      { userId: "user2", choice: "presenza" },
-      { userId: "user3", choice: "assenza" },
-      { userId: "user4", choice: "presenza" },
-      { userId: "user5", choice: "presenza" },
-    ]
-  },
-  {
-    id: "2",
-    title: "Riunione Operativa Mensile",
-    content: "Si comunica che la riunione operativa mensile si terrà il 15 del mese corrente alle ore 10:00 presso la sala conferenze.",
-    author: "Comando",
-    date: "2025-01-10",
-    category: "urgent",
-    acknowledged: false,
-    tags: ["Riunione", "Operativo"],
-  },
-  {
-    id: "3",
-    title: "Aggiornamento Protocolli",
-    content: "Sono stati aggiornati i protocolli operativi standard. Consultare la sezione documentazione per i dettagli.",
-    author: "Amministrazione",
-    date: "2025-01-08",
-    category: "update",
-    acknowledged: true,
-    tags: ["Protocolli", "Documentazione"],
-  },
-  {
-    id: "4",
-    title: "Formazione Obbligatoria",
-    content: "Tutti gli agenti operativi sono tenuti a completare il corso di formazione entro fine mese.",
-    author: "Formazione",
-    date: "2025-01-05",
-    category: "info",
-    acknowledged: false,
-    tags: ["Formazione", "Operativo"],
-  },
-];
-
-const CURRENT_USER_ID = "currentUser"; // Simula l'ID dell'utente corrente
-
 export const Announcements = () => {
-  const [announcements, setAnnouncements] = useState(mockAnnouncements);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isComposing, setIsComposing] = useState(false);
   const [newAnnouncementType, setNewAnnouncementType] = useState<"normal" | "training">("normal");
+  const [loading, setLoading] = useState(true);
   const { markAsRead } = useNotifications();
+  const { user } = useAuth();
+  const { isAdmin } = useUserRole();
+
+  // Fetch announcements from database
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      const { data, error } = await supabase
+        .from("announcements")
+        .select("*")
+        .order("date", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching announcements:", error);
+        toast.error("Errore nel caricamento dei comunicati");
+      } else {
+        const formattedAnnouncements: Announcement[] = (data || []).map(a => ({
+          id: a.id,
+          title: a.title,
+          content: a.content,
+          author: a.author,
+          date: a.date,
+          category: a.category as any,
+          acknowledged: Array.isArray(a.acknowledged_by) && user ? a.acknowledged_by.includes(user.id) : false,
+          tags: [],
+          isTraining: a.type === "training",
+          trainingVotes: a.type === "training" && a.training_votes ? (() => {
+            const votes = a.training_votes as any;
+            return [
+              ...(Array.isArray(votes.presenza) ? votes.presenza : []).map((userId: string) => ({ userId, choice: "presenza" as const })),
+              ...(Array.isArray(votes.assenza) ? votes.assenza : []).map((userId: string) => ({ userId, choice: "assenza" as const }))
+            ];
+          })() : undefined
+        }));
+        setAnnouncements(formattedAnnouncements);
+      }
+      setLoading(false);
+    };
+
+    fetchAnnouncements();
+  }, [user]);
 
   // Marca tutti i comunicati come letti quando la pagina viene visualizzata
   useEffect(() => {
-    announcements.forEach(announcement => {
-      if (!announcement.acknowledged) {
-        markAsRead(announcement.id);
-      }
-    });
-  }, []);
+    if (announcements.length > 0) {
+      announcements.forEach(announcement => {
+        if (!announcement.acknowledged) {
+          markAsRead(announcement.id);
+        }
+      });
+    }
+  }, [announcements]);
 
-  const handleAcknowledge = (id: string) => {
-    setAnnouncements(prev => 
-      prev.map(a => a.id === id ? { ...a, acknowledged: true } : a)
-    );
-    markAsRead(id);
+  const handleAcknowledge = async (id: string) => {
+    if (!user) return;
+
+    // Fetch current acknowledgments
+    const { data: currentData } = await supabase
+      .from("announcements")
+      .select("acknowledged_by")
+      .eq("id", id)
+      .single();
+
+    const currentAcknowledgedBy = Array.isArray(currentData?.acknowledged_by) ? currentData.acknowledged_by : [];
+    const newAcknowledgedBy = [...currentAcknowledgedBy, user.id];
+
+    const { error } = await supabase
+      .from("announcements")
+      .update({ acknowledged_by: newAcknowledgedBy })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error acknowledging announcement:", error);
+      toast.error("Errore nell'aggiornamento");
+    } else {
+      setAnnouncements(prev => 
+        prev.map(a => a.id === id ? { ...a, acknowledged: true } : a)
+      );
+      markAsRead(id);
+    }
   };
 
-  const handleTrainingVote = (announcementId: string, choice: "presenza" | "assenza") => {
-    setAnnouncements(prev => prev.map(announcement => {
-      if (announcement.id !== announcementId || !announcement.isTraining) return announcement;
+  const handleTrainingVote = async (announcementId: string, choice: "presenza" | "assenza") => {
+    if (!user) return;
 
-      const votes = announcement.trainingVotes || [];
-      const existingVoteIndex = votes.findIndex(v => v.userId === CURRENT_USER_ID);
+    const announcement = announcements.find(a => a.id === announcementId);
+    if (!announcement || !announcement.isTraining) return;
 
-      let newVotes: TrainingVote[];
-      if (existingVoteIndex !== -1) {
-        // Aggiorna voto esistente
-        newVotes = [...votes];
-        newVotes[existingVoteIndex] = { userId: CURRENT_USER_ID, choice };
-      } else {
-        // Aggiungi nuovo voto
-        newVotes = [...votes, { userId: CURRENT_USER_ID, choice }];
-      }
+    // Get current votes from database
+    const { data: currentData } = await supabase
+      .from("announcements")
+      .select("training_votes")
+      .eq("id", announcementId)
+      .single();
 
-      return { ...announcement, trainingVotes: newVotes };
-    }));
+    const currentVotes: any = currentData?.training_votes || { presenza: [], assenza: [] };
+    
+    // Remove user from both arrays
+    const newPresenza = (Array.isArray(currentVotes.presenza) ? currentVotes.presenza : []).filter((id: string) => id !== user.id);
+    const newAssenza = (Array.isArray(currentVotes.assenza) ? currentVotes.assenza : []).filter((id: string) => id !== user.id);
+
+    // Add user to selected choice
+    if (choice === "presenza") {
+      newPresenza.push(user.id);
+    } else {
+      newAssenza.push(user.id);
+    }
+
+    const newVotes = {
+      presenza: newPresenza,
+      assenza: newAssenza
+    };
+
+    const { error } = await supabase
+      .from("announcements")
+      .update({ training_votes: newVotes })
+      .eq("id", announcementId);
+
+    if (error) {
+      console.error("Error voting:", error);
+      toast.error("Errore nella votazione");
+    } else {
+      setAnnouncements(prev => prev.map(a => {
+        if (a.id !== announcementId) return a;
+        return {
+          ...a,
+          trainingVotes: [
+            ...newPresenza.map((userId: string) => ({ userId, choice: "presenza" as const })),
+            ...newAssenza.map((userId: string) => ({ userId, choice: "assenza" as const }))
+          ]
+        };
+      }));
+    }
   };
 
   const getTrainingStats = (votes: TrainingVote[] = []) => {
@@ -131,8 +179,10 @@ export const Announcements = () => {
     };
   };
 
-  const getUserVote = (votes: TrainingVote[] = []) => {
-    return votes.find(v => v.userId === CURRENT_USER_ID)?.choice;
+  const getUserVote = (announcement: Announcement): "presenza" | "assenza" | null => {
+    if (!announcement.isTraining || !announcement.trainingVotes || !user) return null;
+    const vote = announcement.trainingVotes.find(v => v.userId === user.id);
+    return vote ? vote.choice : null;
   };
 
   const stats = {
@@ -314,7 +364,7 @@ export const Announcements = () => {
                       <button
                         onClick={() => handleTrainingVote(announcement.id, "presenza")}
                         className={`p-4 rounded-xl font-semibold transition-all ${
-                          getUserVote(announcement.trainingVotes) === "presenza"
+                          getUserVote(announcement) === "presenza"
                             ? "bg-green-500 text-white shadow-lg scale-105"
                             : "bg-secondary/50 hover:bg-secondary"
                         }`}
@@ -325,7 +375,7 @@ export const Announcements = () => {
                       <button
                         onClick={() => handleTrainingVote(announcement.id, "assenza")}
                         className={`p-4 rounded-xl font-semibold transition-all ${
-                          getUserVote(announcement.trainingVotes) === "assenza"
+                          getUserVote(announcement) === "assenza"
                             ? "bg-red-500 text-white shadow-lg scale-105"
                             : "bg-secondary/50 hover:bg-secondary"
                         }`}
