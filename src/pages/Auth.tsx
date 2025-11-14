@@ -91,8 +91,8 @@ const Auth = () => {
             alt="U.O.P.I. Logo" 
             className="w-32 h-32 mx-auto mb-4 object-contain drop-shadow-2xl"
           />
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-            U.O.P.I. Dashboard
+          <h1 className="text-5xl font-rajdhani font-bold text-foreground tracking-wide">
+            U.O.P.I. DASHBOARD
           </h1>
           <p className="text-lg text-muted-foreground">
             Accedi con Discord per iniziare
