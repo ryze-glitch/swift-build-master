@@ -143,7 +143,32 @@ serve(async (req) => {
       }
     }
 
-    // Create new user if needed
+    // If no user found via roleData.user_id, try to find by email
+    if (!authUser) {
+      const { data: usersList, error: listError } = await supabaseClient.auth.admin.listUsers();
+      
+      if (!listError && usersList) {
+        const existingUserByEmail = usersList.users.find(u => u.email === email);
+        if (existingUserByEmail) {
+          authUser = existingUserByEmail;
+          logStep("Found existing user by email", { userId: authUser.id });
+          
+          // Link the user_id to the role record if not already linked
+          if (!roleData.user_id) {
+            const { error: linkError } = await supabaseClient
+              .from("user_roles")
+              .update({ user_id: authUser.id })
+              .eq("discord_id", discordId);
+
+            if (linkError) {
+              logStep("Error linking user to role", { error: linkError.message });
+            }
+          }
+        }
+      }
+    }
+
+    // Create new user only if not found
     if (!authUser) {
       isNewUser = true;
       const { data: newUser, error: createError } = await supabaseClient.auth.admin.createUser({
