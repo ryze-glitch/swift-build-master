@@ -23,9 +23,10 @@ const Auth = () => {
   useEffect(() => {
     const code = searchParams.get("code");
     if (code && !user) {
+      // Execute callback immediately
       handleDiscordCallback(code);
     }
-  }, [searchParams, user]);
+  }, [searchParams]);
 
   const handleDiscordLogin = () => {
     const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
@@ -64,11 +65,9 @@ const Auth = () => {
         return;
       }
 
-      // Redirect to magic link for automatic authentication
-      console.log("Redirecting to magic link:", data.redirect_url);
-      window.location.href = data.redirect_url;
+      // Immediate redirect to magic link
+      window.location.replace(data.redirect_url);
     } catch (error) {
-      // Error logged server-side
       toast({
         title: "Errore durante l'accesso",
         description: "Si è verificato un errore durante l'autenticazione con Discord",
