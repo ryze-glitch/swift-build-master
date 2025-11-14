@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { PersonnelCard } from "./PersonnelCard";
 import operatoriData from "@/data/operatori_reparto.json";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface Person {
   id: number;
@@ -45,17 +47,18 @@ export const Personnel = () => {
   };
 
   return (
-    <div className="space-y-6 px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-4xl font-extrabold mb-2">Personale</h1>
-          <p className="text-muted-foreground">Gestione organico e gerarchia</p>
+          <h2 className="text-2xl font-bold">Gerarchia Operatori</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Gestisci il personale organizzato per ruolo
+          </p>
         </div>
-        <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold hover:shadow-lg hover:shadow-primary/50 transition-all">
-          <i className="fas fa-user-plus mr-2"></i>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
           Aggiungi
-        </button>
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -115,75 +118,53 @@ export const Personnel = () => {
         </div>
       </div>
 
-      {/* Personnel Grid - Grouped by Role */}
+      {/* Personnel Cards - Redesigned Layout */}
       {!activeFilter && !searchQuery ? (
-        <div className="space-y-8">
-          {/* Dirigenziale */}
-          {roleGroups.dirigenziale.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" 
-                     style={{ backgroundColor: `hsl(var(--role-dirigenziale))` }}>
-                  <i className="fas fa-crown text-xl text-white"></i>
-                </div>
-                <h3 className="text-2xl font-bold">Dirigenziale</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {roleGroups.dirigenziale.map((person) => (
-                  <PersonnelCard key={person.id} person={person} />
-                ))}
-              </div>
-            </div>
-          )}
+        // Group by role with modern card layout
+        <div className="space-y-6">
+          {Object.entries(roleGroups).map(([role, people]) => {
+            if (people.length === 0) return null;
+            
+            const roleLabels: Record<string, string> = {
+              dirigenziale: "Dirigenziale",
+              amministrativo: "Amministrativo",
+              operativo: "Operativo"
+            };
 
-          {/* Amministrativo */}
-          {roleGroups.amministrativo.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                     style={{ backgroundColor: `hsl(var(--role-amministrativo))` }}>
-                  <i className="fas fa-file-alt text-xl text-white"></i>
+            return (
+              <div key={role} className="bg-card rounded-lg border p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    <div className="h-8 w-1 bg-primary rounded-full" />
+                    {roleLabels[role]}
+                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                      ({people.length})
+                    </span>
+                  </h3>
                 </div>
-                <h3 className="text-2xl font-bold">Amministrativo</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {roleGroups.amministrativo.map((person) => (
-                  <PersonnelCard key={person.id} person={person} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Operativo */}
-          {roleGroups.operativo.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                     style={{ backgroundColor: `hsl(var(--role-operativo))` }}>
-                  <i className="fas fa-shield-alt text-xl text-white"></i>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {people.map((person) => (
+                    <PersonnelCard key={person.id} person={person} />
+                  ))}
                 </div>
-                <h3 className="text-2xl font-bold">Operativo</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {roleGroups.operativo.map((person) => (
-                  <PersonnelCard key={person.id} person={person} />
-                ))}
-              </div>
-            </div>
-          )}
+            );
+          })}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredPersonnel.map((person) => (
-            <PersonnelCard key={person.id} person={person} />
-          ))}
-        </div>
-      )}
-
-      {filteredPersonnel.length === 0 && (
-        <div className="text-center py-12 glass rounded-2xl">
-          <i className="fas fa-search text-4xl text-muted-foreground mb-4"></i>
-          <p className="text-muted-foreground">Nessun risultato trovato</p>
+        // Flat list when filtering or searching
+        <div>
+          {filteredPersonnel.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {filteredPersonnel.map((person) => (
+                <PersonnelCard key={person.id} person={person} />
+              ))}
+            </div>
+          ) : (
+            <div className="col-span-full text-center py-12 text-muted-foreground">
+              Nessun risultato trovato
+            </div>
+          )}
         </div>
       )}
     </div>
