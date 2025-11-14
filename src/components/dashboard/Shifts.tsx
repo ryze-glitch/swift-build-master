@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar, Users, CheckCircle2, Clock, Sparkles, Crown, Pencil, Trash2 } from "lucide-react";
+import { Plus, Calendar, Users, CheckCircle2, Clock, Sparkles, Crown, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -221,9 +221,8 @@ export const Shifts = () => {
     setSelectedModuleType(moduleType);
   };
 
-  const openEditDialog = (shift: Shift) => {
-    setEditingShift(shift);
-    setIsDialogOpen(true);
+  const handleAcknowledge = async (shiftId: string) => {
+    toast.success("Presa visione registrata");
   };
 
   const filteredShifts =
@@ -323,81 +322,105 @@ export const Shifts = () => {
         ))}
       </div>
 
-      {/* Shifts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Shifts List */}
+      <div className="space-y-4">
         {filteredShifts.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground">
             Nessun turno trovato
           </div>
         ) : (
-          filteredShifts.map((shift) => (
-            <div
-              key={shift.id}
-              className="bg-card rounded-lg border p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="font-semibold text-lg">{shift.name}</h3>
-                  <p className="text-sm text-muted-foreground">{shift.role}</p>
+          <>
+            {filteredShifts.reduce((acc: { date: string; shifts: Shift[] }[], shift) => {
+              const shiftDate = new Date(shift.start_time).toLocaleDateString("it-IT", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+              
+              const existingGroup = acc.find(group => group.date === shiftDate);
+              if (existingGroup) {
+                existingGroup.shifts.push(shift);
+              } else {
+                acc.push({ date: shiftDate, shifts: [shift] });
+              }
+              return acc;
+            }, []).map((group, groupIndex) => (
+              <div key={groupIndex}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px bg-border flex-1" />
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-3">
+                    {group.date}
+                  </h3>
+                  <div className="h-px bg-border flex-1" />
                 </div>
-                <div
-                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                    statusConfig[shift.status].color
-                  }`}
-                >
-                  {statusConfig[shift.status].icon}
-                  {statusConfig[shift.status].label}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {group.shifts.map((shift) => (
+                    <div
+                      key={shift.id}
+                      className="bg-card border rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold text-lg">{shift.name}</h3>
+                          <p className="text-sm text-muted-foreground">{shift.role}</p>
+                        </div>
+                        <div
+                          className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                            statusConfig[shift.status].color
+                          }`}
+                        >
+                          {statusConfig[shift.status].icon}
+                          {statusConfig[shift.status].label}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 text-sm mb-4">
+                        <div className="flex items-center text-muted-foreground">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span>
+                            {new Date(shift.start_time).toLocaleString("it-IT")} -{" "}
+                            {new Date(shift.end_time).toLocaleString("it-IT")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {shift.module_type && (
+                        <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                          <ShiftDetailsCard
+                            moduleType={shift.module_type}
+                            managedBy={shift.managed_by}
+                            activationTime={shift.activation_time}
+                            deactivationTime={shift.deactivation_time}
+                            interventionType={shift.intervention_type}
+                            vehicleUsed={shift.vehicle_used}
+                            operatorsOut={shift.operators_out}
+                            operatorsBack={shift.operators_back}
+                            coordinator={shift.coordinator}
+                            negotiator={shift.negotiator}
+                            operatorsInvolved={shift.operators_involved}
+                            shiftId={shift.id}
+                            onAcknowledge={handleAcknowledge}
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="ml-auto"
+                          onClick={() => handleDeleteShift(shift.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              <div className="space-y-2 text-sm mb-4">
-                <div className="flex items-center text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>
-                    {new Date(shift.start_time).toLocaleString("it-IT")} -{" "}
-                    {new Date(shift.end_time).toLocaleString("it-IT")}
-                  </span>
-                </div>
-              </div>
-
-              {shift.module_type && (
-                <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-                  <ShiftDetailsCard
-                    moduleType={shift.module_type}
-                    managedBy={shift.managed_by}
-                    activationTime={shift.activation_time}
-                    deactivationTime={shift.deactivation_time}
-                    interventionType={shift.intervention_type}
-                    vehicleUsed={shift.vehicle_used}
-                    operatorsOut={shift.operators_out}
-                    operatorsBack={shift.operators_back}
-                    coordinator={shift.coordinator}
-                    negotiator={shift.negotiator}
-                    operatorsInvolved={shift.operators_involved}
-                  />
-                </div>
-              )}
-
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => openEditDialog(shift)}
-                >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Modifica
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDeleteShift(shift.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))
+            ))}
+          </>
         )}
       </div>
 
