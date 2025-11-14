@@ -1,5 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CheckCircle } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Person {
   id: string;
@@ -19,6 +22,8 @@ interface ShiftDetailsProps {
   coordinator?: Person | null;
   negotiator?: Person | null;
   operatorsInvolved?: Person[] | null;
+  shiftId: string;
+  onAcknowledge?: (shiftId: string) => void;
 }
 
 const formatInterventionType = (type: string): string => {
@@ -51,9 +56,14 @@ export const ShiftDetailsCard = ({
   coordinator,
   negotiator,
   operatorsInvolved,
+  shiftId,
+  onAcknowledge,
 }: ShiftDetailsProps) => {
+  const { isAdmin } = useUserRole();
+
   return (
-    <div className="space-y-3 text-sm">
+    <div className="space-y-4">
+      <div className="space-y-3 text-sm">
       {/* Patrol Activation Details */}
       {moduleType === "patrol_activation" && (
         <>
@@ -194,6 +204,17 @@ export const ShiftDetailsCard = ({
             </div>
           )}
         </>
+      )}
+      </div>
+      
+      {isAdmin && onAcknowledge && (
+        <Button 
+          className="w-full bg-success hover:bg-success/90 text-white"
+          onClick={() => onAcknowledge(shiftId)}
+        >
+          <CheckCircle className="h-4 w-4 mr-2" />
+          ✅・Presa Visione
+        </Button>
       )}
     </div>
   );
