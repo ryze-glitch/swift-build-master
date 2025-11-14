@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 interface Person {
   id: string;
@@ -60,6 +62,9 @@ export const ShiftDetailsCard = ({
   onAcknowledge,
 }: ShiftDetailsProps) => {
   const { isAdmin } = useUserRole();
+  const { user } = useAuth();
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [acknowledgedBy, setAcknowledgedBy] = useState("");
 
   return (
     <div className="space-y-4">
@@ -207,14 +212,25 @@ export const ShiftDetailsCard = ({
       )}
       </div>
       
-      {isAdmin && onAcknowledge && (
+      {isAdmin && onAcknowledge && !acknowledged && (
         <Button 
           className="w-full bg-success hover:bg-success/90 text-white"
-          onClick={() => onAcknowledge(shiftId)}
+          onClick={() => {
+            const fullName = user?.user_metadata?.full_name || user?.email || "Utente";
+            setAcknowledged(true);
+            setAcknowledgedBy(fullName);
+            onAcknowledge(shiftId);
+          }}
         >
           <CheckCircle className="h-4 w-4 mr-2" />
           ✅・Presa Visione
         </Button>
+      )}
+      
+      {acknowledged && (
+        <div className="text-sm text-success font-medium">
+          ✅・Presa Visione Confermata da: {acknowledgedBy}
+        </div>
       )}
     </div>
   );
