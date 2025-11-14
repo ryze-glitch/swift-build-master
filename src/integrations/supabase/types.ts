@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          acknowledged_by: Json | null
+          author: string
+          category: string
+          content: string
+          created_at: string
+          created_by: string
+          date: string
+          id: string
+          title: string
+          training_votes: Json | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_by?: Json | null
+          author: string
+          category: string
+          content: string
+          created_at?: string
+          created_by: string
+          date?: string
+          id?: string
+          title: string
+          training_votes?: Json | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_by?: Json | null
+          author?: string
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          date?: string
+          id?: string
+          title?: string
+          training_votes?: Json | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
