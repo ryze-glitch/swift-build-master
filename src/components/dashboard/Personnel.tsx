@@ -3,6 +3,7 @@ import { PersonnelCard } from "./PersonnelCard";
 import operatoriData from "@/data/operatori_reparto.json";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Person {
   id: number;
@@ -23,6 +24,7 @@ const mockPersonnel: Person[] = operatoriData.operators.map(op => ({
 }));
 
 export const Personnel = () => {
+  const { isAdmin } = useUserRole();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -55,10 +57,12 @@ export const Personnel = () => {
             Gestisci il personale organizzato per ruolo
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Aggiungi
-        </Button>
+        {isAdmin && (
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Aggiungi
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}
