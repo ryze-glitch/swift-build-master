@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
+import operatoriData from "@/data/operatori_reparto.json";
 
 interface TrainingVote {
   userId: string;
@@ -247,6 +248,20 @@ export const Announcements = () => {
     }
   };
 
+  const getUserDisplayName = (email: string | null): string => {
+    if (!email) return "Anonimo";
+    
+    // Cerca tra tutti gli operatori nel JSON
+    for (const [role, operators] of Object.entries(operatoriData)) {
+      const operator = (operators as any[]).find(op => op.discord_tag === email);
+      if (operator) {
+        return operator.nome;
+      }
+    }
+    
+    return email;
+  };
+
   const stats = {
     total: announcements.length,
     unread: announcements.filter(a => !a.acknowledged).length,
@@ -421,7 +436,7 @@ export const Announcements = () => {
                       <p className="text-muted-foreground">{announcement.content}</p>
                       <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
                         <i className="fas fa-user"></i>
-                        <span>{announcement.author}</span>
+                        <span>{getUserDisplayName(announcement.author)}</span>
                       </div>
                     </div>
                   </div>
@@ -439,28 +454,44 @@ export const Announcements = () => {
                     </div>
 
                     {/* Vote Buttons */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-2 gap-4 mb-6">
                       <button
                         onClick={() => handleTrainingVote(announcement.id, "presenza")}
-                        className={`p-4 rounded-xl font-semibold transition-all ${
+                        className={`group relative overflow-hidden p-6 rounded-2xl font-bold text-lg transition-all duration-300 ${
                           getUserVote(announcement) === "presenza"
-                            ? "bg-green-500 text-white shadow-lg scale-105"
-                            : "bg-secondary/50 hover:bg-secondary"
+                            ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-xl shadow-green-500/30 scale-105"
+                            : "bg-secondary/30 hover:bg-secondary/50 hover:scale-102 border-2 border-border"
                         }`}
                       >
-                        <i className="fas fa-check-circle text-2xl mb-2"></i>
-                        <div>Presenza</div>
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            getUserVote(announcement) === "presenza" ? "bg-white/20" : "bg-green-500/20"
+                          }`}>
+                            <i className={`fas fa-check text-2xl ${
+                              getUserVote(announcement) === "presenza" ? "text-white" : "text-green-500"
+                            }`}></i>
+                          </div>
+                          <span>Presenza</span>
+                        </div>
                       </button>
                       <button
                         onClick={() => handleTrainingVote(announcement.id, "assenza")}
-                        className={`p-4 rounded-xl font-semibold transition-all ${
+                        className={`group relative overflow-hidden p-6 rounded-2xl font-bold text-lg transition-all duration-300 ${
                           getUserVote(announcement) === "assenza"
-                            ? "bg-red-500 text-white shadow-lg scale-105"
-                            : "bg-secondary/50 hover:bg-secondary"
+                            ? "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-xl shadow-red-500/30 scale-105"
+                            : "bg-secondary/30 hover:bg-secondary/50 hover:scale-102 border-2 border-border"
                         }`}
                       >
-                        <i className="fas fa-times-circle text-2xl mb-2"></i>
-                        <div>Assenza</div>
+                        <div className="relative z-10 flex flex-col items-center gap-2">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            getUserVote(announcement) === "assenza" ? "bg-white/20" : "bg-red-500/20"
+                          }`}>
+                            <i className={`fas fa-times text-2xl ${
+                              getUserVote(announcement) === "assenza" ? "text-white" : "text-red-500"
+                            }`}></i>
+                          </div>
+                          <span>Assenza</span>
+                        </div>
                       </button>
                     </div>
 
