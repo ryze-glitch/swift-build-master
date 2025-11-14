@@ -94,40 +94,73 @@ export type Database = {
       }
       shifts: {
         Row: {
+          activation_time: string | null
           assigned_personnel: Json | null
+          coordinator: Json | null
           created_at: string
           created_by: string | null
+          deactivation_time: string | null
           end_time: string
           id: string
+          intervention_type: string | null
+          managed_by: Json | null
+          module_type: string | null
           name: string
+          negotiator: Json | null
+          operators_back: Json | null
+          operators_involved: Json | null
+          operators_out: Json | null
           role: string
           start_time: string
           status: string
           updated_at: string
+          vehicle_used: string | null
         }
         Insert: {
+          activation_time?: string | null
           assigned_personnel?: Json | null
+          coordinator?: Json | null
           created_at?: string
           created_by?: string | null
+          deactivation_time?: string | null
           end_time: string
           id?: string
+          intervention_type?: string | null
+          managed_by?: Json | null
+          module_type?: string | null
           name: string
+          negotiator?: Json | null
+          operators_back?: Json | null
+          operators_involved?: Json | null
+          operators_out?: Json | null
           role: string
           start_time: string
           status?: string
           updated_at?: string
+          vehicle_used?: string | null
         }
         Update: {
+          activation_time?: string | null
           assigned_personnel?: Json | null
+          coordinator?: Json | null
           created_at?: string
           created_by?: string | null
+          deactivation_time?: string | null
           end_time?: string
           id?: string
+          intervention_type?: string | null
+          managed_by?: Json | null
+          module_type?: string | null
           name?: string
+          negotiator?: Json | null
+          operators_back?: Json | null
+          operators_involved?: Json | null
+          operators_out?: Json | null
           role?: string
           start_time?: string
           status?: string
           updated_at?: string
+          vehicle_used?: string | null
         }
         Relationships: []
       }
