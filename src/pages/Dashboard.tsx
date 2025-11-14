@@ -11,8 +11,9 @@ import { NotificationSystem } from "@/components/dashboard/NotificationSystem";
 import { PremiumModal } from "@/components/dashboard/PremiumModal";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
+import Dirigenza from "./Dirigenza";
 
-type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits";
+type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits" | "dirigenza";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,6 +56,8 @@ const Dashboard = () => {
         return <Status />;
       case "credits":
         return <Credits />;
+      case "dirigenza":
+        return <Dirigenza />;
       default:
         return (
           <div className="space-y-8 px-4 py-6">
