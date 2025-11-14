@@ -55,10 +55,11 @@ const Auth = () => {
       if (error) throw error;
       if (data.error) {
         toast({
-          title: "Accesso negato",
-          description: data.error,
-          variant: "destructive"
+          title: data.error === "Accesso Negato" ? "Accesso Negato" : "Errore di autenticazione",
+          description: data.message || data.error,
+          variant: "destructive",
         });
+        navigate("/auth");
         return;
       }
 

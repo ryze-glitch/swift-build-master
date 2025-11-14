@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
 import operatoriData from "@/data/operatori_reparto.json";
+import { Badge } from "@/components/ui/badge";
+import { Shield, User } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +23,7 @@ interface HeaderProps {
 export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -59,9 +63,9 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
     { id: "personnel" as Page, icon: "fa-users", label: "Gerarchia" },
     { id: "shifts" as Page, icon: "fa-calendar-alt", label: "Turni" },
     { id: "announcements" as Page, icon: "fa-bullhorn", label: "Comunicati" },
-    { id: "dirigenza" as Page, icon: "fa-lock", label: "Dirigenza" },
     { id: "status" as Page, icon: "fa-wave-square", label: "Status" },
     { id: "credits" as Page, icon: "fa-award", label: "Crediti" },
+    ...(isAdmin ? [{ id: "dirigenza" as Page, icon: "fa-lock", label: "Dirigenza" }] : []),
   ];
 
   return (
@@ -161,14 +165,13 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                 <div className="text-sm font-semibold">
                   {userProfile?.discord_tag || user?.email?.split('@')[0]}
                 </div>
-                {userOperator && (
-                  <>
-                    <div className="text-xs text-muted-foreground">{userOperator.matricola}</div>
-                    <div className="text-xs text-primary/80 mt-0.5 leading-tight">
-                      {userOperator.qualification}
-                    </div>
-                  </>
-                )}
+                <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs h-5 mt-1">
+                  {isAdmin ? (
+                    <><Shield className="w-3 h-3 mr-1" />Dirigenza</>
+                  ) : (
+                    <><User className="w-3 h-3 mr-1" />Operatore</>
+                  )}
+                </Badge>
               </div>
               <i className={`fas fa-chevron-down text-xs transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
             </button>
@@ -187,12 +190,13 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     )}
                     <div className="flex-1">
                       <div className="font-semibold">{userProfile?.discord_tag || user?.email}</div>
-                      {userOperator && (
-                        <>
-                          <div className="text-xs text-muted-foreground">{userOperator.matricola}</div>
-                          <div className="text-xs text-primary/80 mt-1">{userOperator.qualification}</div>
-                        </>
-                      )}
+                      <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs h-5 mt-1">
+                        {isAdmin ? (
+                          <><Shield className="w-3 h-3 mr-1" />Dirigenza</>
+                        ) : (
+                          <><User className="w-3 h-3 mr-1" />Operatore</>
+                        )}
+                      </Badge>
                     </div>
                   </div>
                 </div>
