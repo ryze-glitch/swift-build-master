@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits";
+type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits" | "dirigenza";
 
 interface HeaderProps {
   currentPage: Page;
@@ -59,6 +59,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
     { id: "personnel" as Page, icon: "fa-users", label: "Gerarchia" },
     { id: "shifts" as Page, icon: "fa-calendar-alt", label: "Turni" },
     { id: "announcements" as Page, icon: "fa-bullhorn", label: "Comunicati" },
+    { id: "dirigenza" as Page, icon: "fa-lock", label: "Dirigenza" },
     { id: "status" as Page, icon: "fa-wave-square", label: "Status" },
     { id: "credits" as Page, icon: "fa-award", label: "Crediti" },
   ];
