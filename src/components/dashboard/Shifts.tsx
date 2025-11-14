@@ -363,7 +363,10 @@ export const Shifts = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h3 className="font-semibold text-lg">{shift.name}</h3>
-                          <p className="text-sm text-muted-foreground">{shift.role}</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            <Calendar className="inline-block h-4 w-4 mr-1" />
+                            {new Date(shift.start_time).toLocaleDateString('it-IT')}
+                          </p>
                         </div>
                         <div
                           className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
@@ -372,16 +375,6 @@ export const Shifts = () => {
                         >
                           {statusConfig[shift.status].icon}
                           {statusConfig[shift.status].label}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 text-sm mb-4">
-                        <div className="flex items-center text-muted-foreground">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          <span>
-                            {new Date(shift.start_time).toLocaleString("it-IT")} -{" "}
-                            {new Date(shift.end_time).toLocaleString("it-IT")}
-                          </span>
                         </div>
                       </div>
 
