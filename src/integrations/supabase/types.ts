@@ -94,6 +94,8 @@ export type Database = {
       }
       shifts: {
         Row: {
+          acknowledged_at: string | null
+          acknowledged_by: Json | null
           activation_time: string | null
           assigned_personnel: Json | null
           coordinator: Json | null
@@ -117,6 +119,8 @@ export type Database = {
           vehicle_used: string | null
         }
         Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: Json | null
           activation_time?: string | null
           assigned_personnel?: Json | null
           coordinator?: Json | null
@@ -140,6 +144,8 @@ export type Database = {
           vehicle_used?: string | null
         }
         Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: Json | null
           activation_time?: string | null
           assigned_personnel?: Json | null
           coordinator?: Json | null

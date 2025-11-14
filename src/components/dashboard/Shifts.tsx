@@ -57,6 +57,7 @@ interface Shift {
   coordinator?: Person | null;
   negotiator?: Person | null;
   operators_involved?: Person[] | null;
+  acknowledged_by?: any[];
 }
 
 const statusConfig = {
@@ -124,6 +125,7 @@ export const Shifts = () => {
           coordinator: shift.coordinator as any,
           negotiator: shift.negotiator as any,
           operators_involved: shift.operators_involved as any,
+          acknowledged_by: shift.acknowledged_by as any,
         }))
       );
     } catch (error) {
@@ -426,6 +428,8 @@ export const Shifts = () => {
                             operatorsInvolved={shift.operators_involved}
                             shiftId={shift.id}
                             onAcknowledge={handleAcknowledge}
+                            initialAcknowledgedBy={shift.acknowledged_by}
+                            onAcknowledgeUpdate={loadShifts}
                           />
                         </div>
                       )}
