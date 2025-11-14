@@ -367,16 +367,18 @@ export const Announcements = () => {
         ))}
       </div>
 
-      {/* Compose Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => setIsComposing(!isComposing)}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-        >
-          <i className="fas fa-plus mr-2"></i>
-          Nuova Comunicazione
-        </button>
-      </div>
+      {/* Compose Button - Only for admins */}
+      {isAdmin && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => setIsComposing(!isComposing)}
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+          >
+            <i className="fas fa-plus mr-2"></i>
+            Nuova Comunicazione
+          </button>
+        </div>
+      )}
 
       {/* Compose Form */}
       {isComposing && (
