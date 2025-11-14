@@ -24,6 +24,7 @@ interface Announcement {
   tags: string[];
   isTraining?: boolean;
   trainingVotes?: TrainingVote[];
+  created_by?: string;
 }
 
 export const Announcements = () => {
@@ -58,6 +59,7 @@ export const Announcements = () => {
           acknowledged: Array.isArray(a.acknowledged_by) && user ? a.acknowledged_by.includes(user.id) : false,
           tags: [],
           isTraining: a.type === "training",
+          created_by: a.created_by,
           trainingVotes: a.type === "training" && a.training_votes ? (() => {
             const votes = a.training_votes as any;
             return [
@@ -186,6 +188,25 @@ export const Announcements = () => {
     };
   };
 
+  const handleDeleteAnnouncement = async (announcementId: string) => {
+    if (!user) return;
+    
+    if (!confirm("Sei sicuro di voler eliminare questo comunicato?")) return;
+
+    const { error } = await supabase
+      .from("announcements")
+      .delete()
+      .eq("id", announcementId);
+
+    if (error) {
+      console.error("Error deleting announcement:", error);
+      toast.error("Errore nell'eliminazione");
+    } else {
+      toast.success("Comunicato eliminato");
+      setAnnouncements(prev => prev.filter(a => a.id !== announcementId));
+    }
+  };
+
   const getUserVote = (announcement: Announcement): "presenza" | "assenza" | null => {
     if (!announcement.isTraining || !announcement.trainingVotes || !user) return null;
     const vote = announcement.trainingVotes.find(v => v.userId === user.id);
@@ -240,6 +261,7 @@ export const Announcements = () => {
           acknowledged: Array.isArray(a.acknowledged_by) && user ? a.acknowledged_by.includes(user.id) : false,
           tags: [],
           isTraining: a.type === "training",
+          created_by: a.created_by,
           trainingVotes: a.type === "training" && a.training_votes ? (() => {
             const votes = a.training_votes as any;
             return [
@@ -448,6 +470,17 @@ export const Announcements = () => {
                         <span>{getUserDisplayName(announcement.author)}</span>
                       </div>
                     </div>
+                    
+                    {/* Delete Button */}
+                    {user && (user.id === announcement.created_by || isAdmin) && (
+                      <button
+                        onClick={() => handleDeleteAnnouncement(announcement.id)}
+                        className="ml-4 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
+                        title="Elimina comunicato"
+                      >
+                        <i className="fas fa-trash text-sm"></i>
+                      </button>
+                    )}
                   </div>
 
                   {/* Voting Section */}
@@ -463,37 +496,33 @@ export const Announcements = () => {
                     </div>
 
                     {/* Vote Buttons */}
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => handleTrainingVote(announcement.id, "presenza")}
-                          className={`group relative overflow-hidden px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                          className={`px-3 py-2 rounded-lg font-medium text-sm transition-all ${
                             getUserVote(announcement) === "presenza"
-                              ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/20"
+                              ? "bg-green-500 text-white shadow-md"
                               : "bg-secondary/30 hover:bg-secondary/50 border border-border"
                           }`}
                         >
-                          <div className="relative z-10 flex items-center justify-center gap-2">
-                            <i className={`fas fa-check ${
-                              getUserVote(announcement) === "presenza" ? "text-white" : "text-green-500"
-                            }`}></i>
-                            <span>Presenza</span>
-                          </div>
+                          <i className={`fas fa-check mr-1.5 text-xs ${
+                            getUserVote(announcement) === "presenza" ? "text-white" : "text-green-500"
+                          }`}></i>
+                          Presenza
                         </button>
                         <button
                           onClick={() => handleTrainingVote(announcement.id, "assenza")}
-                          className={`group relative overflow-hidden px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                          className={`px-3 py-2 rounded-lg font-medium text-sm transition-all ${
                             getUserVote(announcement) === "assenza"
-                              ? "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/20"
+                              ? "bg-red-500 text-white shadow-md"
                               : "bg-secondary/30 hover:bg-secondary/50 border border-border"
                           }`}
                         >
-                          <div className="relative z-10 flex items-center justify-center gap-2">
-                            <i className={`fas fa-times ${
-                              getUserVote(announcement) === "assenza" ? "text-white" : "text-red-500"
-                            }`}></i>
-                            <span>Assenza</span>
-                          </div>
+                          <i className={`fas fa-times mr-1.5 text-xs ${
+                            getUserVote(announcement) === "assenza" ? "text-white" : "text-red-500"
+                          }`}></i>
+                          Assenza
                         </button>
                       </div>
                       
@@ -501,10 +530,10 @@ export const Announcements = () => {
                       {getUserVote(announcement) && (
                         <button
                           onClick={() => handleTrainingVote(announcement.id, null)}
-                          className="w-full px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                          className="w-full px-2 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
                         >
                           <i className="fas fa-undo text-xs"></i>
-                          <span>Rimuovi voto</span>
+                          Rimuovi voto
                         </button>
                       )}
                     </div>
@@ -554,6 +583,8 @@ export const Announcements = () => {
               <AnnouncementCard 
                 announcement={announcement}
                 onAcknowledge={() => handleAcknowledge(announcement.id)}
+                onDelete={() => handleDeleteAnnouncement(announcement.id)}
+                canDelete={user ? (user.id === announcement.created_by || isAdmin) : false}
               />
             )}
           </div>

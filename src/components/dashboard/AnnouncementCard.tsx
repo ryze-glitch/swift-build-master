@@ -9,11 +9,14 @@ interface Announcement {
   category: "urgent" | "info" | "update" | "training";
   acknowledged: boolean;
   tags: string[];
+  created_by?: string;
 }
 
 interface AnnouncementCardProps {
   announcement: Announcement;
   onAcknowledge: () => void;
+  onDelete?: () => void;
+  canDelete?: boolean;
 }
 
 const categoryConfig = {
@@ -23,7 +26,7 @@ const categoryConfig = {
   training: { color: "hsl(var(--warning))", icon: "fa-graduation-cap", label: "Addestramento" },
 };
 
-export const AnnouncementCard = ({ announcement, onAcknowledge }: AnnouncementCardProps) => {
+export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDelete }: AnnouncementCardProps) => {
   const category = categoryConfig[announcement.category];
 
   return (
@@ -37,16 +40,27 @@ export const AnnouncementCard = ({ announcement, onAcknowledge }: AnnouncementCa
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-xl font-bold flex-1">{announcement.title}</h3>
-        <span 
-          className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
-          style={{ 
-            backgroundColor: `${category.color}20`, 
-            color: category.color 
-          }}
-        >
-          <i className={`fas ${category.icon}`}></i>
-          {category.label}
-        </span>
+        <div className="flex items-center gap-2">
+          <span 
+            className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
+            style={{ 
+              backgroundColor: `${category.color}20`, 
+              color: category.color 
+            }}
+          >
+            <i className={`fas ${category.icon}`}></i>
+            {category.label}
+          </span>
+          {canDelete && onDelete && (
+            <button
+              onClick={onDelete}
+              className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
+              title="Elimina comunicato"
+            >
+              <i className="fas fa-trash text-sm"></i>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Meta */}
