@@ -202,15 +202,18 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate magic link for automatic sign-in
-    const { data: signInData, error: signInError } = await supabaseClient.auth.admin.generateLink({
+    // Generate OTP for instant sign-in
+    const { data: otpData, error: otpError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: authUser.email || email,
+      options: {
+        redirectTo: `${req.headers.get("origin")}/dashboard`
+      }
     });
 
-    if (signInError) {
-      logStep("Error generating auth link", { error: signInError.message });
-      throw signInError;
+    if (otpError) {
+      logStep("Error generating OTP", { error: otpError.message });
+      throw otpError;
     }
 
     logStep("Auth link generated successfully", { 
@@ -218,10 +221,10 @@ serve(async (req) => {
       isNewUser 
     });
 
-    // Return the magic link URL for automatic redirect
+    // Return the instant redirect URL
     return new Response(
       JSON.stringify({
-        redirect_url: signInData.properties.action_link,
+        redirect_url: otpData.properties.action_link,
         user: {
           id: authUser.id,
           email: authUser.email,
