@@ -13,12 +13,11 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Redirect to dashboard if user is already logged in
+    // Immediate redirect if user is logged in
     if (user) {
-      console.log("User already logged in, redirecting to dashboard");
-      navigate("/dashboard", { replace: true });
+      window.location.replace("/dashboard");
     }
-  }, [user, navigate]);
+  }, [user]);
 
   useEffect(() => {
     const code = searchParams.get("code");
@@ -65,8 +64,10 @@ const Auth = () => {
         return;
       }
 
-      // Immediate redirect to magic link
-      window.location.replace(data.redirect_url);
+      // Use the magic link for instant authentication
+      if (data.redirect_url) {
+        window.location.replace(data.redirect_url);
+      }
     } catch (error) {
       toast({
         title: "Errore durante l'accesso",
