@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        'rajdhani': ['Rajdhani', 'sans-serif'],
+        'lexend': ['Lexend', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
