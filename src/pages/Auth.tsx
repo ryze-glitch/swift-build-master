@@ -98,6 +98,26 @@ const Auth = () => {
             Accedi con Discord
           </Button>
 
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Oppure
+              </span>
+            </div>
+          </div>
+
+          <Button 
+            onClick={() => navigate("/dashboard")} 
+            size="lg" 
+            variant="outline"
+            className="w-full font-semibold py-6 text-lg"
+          >
+            Accesso Diretto (Sviluppo)
+          </Button>
+
           <div className="text-center text-sm text-muted-foreground">
             <p>🔐 Accesso sicuro riservato ai membri autorizzati</p>
           </div>

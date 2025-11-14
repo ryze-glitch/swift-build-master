@@ -31,7 +31,7 @@ export const HeistDeactivationForm = ({ onSubmit, onCancel }: HeistDeactivationF
   const personnel: Person[] = operatoriData.operators.map((op) => ({
     id: op.matricola,
     name: op.name,
-    role: op.role,
+    role: op.qualification,
   }));
 
   const handleAddOperator = (personId: string) => {
