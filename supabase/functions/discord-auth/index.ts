@@ -107,7 +107,10 @@ serve(async (req) => {
     if (!roleData) {
       logStep("Unauthorized user attempted login", { discordTag, discordId });
       return new Response(
-        JSON.stringify({ error: "Non sei autorizzato ad accedere a questa applicazione." }),
+        JSON.stringify({ 
+          error: "Accesso Negato", 
+          message: "Il tuo account Discord non è autorizzato. Contatta l'amministratore per richiedere l'accesso."
+        }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 403,

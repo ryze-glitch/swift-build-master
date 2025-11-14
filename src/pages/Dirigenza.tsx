@@ -118,12 +118,12 @@ export default function Dirigenza() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-lg bg-primary/10">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex items-center gap-4 p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
+          <div className="p-4 rounded-xl bg-primary/20 backdrop-blur-sm shadow-lg">
             <svg
-              className="w-6 h-6 text-primary"
+              className="w-8 h-8 text-primary"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -137,19 +137,20 @@ export default function Dirigenza() {
             </svg>
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Dirigenza</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Dirigenza
+            </h1>
+            <p className="text-muted-foreground text-lg">
               Statistiche attivazioni moduli per operatore
             </p>
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Ore di Attivazione</CardTitle>
-            <CardDescription>
-              Conteggio totale delle ore effettuate tramite moduli (in ordine di
-              grado)
+        <Card className="border-primary/20 shadow-xl backdrop-blur-sm bg-card/95">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-2xl">Ore di Attivazione</CardTitle>
+            <CardDescription className="text-base">
+              Conteggio totale delle ore effettuate tramite moduli (in ordine di grado)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -171,38 +172,40 @@ export default function Dirigenza() {
                 Nessuna attivazione registrata
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {stats.map((stat, index) => (
                   <div
                     key={stat.operator}
-                    className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
+                    className="group relative flex items-center gap-4 p-5 rounded-xl border border-border/50 bg-gradient-to-r from-card to-card/50 hover:from-accent/10 hover:to-accent/5 hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-center gap-4 flex-1">
-                      <div className="text-2xl font-bold text-muted-foreground w-8">
-                        #{index + 1}
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                        <span className="text-lg font-bold text-primary">
+                          #{index + 1}
+                        </span>
                       </div>
-                      <Avatar className="h-12 w-12">
+                      <Avatar className="h-14 w-14 ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
                         <AvatarImage src={stat.avatarUrl} />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                           {stat.operator
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <div className="font-semibold">{stat.operator}</div>
-                        <div className="text-sm text-muted-foreground">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-lg truncate">{stat.operator}</div>
+                        <div className="text-sm text-muted-foreground truncate">
                           {stat.qualification}
                         </div>
                       </div>
                     </div>
-                    <div className="text-right space-y-1">
-                      <Badge variant="secondary" className="text-lg font-bold">
+                    <div className="text-right space-y-2">
+                      <Badge variant="secondary" className="text-lg font-bold px-4 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20">
                         {stat.hours}h {stat.minutes}m
                       </Badge>
-                      <div className="text-xs text-muted-foreground">
-                        {stat.activations} attivazioni
+                      <div className="text-xs text-muted-foreground font-medium">
+                        {stat.activations} {stat.activations === 1 ? 'attivazione' : 'attivazioni'}
                       </div>
                     </div>
                   </div>
