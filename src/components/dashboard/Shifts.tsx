@@ -92,6 +92,26 @@ export const Shifts = () => {
 
   useEffect(() => {
     loadShifts();
+
+    // Setup realtime subscription
+    const channel = supabase
+      .channel('shifts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'shifts'
+        },
+        () => {
+          loadShifts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadShifts = async () => {

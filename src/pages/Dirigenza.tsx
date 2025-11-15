@@ -40,25 +40,58 @@ export default function Dirigenza() {
 
       if (error) throw error;
 
+      // Raggruppa shifts per coppia attivazione-disattivazione
+      const activationPairs = new Map<string, { activation: any; deactivation?: any }>();
+      
+      shifts?.forEach((shift) => {
+        // Crea una chiave unica basata su tipo modulo e operatori
+        let keyBase = '';
+        let operators: Person[] = [];
+        
+        if (shift.module_type === "patrol_activation" || shift.module_type === "patrol_deactivation") {
+          operators = (Array.isArray(shift.operators_out) ? shift.operators_out : 
+                       Array.isArray(shift.operators_back) ? shift.operators_back : []) as unknown as Person[];
+          keyBase = 'patrol_' + operators.map(o => o.id).sort().join('_');
+        } else if (shift.module_type === "heist_activation" || shift.module_type === "heist_deactivation") {
+          operators = (Array.isArray(shift.operators_involved) ? shift.operators_involved : []) as unknown as Person[];
+          keyBase = 'heist_' + operators.map(o => o.id).sort().join('_');
+        }
+        
+        const shiftDate = new Date(shift.start_time).toLocaleDateString();
+        const key = `${keyBase}_${shiftDate}`;
+        
+        if (shift.module_type?.includes('activation')) {
+          const existing = activationPairs.get(key) || { activation: shift };
+          existing.activation = shift;
+          activationPairs.set(key, existing);
+        } else if (shift.module_type?.includes('deactivation')) {
+          const existing = activationPairs.get(key) || { activation: null };
+          existing.deactivation = shift;
+          activationPairs.set(key, existing);
+        }
+      });
+
       // Calcola le statistiche per operatore
       const statsMap = new Map<string, ActivationStats>();
 
-      shifts?.forEach((shift) => {
+      activationPairs.forEach((pair) => {
+        if (!pair.activation || !pair.deactivation) return;
+        
         let operators: Person[] = [];
         let durationMinutes = 0;
         
-        // Per le attivazioni, usa operators_out o operators_involved
-        if (shift.module_type === "patrol_activation" && shift.operators_out) {
-          operators = (Array.isArray(shift.operators_out) ? shift.operators_out : []) as unknown as Person[];
-        } else if (shift.module_type === "heist_activation" && shift.operators_involved) {
-          operators = (Array.isArray(shift.operators_involved) ? shift.operators_involved : []) as unknown as Person[];
+        // Prendi gli operatori dall'attivazione
+        if (pair.activation.module_type === "patrol_activation" && pair.activation.operators_out) {
+          operators = (Array.isArray(pair.activation.operators_out) ? pair.activation.operators_out : []) as unknown as Person[];
+        } else if (pair.activation.module_type === "heist_activation" && pair.activation.operators_involved) {
+          operators = (Array.isArray(pair.activation.operators_involved) ? pair.activation.operators_involved : []) as unknown as Person[];
         }
 
-        // Calcola la durata solo se abbiamo sia attivazione che disattivazione
-        if (shift.activation_time && shift.deactivation_time) {
+        // Calcola la durata usando i tempi corretti
+        if (pair.activation.activation_time && pair.deactivation.deactivation_time) {
           try {
-            const [actHours, actMinutes] = shift.activation_time.split(':').map(Number);
-            const [deactHours, deactMinutes] = shift.deactivation_time.split(':').map(Number);
+            const [actHours, actMinutes] = pair.activation.activation_time.split(':').map(Number);
+            const [deactHours, deactMinutes] = pair.deactivation.deactivation_time.split(':').map(Number);
             
             const actTotalMinutes = actHours * 60 + actMinutes;
             const deactTotalMinutes = deactHours * 60 + deactMinutes;
