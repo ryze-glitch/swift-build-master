@@ -355,19 +355,6 @@ export const Shifts = () => {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2">
-        {(["all", "active", "completed", "scheduled"] as const).map((status) => (
-          <Button
-            key={status}
-            variant={filter === status ? "default" : "outline"}
-            onClick={() => setFilter(status)}
-            size="sm"
-          >
-            {status === "all" ? "Tutti" : statusConfig[status].label}
-          </Button>
-        ))}
-      </div>
 
       {/* Shifts List */}
       <div className="space-y-4">
@@ -444,6 +431,19 @@ export const Shifts = () => {
                             initialAcknowledgedBy={shift.acknowledged_by}
                             onAcknowledgeUpdate={loadShifts}
                           />
+                        </div>
+                      )}
+
+                      {isAdmin && (
+                        <div className="flex gap-2 mt-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-auto"
+                            onClick={() => handleDeleteShift(shift.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       )}
                     </div>
