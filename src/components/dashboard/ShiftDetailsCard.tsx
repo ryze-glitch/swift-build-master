@@ -82,9 +82,22 @@ export const ShiftDetailsCard = ({
     if (!user) return;
     
     try {
+      // Recupera il nome completo dal profilo
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+      }
+
+      const userName = profileData?.full_name || user.email || "Utente Sconosciuto";
+      
       const newAcknowledgement = {
         userId: user.id,
-        userName: user.email,
+        userName: userName,
         timestamp: new Date().toISOString(),
       };
       
@@ -263,16 +276,20 @@ export const ShiftDetailsCard = ({
       )}
       </div>
       
-      {/* Pulsante di presa visione */}
-      {!isAcknowledgedByUser && (
+      {/* Pulsante di presa visione o conferma */}
+      {!isAcknowledgedByUser ? (
         <Button 
           onClick={handleAcknowledge}
           className="w-full mt-4"
-          variant="outline"
         >
           <CheckCircle className="w-4 h-4 mr-2" />
           Presa Visione
         </Button>
+      ) : (
+        <div className="mt-4 p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
+          <CheckCircle className="w-4 h-4" />
+          <span>✅・Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}</span>
+        </div>
       )}
       
       {/* Lista di chi ha preso visione - visibile solo agli admin */}
