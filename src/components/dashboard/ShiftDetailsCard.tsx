@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -263,6 +263,33 @@ export const ShiftDetailsCard = ({
       )}
       </div>
       
+      {/* Pulsante di presa visione */}
+      {!isAcknowledgedByUser && (
+        <Button 
+          onClick={handleAcknowledge}
+          className="w-full mt-4"
+          variant="outline"
+        >
+          <CheckCircle className="w-4 h-4 mr-2" />
+          Presa Visione
+        </Button>
+      )}
+      
+      {/* Lista di chi ha preso visione - visibile solo agli admin */}
+      {isAdmin && acknowledgedBy.length > 0 && (
+        <Card className="mt-4 bg-muted/50">
+          <CardContent className="pt-4">
+            <p className="text-sm font-medium mb-2">Presa visione da:</p>
+            <div className="space-y-1">
+              {acknowledgedBy.map((ack: any, idx: number) => (
+                <div key={idx} className="text-xs text-muted-foreground">
+                  {ack.userName} - {new Date(ack.timestamp).toLocaleString('it-IT')}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

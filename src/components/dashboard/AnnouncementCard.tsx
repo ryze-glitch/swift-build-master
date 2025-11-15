@@ -10,6 +10,7 @@ interface Announcement {
   acknowledged: boolean;
   tags: string[];
   created_by?: string;
+  acknowledgedBy?: string[];
 }
 
 interface AnnouncementCardProps {
@@ -17,6 +18,7 @@ interface AnnouncementCardProps {
   onAcknowledge: () => void;
   onDelete?: () => void;
   canDelete?: boolean;
+  showAcknowledgmentList?: boolean;
 }
 
 const categoryConfig = {
@@ -26,7 +28,7 @@ const categoryConfig = {
   training: { color: "hsl(var(--warning))", icon: "fa-graduation-cap", label: "Addestramento" },
 };
 
-export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDelete }: AnnouncementCardProps) => {
+export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDelete, showAcknowledgmentList }: AnnouncementCardProps) => {
   const category = categoryConfig[announcement.category];
 
   return (
@@ -121,6 +123,23 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
           size={1.5}
         />
       </div>
+
+      {/* Lista di chi ha preso visione - solo per dirigenza */}
+      {showAcknowledgmentList && announcement.acknowledgedBy && announcement.acknowledgedBy.length > 0 && (
+        <div className="glass rounded-xl p-4 mt-4">
+          <div className="text-sm font-semibold mb-2 text-muted-foreground">
+            <i className="fas fa-users mr-2"></i>
+            Presa visione da:
+          </div>
+          <div className="space-y-1">
+            {announcement.acknowledgedBy.map((userId: string, idx: number) => (
+              <div key={idx} className="text-xs text-muted-foreground">
+                {userId}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

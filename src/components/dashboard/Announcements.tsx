@@ -21,6 +21,7 @@ interface Announcement {
   date: string;
   category: "urgent" | "info" | "update" | "training";
   acknowledged: boolean;
+  acknowledgedBy?: string[];
   tags: string[];
   isTraining?: boolean;
   trainingVotes?: TrainingVote[];
@@ -49,31 +50,58 @@ export const Announcements = () => {
         console.error("Error fetching announcements:", error);
         toast.error("Errore nel caricamento dei comunicati");
       } else {
-        const formattedAnnouncements: Announcement[] = (data || []).map(a => ({
-          id: a.id,
-          title: a.title,
-          content: a.content,
-          author: a.author,
-          date: a.date,
-          category: a.category as any,
-          acknowledged: Array.isArray(a.acknowledged_by) && user ? a.acknowledged_by.includes(user.id) : false,
-          tags: [],
-          isTraining: a.type === "training",
-          created_by: a.created_by,
-          trainingVotes: a.type === "training" && a.training_votes ? (() => {
-            const votes = a.training_votes as any;
-            return [
-              ...(Array.isArray(votes.presenza) ? votes.presenza : []).map((userId: string) => ({ userId, choice: "presenza" as const })),
-              ...(Array.isArray(votes.assenza) ? votes.assenza : []).map((userId: string) => ({ userId, choice: "assenza" as const }))
-            ];
-          })() : undefined
-        }));
+        const formattedAnnouncements: Announcement[] = (data || []).map(a => {
+          const acknowledgedByArray = Array.isArray(a.acknowledged_by) 
+            ? a.acknowledged_by.map((id: any) => String(id)) 
+            : [];
+            
+          return {
+            id: a.id,
+            title: a.title,
+            content: a.content,
+            author: a.author,
+            date: a.date,
+            category: a.category as any,
+            acknowledged: acknowledgedByArray.includes(user?.id || ''),
+            acknowledgedBy: acknowledgedByArray,
+            tags: [],
+            isTraining: a.type === "training",
+            created_by: a.created_by,
+            trainingVotes: a.type === "training" && a.training_votes ? (() => {
+              const votes = a.training_votes as any;
+              return [
+                ...(Array.isArray(votes.presenza) ? votes.presenza : []).map((userId: string) => ({ userId, choice: "presenza" as const })),
+                ...(Array.isArray(votes.assenza) ? votes.assenza : []).map((userId: string) => ({ userId, choice: "assenza" as const }))
+              ];
+            })() : undefined
+          };
+        });
         setAnnouncements(formattedAnnouncements);
       }
       setLoading(false);
     };
 
     fetchAnnouncements();
+
+    // Setup realtime subscription
+    const channel = supabase
+      .channel('announcements-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'announcements'
+        },
+        () => {
+          fetchAnnouncements();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   // Marca tutti i comunicati come letti quando la pagina viene visualizzata
@@ -601,6 +629,7 @@ export const Announcements = () => {
                 onAcknowledge={() => handleAcknowledge(announcement.id)}
                 onDelete={() => handleDeleteAnnouncement(announcement.id)}
                 canDelete={user ? (user.id === announcement.created_by || isAdmin) : false}
+                showAcknowledgmentList={isAdmin}
               />
             )}
           </div>
