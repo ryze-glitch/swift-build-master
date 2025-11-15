@@ -57,15 +57,16 @@ export default function Dirigenza() {
           keyBase = 'heist_' + operators.map(o => o.id).sort().join('_');
         }
         
-        const shiftDate = new Date(shift.start_time).toLocaleDateString();
+        // Usa solo la data senza l'ora per raggruppare attivazioni e disattivazioni dello stesso giorno
+        const shiftDate = new Date(shift.start_time).toISOString().split('T')[0];
         const key = `${keyBase}_${shiftDate}`;
         
         if (shift.module_type?.includes('activation')) {
-          const existing = activationPairs.get(key) || { activation: shift };
+          const existing = activationPairs.get(key) || { activation: null, deactivation: null };
           existing.activation = shift;
           activationPairs.set(key, existing);
         } else if (shift.module_type?.includes('deactivation')) {
-          const existing = activationPairs.get(key) || { activation: null };
+          const existing = activationPairs.get(key) || { activation: null, deactivation: null };
           existing.deactivation = shift;
           activationPairs.set(key, existing);
         }
@@ -75,7 +76,11 @@ export default function Dirigenza() {
       const statsMap = new Map<string, ActivationStats>();
 
       activationPairs.forEach((pair) => {
-        if (!pair.activation || !pair.deactivation) return;
+        // Salta le coppie incomplete
+        if (!pair.activation || !pair.deactivation) {
+          console.log("Coppia incompleta:", pair);
+          return;
+        }
         
         let operators: Person[] = [];
         let durationMinutes = 0;
@@ -94,14 +99,16 @@ export default function Dirigenza() {
             const [deactHours, deactMinutes] = pair.deactivation.deactivation_time.split(':').map(Number);
             
             const actTotalMinutes = actHours * 60 + actMinutes;
-            const deactTotalMinutes = deactHours * 60 + deactMinutes;
+            let deactTotalMinutes = deactHours * 60 + deactMinutes;
+            
+            // Se la disattivazione è il giorno dopo (orario inferiore all'attivazione)
+            if (deactTotalMinutes < actTotalMinutes) {
+              deactTotalMinutes += 24 * 60;
+            }
             
             durationMinutes = deactTotalMinutes - actTotalMinutes;
             
-            // Se la disattivazione è il giorno dopo
-            if (durationMinutes < 0) {
-              durationMinutes += 24 * 60;
-            }
+            console.log(`Attivazione: ${pair.activation.activation_time}, Disattivazione: ${pair.deactivation.deactivation_time}, Durata: ${durationMinutes} minuti`);
           } catch (e) {
             console.error("Errore nel calcolo della durata:", e);
           }

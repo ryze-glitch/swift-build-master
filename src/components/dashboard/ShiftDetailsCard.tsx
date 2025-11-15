@@ -291,22 +291,6 @@ export const ShiftDetailsCard = ({
           <span>✅・Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}</span>
         </div>
       )}
-      
-      {/* Lista di chi ha preso visione - visibile solo agli admin */}
-      {isAdmin && acknowledgedBy.length > 0 && (
-        <Card className="mt-4 bg-muted/50">
-          <CardContent className="pt-4">
-            <p className="text-sm font-medium mb-2">Presa visione da:</p>
-            <div className="space-y-1">
-              {acknowledgedBy.map((ack: any, idx: number) => (
-                <div key={idx} className="text-xs text-muted-foreground">
-                  {ack.userName} - {new Date(ack.timestamp).toLocaleString('it-IT')}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
