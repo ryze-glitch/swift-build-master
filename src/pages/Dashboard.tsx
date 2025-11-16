@@ -60,32 +60,32 @@ const Dashboard = () => {
         return <Dirigenza />;
       default:
         return (
-          <div className="space-y-8 px-4 py-6">
+          <div className="space-y-6 sm:space-y-8 px-3 sm:px-4 py-4 sm:py-6">
             {/* Hero with Quick Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Main Hero Card */}
-              <div className="lg:col-span-2 glass-strong rounded-3xl p-8 relative overflow-hidden">
+              <div className="lg:col-span-2 glass-strong rounded-2xl sm:rounded-3xl p-4 sm:p-8 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none"></div>
                 <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-6">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
                     <div>
-                      <h1 className="text-5xl font-extrabold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2 sm:mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Dashboard U.O.P.I.
                       </h1>
-                      <p className="text-muted-foreground text-lg">
+                      <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
                         Sistema di gestione operativa integrato
                       </p>
                     </div>
-                    <div className="glass rounded-2xl px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
-                        <span className="font-bold text-success">Sistema Attivo</span>
+                    <div className="glass rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2 sm:py-3 self-start">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 bg-success rounded-full animate-pulse"></div>
+                        <span className="font-bold text-success text-xs sm:text-base">Sistema Attivo</span>
                       </div>
                     </div>
                   </div>
                   
                   {/* Quick Access Grid */}
-                  <div className="grid grid-cols-2 gap-4 mt-8">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-8">
                     {[
                       { icon: "fa-users", label: "Personale", value: "24", page: "personnel", color: "primary" },
                       { icon: "fa-calendar-alt", label: "Turni", value: "8", page: "shifts", color: "success" },
@@ -95,15 +95,15 @@ const Dashboard = () => {
                       <button
                         key={stat.page}
                         onClick={() => setCurrentPage(stat.page as Page)}
-                        className="glass rounded-2xl p-5 hover:scale-105 transition-all text-left group relative overflow-hidden"
+                        className="glass rounded-xl sm:rounded-2xl p-3 sm:p-5 hover:scale-105 transition-all text-left group relative overflow-hidden"
                       >
                         <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
                              style={{ background: `linear-gradient(135deg, hsl(var(--${stat.color})) 0%, transparent 100%)` }}></div>
                         <div className="relative z-10">
-                          <i className={`fas ${stat.icon} text-3xl mb-3 transition-transform group-hover:scale-110`}
+                          <i className={`fas ${stat.icon} text-xl sm:text-3xl mb-2 sm:mb-3 transition-transform group-hover:scale-110`}
                              style={{ color: `hsl(var(--${stat.color}))` }}></i>
-                          <div className="text-3xl font-extrabold mb-1">{stat.value}</div>
-                          <div className="text-sm text-muted-foreground">{stat.label}</div>
+                          <div className="text-xl sm:text-3xl font-extrabold mb-0.5 sm:mb-1">{stat.value}</div>
+                          <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
                         </div>
                       </button>
                     ))}
