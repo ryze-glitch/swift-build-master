@@ -36,55 +36,66 @@ export default function Dirigenza() {
       const { data: shifts, error } = await supabase
         .from("shifts")
         .select("*")
-        .in("module_type", ["patrol_activation", "patrol_deactivation", "heist_activation", "heist_deactivation"]);
+        .in("module_type", ["patrol_activation", "patrol_deactivation", "heist_activation", "heist_deactivation"])
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       
       console.log("Shifts caricati:", shifts?.length || 0);
-      console.log("Primi 3 shifts:", shifts?.slice(0, 3));
+      console.log("Tutti gli shifts:", shifts);
 
       // Raggruppa shifts per coppia attivazione-disattivazione
-      const activationPairs = new Map<string, { activation: any; deactivation?: any }>();
+      const activationPairs: Array<{ activation: any; deactivation: any }> = [];
       
       shifts?.forEach((shift) => {
-        // Crea una chiave unica basata su tipo modulo e operatori
-        let keyBase = '';
-        let operators: Person[] = [];
-        
-        if (shift.module_type === "patrol_activation" || shift.module_type === "patrol_deactivation") {
-          operators = (Array.isArray(shift.operators_out) ? shift.operators_out : 
-                       Array.isArray(shift.operators_back) ? shift.operators_back : []) as unknown as Person[];
-          keyBase = 'patrol_' + operators.map(o => o.id).sort().join('_');
-        } else if (shift.module_type === "heist_activation" || shift.module_type === "heist_deactivation") {
-          operators = (Array.isArray(shift.operators_involved) ? shift.operators_involved : []) as unknown as Person[];
-          keyBase = 'heist_' + operators.map(o => o.id).sort().join('_');
-        }
-        
-        // Usa solo la data senza l'ora per raggruppare attivazioni e disattivazioni dello stesso giorno
-        const shiftDate = new Date(shift.start_time).toISOString().split('T')[0];
-        const key = `${keyBase}_${shiftDate}`;
-        
-        if (shift.module_type?.includes('activation')) {
-          const existing = activationPairs.get(key) || { activation: null, deactivation: null };
-          existing.activation = shift;
-          activationPairs.set(key, existing);
-        } else if (shift.module_type?.includes('deactivation')) {
-          const existing = activationPairs.get(key) || { activation: null, deactivation: null };
-          existing.deactivation = shift;
-          activationPairs.set(key, existing);
+        if (shift.module_type === "patrol_activation" || shift.module_type === "heist_activation") {
+          // Questo è un turno di attivazione, cerchiamo la sua disattivazione
+          const deactivationType = shift.module_type.replace('activation', 'deactivation');
+          
+          // Ottieni gli operatori dall'attivazione
+          let activationOperators: Person[] = [];
+          if (shift.module_type === "patrol_activation" && shift.operators_out) {
+            activationOperators = (Array.isArray(shift.operators_out) ? shift.operators_out : []) as unknown as Person[];
+          } else if (shift.module_type === "heist_activation" && shift.operators_involved) {
+            activationOperators = (Array.isArray(shift.operators_involved) ? shift.operators_involved : []) as unknown as Person[];
+          }
+          
+          // Cerca la disattivazione corrispondente
+          const matchingDeactivation = shifts?.find((s) => {
+            if (s.module_type !== deactivationType) return false;
+            
+            // Ottieni gli operatori dalla disattivazione
+            let deactivationOperators: Person[] = [];
+            if (s.module_type === "patrol_deactivation" && s.operators_back) {
+              deactivationOperators = (Array.isArray(s.operators_back) ? s.operators_back : []) as unknown as Person[];
+            } else if (s.module_type === "heist_deactivation" && s.operators_involved) {
+              deactivationOperators = (Array.isArray(s.operators_involved) ? s.operators_involved : []) as unknown as Person[];
+            }
+            
+            // Controlla se gli operatori coincidono
+            const activationIds = activationOperators.map((o: Person) => o.id).sort().join(',');
+            const deactivationIds = deactivationOperators.map((o: Person) => o.id).sort().join(',');
+            
+            // Devono essere gli stessi operatori e la disattivazione deve essere dopo l'attivazione
+            return activationIds === deactivationIds && 
+                   new Date(s.created_at) > new Date(shift.created_at);
+          });
+          
+          if (matchingDeactivation && shift.activation_time && matchingDeactivation.deactivation_time) {
+            activationPairs.push({
+              activation: shift,
+              deactivation: matchingDeactivation
+            });
+          }
         }
       });
+
+      console.log("Coppie di attivazione/disattivazione trovate:", activationPairs.length);
 
       // Calcola le statistiche per operatore
       const statsMap = new Map<string, ActivationStats>();
 
       activationPairs.forEach((pair) => {
-        // Salta le coppie incomplete
-        if (!pair.activation || !pair.deactivation) {
-          console.log("Coppia incompleta:", pair);
-          return;
-        }
-        
         let operators: Person[] = [];
         let durationMinutes = 0;
         
@@ -96,32 +107,23 @@ export default function Dirigenza() {
         }
 
         // Calcola la durata usando i tempi corretti
-        if (pair.activation.activation_time && pair.deactivation.deactivation_time) {
-          try {
-            const [actHours, actMinutes] = pair.activation.activation_time.split(':').map(Number);
-            const [deactHours, deactMinutes] = pair.deactivation.deactivation_time.split(':').map(Number);
-            
-            const actTotalMinutes = actHours * 60 + actMinutes;
-            let deactTotalMinutes = deactHours * 60 + deactMinutes;
-            
-            // Se la disattivazione è il giorno dopo (orario inferiore all'attivazione)
-            if (deactTotalMinutes < actTotalMinutes) {
-              deactTotalMinutes += 24 * 60;
-            }
-            
-            durationMinutes = deactTotalMinutes - actTotalMinutes;
-            
-            console.log(`Coppia valida - Attivazione: ${pair.activation.activation_time}, Disattivazione: ${pair.deactivation.deactivation_time}, Durata: ${durationMinutes} minuti, Operatori:`, operators.map(o => o.name));
-          } catch (e) {
-            console.error("Errore nel calcolo della durata:", e, pair);
+        try {
+          const [actHours, actMinutes] = pair.activation.activation_time.split(':').map(Number);
+          const [deactHours, deactMinutes] = pair.deactivation.deactivation_time.split(':').map(Number);
+          
+          const actTotalMinutes = actHours * 60 + actMinutes;
+          let deactTotalMinutes = deactHours * 60 + deactMinutes;
+          
+          // Se la disattivazione è il giorno dopo (orario inferiore all'attivazione)
+          if (deactTotalMinutes < actTotalMinutes) {
+            deactTotalMinutes += 24 * 60;
           }
-        } else {
-          console.warn("Coppia senza tempi di attivazione/disattivazione:", {
-            activation_time: pair.activation.activation_time,
-            deactivation_time: pair.deactivation.deactivation_time,
-            activation_id: pair.activation.id,
-            deactivation_id: pair.deactivation.id
-          });
+          
+          durationMinutes = deactTotalMinutes - actTotalMinutes;
+          
+          console.log(`Coppia valida - Attivazione: ${pair.activation.activation_time}, Disattivazione: ${pair.deactivation.deactivation_time}, Durata: ${durationMinutes} minuti, Operatori:`, operators.map(o => o.name));
+        } catch (e) {
+          console.error("Errore nel calcolo della durata:", e, pair);
         }
 
         operators.forEach((operator) => {
