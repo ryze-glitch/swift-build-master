@@ -189,101 +189,103 @@ export default function Dirigenza() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 space-y-2 text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-primary/60">
+    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="space-y-1">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
             Dirigenza
           </h1>
-          <p className="text-muted-foreground text-sm md:text-base">
+          <p className="text-muted-foreground">
             Statistiche di attivazione degli operatori ordinate per grado
           </p>
         </div>
 
-        <Card className="border-primary/20 shadow-lg bg-card/80 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-              <Users className="h-6 w-6 text-primary" />
-              Classifica Operatori
-            </CardTitle>
+        {/* Content */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              <CardTitle>Classifica Operatori</CardTitle>
+            </div>
             <CardDescription>
               Tempi totali di attivazione e numero di interventi
             </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="flex items-center gap-4 p-4">
-                    <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
+                    <Skeleton className="h-12 w-12 rounded-full flex-shrink-0" />
                     <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-1/3" />
-                      <Skeleton className="h-3 w-1/4" />
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-24" />
                     </div>
-                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-28" />
                   </div>
                 ))}
               </div>
             ) : stats.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">
+              <div className="text-center py-16">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground font-medium mb-2">
                   Nessuna statistica disponibile
+                </p>
+                <p className="text-sm text-muted-foreground/70">
+                  Crea turni di attivazione/disattivazione per visualizzare le statistiche
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {stats.map((stat, index) => (
                   <div
                     key={index}
-                    className="group relative overflow-hidden rounded-lg border border-border/50 bg-card hover:bg-accent/5 transition-all duration-300 hover:border-primary/30 hover:shadow-md"
+                    className="group relative flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all duration-200"
                   >
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4">
-                      {/* Rank Badge */}
-                      <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                        <div className="flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary font-bold text-sm">
-                          #{index + 1}
+                    {/* Rank */}
+                    <div className="flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                      #{index + 1}
+                    </div>
+                    
+                    {/* Avatar e Info */}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <Avatar className="h-12 w-12 flex-shrink-0">
+                        <AvatarImage src={stat.avatarUrl} alt={stat.operator} />
+                        <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                          {stat.operator.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold truncate">
+                          {stat.operator}
+                        </h3>
+                        <Badge variant="outline" className="text-xs font-normal mt-1">
+                          {stat.qualification}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    {/* Stats */}
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-primary">
+                          {stat.hours}h {stat.minutes}m
                         </div>
-                        
-                        {/* Avatar e Nome */}
-                        <div className="flex items-center gap-3 flex-1 sm:flex-initial">
-                          <Avatar className="h-10 w-10 sm:h-12 sm:w-12 ring-2 ring-primary/20 flex-shrink-0">
-                            <AvatarImage src={stat.avatarUrl} alt={stat.operator} />
-                            <AvatarFallback className="bg-primary/10 text-primary">
-                              {stat.operator.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-sm sm:text-base truncate">
-                              {stat.operator}
-                            </h3>
-                            <Badge variant="outline" className="text-xs mt-1">
-                              {stat.qualification}
-                            </Badge>
-                          </div>
+                        <div className="text-xs text-muted-foreground">
+                          Tempo Totale
                         </div>
                       </div>
                       
-                      {/* Stats */}
-                      <div className="flex items-center gap-4 ml-11 sm:ml-auto">
-                        <div className="text-center">
-                          <div className="text-lg sm:text-xl font-bold text-primary">
-                            {stat.hours}h {stat.minutes}m
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Tempo Totale
-                          </div>
+                      <div className="h-10 w-px bg-border" />
+                      
+                      <div className="text-right">
+                        <div className="text-lg font-bold">
+                          {stat.activations}
                         </div>
-                        
-                        <div className="h-10 w-px bg-border" />
-                        
-                        <div className="text-center">
-                          <div className="text-lg sm:text-xl font-bold">
-                            {stat.activations}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Attivazioni
-                          </div>
+                        <div className="text-xs text-muted-foreground">
+                          Attivazioni
                         </div>
                       </div>
                     </div>
