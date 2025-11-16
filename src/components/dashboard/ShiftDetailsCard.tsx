@@ -287,8 +287,8 @@ export const ShiftDetailsCard = ({
         </Button>
       ) : (
         <div className="mt-4 p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
-          <CheckCircle className="w-4 h-4" />
-          <span>✅・Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}</span>
+          <CheckCircle className="w-4 h-4 flex-shrink-0" />
+          <span className="font-medium">Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}</span>
         </div>
       )}
     </div>
