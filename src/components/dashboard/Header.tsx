@@ -70,152 +70,147 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 glass-strong border-b shadow-lg">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-4">
-          {/* Logo Section */}
-          <div className="flex items-center gap-4">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          {/* Logo Section - Compatto su mobile */}
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Left Emblem */}
             <img 
               src="https://i.imgur.com/4T6qvKV.png" 
               alt="U.O.P.I. Emblem" 
-              className="w-12 h-12 rounded-full shadow-lg transition-transform hover:scale-110"
+              className="w-8 h-8 sm:w-12 sm:h-12 rounded-full shadow-lg transition-transform hover:scale-110"
             />
 
             {/* Logo */}
             <img 
               src="https://i.imgur.com/B6E4u1X.png" 
               alt="IPRP Logo" 
-              className="w-14 h-14 rounded-xl shadow-glow transition-transform hover:scale-110"
+              className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl shadow-glow transition-transform hover:scale-110"
             />
 
-            {/* Brand */}
-            <div className="hidden md:block">
-              <h1 className="text-2xl font-extrabold">U.O.P.I.</h1>
-              <p className="text-sm text-muted-foreground font-semibold">IPRP X</p>
+            {/* Brand - Hidden on very small screens */}
+            <div className="hidden sm:block">
+              <h1 className="text-lg sm:text-2xl font-extrabold">U.O.P.I.</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground font-semibold">IPRP X</p>
             </div>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex items-center gap-2 glass rounded-full px-3 py-2">
+          {/* Navigation - Solo icone su mobile */}
+          <nav className="flex items-center gap-1 sm:gap-2 glass rounded-full px-2 py-1.5 sm:px-3 sm:py-2">
             {navItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => onPageChange(item.id)}
                     className={`
-                      flex items-center gap-3 px-4 py-2.5 rounded-2xl font-semibold
-                      transition-all duration-300 group relative overflow-hidden
+                      relative flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-full font-semibold
+                      transition-all duration-300 group
                       ${currentPage === item.id 
-                        ? 'bg-gradient-to-r from-primary/90 to-primary w-40 text-foreground shadow-xl' 
-                        : 'w-14 text-muted-foreground hover:text-foreground hover:w-40 hover:bg-secondary'
+                        ? 'bg-primary text-primary-foreground shadow-md scale-105' 
+                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                       }
                     `}
                   >
-                    <div className="relative">
-                      <i className={`fas ${item.icon} text-lg flex-shrink-0`}></i>
-                      {item.id === "announcements" && unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
-                      )}
-                    </div>
-                    <span className={`
-                      flex items-center gap-2 whitespace-nowrap transition-all duration-300 text-sm
-                      ${currentPage === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-                    `}>
-                      {item.label}
-                      {item.id === "announcements" && unreadCount > 0 && currentPage === item.id && (
-                        <span className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full">
-                          {unreadCount > 9 ? "9+" : unreadCount}
-                        </span>
-                      )}
-                    </span>
+                    <i className={`fas ${item.icon} text-sm sm:text-base`}></i>
+                    {/* Badge notifiche solo su announcements */}
+                    {item.id === "announcements" && unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
                   </button>
                 </TooltipTrigger>
-                {item.id === "announcements" && unreadCount > 0 && currentPage !== item.id && (
-                  <TooltipContent side="bottom" className="bg-destructive text-destructive-foreground border-destructive">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-destructive-foreground rounded-full" />
-                      <span className="font-semibold">
-                        {unreadCount > 9 ? "9+" : unreadCount} {unreadCount === 1 ? "notifica" : "notifiche"}
-                      </span>
-                    </div>
-                  </TooltipContent>
-                )}
+                <TooltipContent>
+                  <p className="text-xs">{item.label}</p>
+                </TooltipContent>
               </Tooltip>
             ))}
           </nav>
 
-          {/* User Profile */}
+          {/* User Section - Compatto su mobile */}
           <div className="relative">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-3 glass rounded-2xl px-4 py-2 hover:bg-secondary/50 transition-all"
+              className="flex items-center gap-2 sm:gap-3 glass hover:glass-strong rounded-full pr-2 sm:pr-4 pl-1 sm:pl-2 py-1 sm:py-2 transition-all duration-300 group"
             >
-              {userProfile?.discord_avatar_url ? (
-                <img 
-                  src={userProfile.discord_avatar_url} 
-                  alt="Avatar Discord"
-                  className="w-10 h-10 rounded-full"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                  {userProfile?.discord_tag?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
+                  <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
+                    {userOperator?.avatar ? (
+                      <img 
+                        src={userOperator.avatar} 
+                        alt={userProfile?.full_name || "User"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    )}
+                  </div>
                 </div>
-              )}
-              <div className="hidden sm:block text-left">
-                <div className="text-sm font-semibold">
-                  {userProfile?.discord_tag || user?.email?.split('@')[0]}
-                </div>
-                <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs h-5 mt-1">
-                  {isAdmin ? (
-                    <><Shield className="w-3 h-3 mr-1" />Dirigenza</>
-                  ) : (
-                    <><User className="w-3 h-3 mr-1" />Operatore</>
-                  )}
-                </Badge>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-card"></div>
               </div>
-              <i className={`fas fa-chevron-down text-xs transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
+
+              {/* User Info - Hidden su mobile molto piccolo */}
+              <div className="hidden md:block text-left">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs sm:text-sm font-bold truncate max-w-[120px]">
+                    {userProfile?.full_name || user?.email}
+                  </p>
+                  {isAdmin && (
+                    <Badge variant="default" className="text-[10px] px-1.5 py-0">
+                      <Shield className="w-3 h-3 mr-0.5" />
+                      Admin
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  {isAdmin ? "Administrator" : "Operator"}
+                </p>
+              </div>
+
+              {/* Dropdown Icon */}
+              <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${isUserMenuOpen ? 'rotate-180' : ''} hidden sm:block`}></i>
             </button>
 
             {/* Dropdown Menu */}
             {isUserMenuOpen && (
-              <div className="absolute top-full right-0 mt-2 w-64 glass-strong rounded-2xl overflow-hidden shadow-2xl">
-                <div className="p-4 border-b border-border">
+              <div className="absolute right-0 mt-2 w-56 glass-strong rounded-2xl shadow-2xl border overflow-hidden z-50">
+                <div className="p-4 border-b bg-gradient-to-br from-card to-card/50">
                   <div className="flex items-center gap-3 mb-2">
-                    {userProfile?.discord_avatar_url && (
-                      <img 
-                        src={userProfile.discord_avatar_url} 
-                        alt="Avatar Discord"
-                        className="w-12 h-12 rounded-full"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <div className="font-semibold">{userProfile?.discord_tag || user?.email}</div>
-                      <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs h-5 mt-1">
-                        {isAdmin ? (
-                          <><Shield className="w-3 h-3 mr-1" />Dirigenza</>
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
+                      <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
+                        {userOperator?.avatar ? (
+                          <img 
+                            src={userOperator.avatar} 
+                            alt={userProfile?.full_name || "User"}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
-                          <><User className="w-3 h-3 mr-1" />Operatore</>
+                          <User className="w-6 h-6 text-primary" />
                         )}
-                      </Badge>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{userProfile?.full_name || user?.email}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
                     </div>
                   </div>
+                  {isAdmin && (
+                    <Badge variant="default" className="text-xs">
+                      <Shield className="w-3 h-3 mr-1" />
+                      Administrator
+                    </Badge>
+                  )}
                 </div>
+
                 <div className="p-2">
-                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-secondary/50 transition-colors text-left">
-                    <i className="fas fa-user-circle"></i>
-                    <span>Profilo</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-secondary/50 transition-colors text-left">
-                    <i className="fas fa-cog"></i>
-                    <span>Impostazioni</span>
-                  </button>
-                  <hr className="my-2 border-border" />
-                  <button 
+                  <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-danger/10 text-danger transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors text-left group"
                   >
-                    <i className="fas fa-sign-out-alt"></i>
-                    <span>Esci</span>
+                    <i className="fas fa-sign-out-alt text-sm group-hover:scale-110 transition-transform"></i>
+                    <span className="text-sm font-semibold">Logout</span>
                   </button>
                 </div>
               </div>
