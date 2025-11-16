@@ -39,6 +39,9 @@ export default function Dirigenza() {
         .in("module_type", ["patrol_activation", "patrol_deactivation", "heist_activation", "heist_deactivation"]);
 
       if (error) throw error;
+      
+      console.log("Shifts caricati:", shifts?.length || 0);
+      console.log("Primi 3 shifts:", shifts?.slice(0, 3));
 
       // Raggruppa shifts per coppia attivazione-disattivazione
       const activationPairs = new Map<string, { activation: any; deactivation?: any }>();
@@ -108,10 +111,17 @@ export default function Dirigenza() {
             
             durationMinutes = deactTotalMinutes - actTotalMinutes;
             
-            console.log(`Attivazione: ${pair.activation.activation_time}, Disattivazione: ${pair.deactivation.deactivation_time}, Durata: ${durationMinutes} minuti`);
+            console.log(`Coppia valida - Attivazione: ${pair.activation.activation_time}, Disattivazione: ${pair.deactivation.deactivation_time}, Durata: ${durationMinutes} minuti, Operatori:`, operators.map(o => o.name));
           } catch (e) {
-            console.error("Errore nel calcolo della durata:", e);
+            console.error("Errore nel calcolo della durata:", e, pair);
           }
+        } else {
+          console.warn("Coppia senza tempi di attivazione/disattivazione:", {
+            activation_time: pair.activation.activation_time,
+            deactivation_time: pair.deactivation.deactivation_time,
+            activation_id: pair.activation.id,
+            deactivation_id: pair.deactivation.id
+          });
         }
 
         operators.forEach((operator) => {
@@ -169,6 +179,7 @@ export default function Dirigenza() {
         return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
       });
 
+      console.log("Statistiche finali:", enrichedStats);
       setStats(enrichedStats);
     } catch (error) {
       console.error("Errore nel caricamento delle statistiche:", error);
