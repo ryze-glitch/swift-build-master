@@ -68,7 +68,10 @@ const Auth = () => {
 
       // Use the magic link for instant authentication
       if (data.redirect_url) {
-        window.location.replace(data.redirect_url);
+        // Force redirect to dashboard after magic link auth
+        const url = new URL(data.redirect_url);
+        url.hash = '#/dashboard';
+        window.location.replace(url.toString());
       }
     } catch (error) {
       toast({
