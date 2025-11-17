@@ -254,13 +254,10 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate magic link with correct redirect
+    // Generate magic link
     const { data: magicLinkData, error: magicLinkError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: authUser.email || email,
-      options: {
-        redirectTo: `${req.headers.get("origin")}/dashboard`
-      }
     });
 
     if (magicLinkError || !magicLinkData) {
@@ -268,17 +265,20 @@ serve(async (req) => {
       throw new Error("Failed to generate magic link");
     }
 
-    const magicLink = magicLinkData.properties.action_link;
+    // Extract token from magic link URL
+    const magicLinkUrl = new URL(magicLinkData.properties.action_link);
+    const token = magicLinkUrl.searchParams.get('token');
     
-    logStep("Magic link generated with dashboard redirect", { 
+    logStep("Token extracted", { 
       userId: authUser.id,
-      isNewUser 
+      hasToken: !!token
     });
 
-    // Return the magic link for redirect
+    // Return token for client-side verification
     return new Response(
       JSON.stringify({
-        magic_link: magicLink,
+        token: token,
+        type: 'magiclink',
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
