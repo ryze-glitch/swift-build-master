@@ -52,10 +52,6 @@ export const PersonnelCard = ({ person, showQualification = true }: PersonnelCar
               {person.name.split(' ').map(n => n[0]).join('')}
             </div>
           )}
-          <div 
-            className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background"
-            style={{ backgroundColor: status.color }}
-          />
         </div>
         
         <div className="flex-1 min-w-0">
@@ -67,10 +63,6 @@ export const PersonnelCard = ({ person, showQualification = true }: PersonnelCar
             <p className="text-xs text-primary/80 truncate mt-0.5">{person.qualification}</p>
           )}
         </div>
-        <div 
-          className="shrink-0 w-2 h-2 rounded-full"
-          style={{ backgroundColor: status.color }}
-        />
       </div>
     </div>
   );
