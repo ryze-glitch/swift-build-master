@@ -104,15 +104,24 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                       relative flex items-center gap-2 px-2 sm:px-3 py-2 rounded-full font-semibold
                       transition-all duration-300 group whitespace-nowrap
                       ${currentPage === item.id 
-                        ? 'bg-primary text-primary-foreground shadow-md scale-105' 
-                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                        ? 'text-primary' 
+                        : 'text-muted-foreground hover:text-foreground'
                       }
                     `}
                   >
                     <i className={`fas ${item.icon} text-sm sm:text-base`}></i>
-                    {/* Label visibile solo su desktop e solo se il menu è aperto */}
+                    {/* Label visibile solo su desktop con effetto hover animato */}
                     {isDesktop && (
-                      <span className="text-xs sm:text-sm">{item.label}</span>
+                      <span className="text-xs sm:text-sm relative">
+                        {item.label}
+                        <span 
+                          className={`absolute left-0 bottom-0 h-0.5 bg-primary transition-all duration-300 ease-out ${
+                            currentPage === item.id 
+                              ? 'w-full' 
+                              : 'w-0 group-hover:w-full'
+                          }`}
+                        ></span>
+                      </span>
                     )}
                     {/* Badge notifiche solo su announcements */}
                     {item.id === "announcements" && unreadCount > 0 && (
