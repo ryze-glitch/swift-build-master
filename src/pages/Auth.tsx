@@ -65,11 +65,18 @@ const Auth = () => {
         return;
       }
 
-      // Follow the magic link - it will authenticate and come back here
-      if (data.magic_link) {
-        // The magic link will redirect back and Supabase will handle the session
-        window.location.href = data.magic_link;
+      // Verify the OTP token to create the session
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: data.token,
+        type: 'magiclink',
+      });
+
+      if (verifyError) {
+        throw verifyError;
       }
+
+      // Success! Navigate to dashboard
+      navigate("/dashboard", { replace: true });
       
     } catch (error) {
       toast({
