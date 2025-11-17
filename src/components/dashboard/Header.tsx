@@ -94,7 +94,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           </div>
 
           {/* Navigation - Centrata */}
-          <nav className="flex items-center gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-4xl mx-auto overflow-visible">
+          <nav className="flex items-center gap-1.5 glass rounded-3xl px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-4xl mx-auto border border-border/50">
             {navItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
