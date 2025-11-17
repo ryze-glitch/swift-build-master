@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import operatoriData from "@/data/operatori_reparto.json";
 
 interface Person {
   id: string;
@@ -82,10 +83,10 @@ export const ShiftDetailsCard = ({
     if (!user) return;
     
     try {
-      // Recupera il nome completo dal profilo
+      // Recupera il profilo dal database
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('discord_tag')
         .eq('id', user.id)
         .single();
 
@@ -93,7 +94,13 @@ export const ShiftDetailsCard = ({
         console.error("Error fetching profile:", profileError);
       }
 
-      const userName = profileData?.full_name || user.email || "Utente Sconosciuto";
+      // Trova l'operatore corrispondente nel JSON usando il discord_tag
+      const operator = operatoriData.operators.find(
+        op => op.discordTag === profileData?.discord_tag
+      );
+
+      // Usa il nome dall'operatori.json, altrimenti fallback
+      const userName = operator?.name || profileData?.discord_tag || user.email || "Utente Sconosciuto";
       
       const newAcknowledgement = {
         userId: user.id,
