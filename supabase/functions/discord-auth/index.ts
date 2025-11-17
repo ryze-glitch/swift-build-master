@@ -254,38 +254,28 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate OTP for email verification
-    const { data: otpData, error: otpError } = await supabaseClient.auth.admin.generateLink({
+    // Generate magic link for instant authentication
+    const { data: magicLinkData, error: magicLinkError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: authUser.email || email,
-      options: {
-        redirectTo: `${req.headers.get("origin")}/dashboard`
-      }
     });
 
-    if (otpError || !otpData) {
-      logStep("Error generating OTP", { error: otpError?.message });
-      throw new Error("Failed to generate OTP");
+    if (magicLinkError || !magicLinkData) {
+      logStep("Error generating magic link", { error: magicLinkError?.message });
+      throw new Error("Failed to generate magic link");
     }
 
-    logStep("Auth successful", { 
+    const magicLink = magicLinkData.properties.action_link;
+    
+    logStep("Magic link generated", { 
       userId: authUser.id,
       isNewUser 
     });
 
-    // Extract token hash from the action link
-    const actionLink = otpData.properties.action_link;
-    const url = new URL(actionLink);
-    const tokenHash = url.searchParams.get('token_hash');
-    const type = url.searchParams.get('type');
-
-    // Return tokens for client verification
+    // Return the magic link for redirect
     return new Response(
       JSON.stringify({
-        token_hash: tokenHash,
-        type: type,
-        email: authUser.email || email,
-        redirect_to: '/dashboard'
+        magic_link: magicLink,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

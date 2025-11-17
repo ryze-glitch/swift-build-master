@@ -50,7 +50,6 @@ const Auth = () => {
   };
   const handleDiscordCallback = async (code: string) => {
     try {
-      console.log("Processing Discord callback");
       const { data, error } = await supabase.functions.invoke("discord-auth", {
         body: { code }
       });
@@ -66,21 +65,10 @@ const Auth = () => {
         return;
       }
 
-      console.log("Verifying OTP");
-      
-      // Verify the OTP token
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        token_hash: data.token_hash,
-        type: data.type,
-      });
-
-      if (verifyError) {
-        console.error("OTP verification error:", verifyError);
-        throw verifyError;
+      // Redirect to magic link - Supabase handles the rest
+      if (data.magic_link) {
+        window.location.href = data.magic_link;
       }
-
-      console.log("OTP verified, redirecting to dashboard");
-      navigate("/dashboard", { replace: true });
       
     } catch (error) {
       console.error("Auth error:", error);
