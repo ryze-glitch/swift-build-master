@@ -8,7 +8,7 @@ import { Personnel } from "@/components/dashboard/Personnel";
 import { Announcements } from "@/components/dashboard/Announcements";
 import { Status } from "@/components/dashboard/Status";
 import { Shifts } from "@/components/dashboard/Shifts";
-import { Credits } from "@/components/dashboard/Credits";
+
 import { NotificationSystem } from "@/components/dashboard/NotificationSystem";
 import { PremiumModal } from "@/components/dashboard/PremiumModal";
 import { Footer } from "@/components/dashboard/Footer";
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import Dirigenza from "./Dirigenza";
 
-type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits" | "dirigenza";
+type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "dirigenza";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -56,8 +56,6 @@ const Dashboard = () => {
         return <Announcements />;
       case "status":
         return <Status />;
-      case "credits":
-        return <Credits />;
       case "dirigenza":
         return <Dirigenza />;
       default:
