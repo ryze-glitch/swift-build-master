@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/dashboard/Header";
 import { Personnel } from "@/components/dashboard/Personnel";
 import { Announcements } from "@/components/dashboard/Announcements";
@@ -19,14 +21,39 @@ type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading, subscribed } = useAuth();
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
 
   useEffect(() => {
     if (!user && !loading) {
       navigate("/auth", { replace: true });
     }
   }, [user, loading, navigate]);
+
+  // Show welcome message on first login
+  useEffect(() => {
+    const showWelcomeMessage = async () => {
+      if (user && !hasShownWelcome) {
+        setHasShownWelcome(true);
+        
+        // Fetch Discord tag from profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('discord_tag')
+          .eq('id', user.id)
+          .single();
+
+        toast({
+          title: `Benvenuto, ${profile?.discord_tag || 'Membro'}! 👋`,
+          description: "Accesso effettuato con successo alla Dashboard U.O.P.I.",
+        });
+      }
+    };
+
+    showWelcomeMessage();
+  }, [user, hasShownWelcome, toast]);
 
   if (loading) {
     return (
