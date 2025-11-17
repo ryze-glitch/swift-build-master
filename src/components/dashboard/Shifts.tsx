@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar, Users, CheckCircle2, Clock, Sparkles, Crown, Trash2 } from "lucide-react";
+import { Plus, Calendar, Users, CheckCircle2, Clock, Sparkles, Crown, Trash2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
