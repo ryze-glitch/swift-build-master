@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users } from "lucide-react";
+import { Users, LogIn, LogOut } from "lucide-react";
 import operatoriData from "@/data/operatori_reparto.json";
+import { Separator } from "@/components/ui/separator";
 
 interface Person {
   id: string;
@@ -23,16 +24,46 @@ interface ActivationStats {
   activations: number;
 }
 
+interface AuthLog {
+  id: string;
+  user_id: string;
+  discord_tag: string | null;
+  event_type: 'login' | 'logout';
+  created_at: string;
+}
+
 export default function Dirigenza() {
   const [stats, setStats] = useState<ActivationStats[]>([]);
+  const [authLogs, setAuthLogs] = useState<AuthLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadActivationStats();
+    loadAuthLogs();
   }, []);
 
   const formatTime = (hours: number, minutes: number) => {
     return `${hours}h ${minutes}m`;
+  };
+
+  const loadAuthLogs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('auth_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setAuthLogs((data || []) as AuthLog[]);
+    } catch (error) {
+      console.error('Errore caricamento log:', error);
+    }
+  };
+
+  const getOperatorByDiscordTag = (discordTag: string | null) => {
+    if (!discordTag) return null;
+    return operatoriData.operators.find(op => op.discordTag === discordTag);
   };
 
   const loadActivationStats = async () => {
@@ -317,6 +348,76 @@ export default function Dirigenza() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Auth Logs Section */}
+        <Card className="glass-strong border-border/50 shadow-xl overflow-hidden">
+          <CardHeader className="pb-6 bg-gradient-to-br from-card to-card/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20">
+                <LogIn className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-xl md:text-2xl font-semibold">Log Accessi</CardTitle>
+                <CardDescription className="text-sm md:text-base">
+                  Cronologia login e logout degli operatori
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 md:p-6">
+            {authLogs.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Nessun log disponibile</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {authLogs.map((log) => {
+                  const operator = getOperatorByDiscordTag(log.discord_tag);
+                  return (
+                    <div
+                      key={log.id}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-card/50 border border-border/40 hover:border-primary/40 transition-all"
+                    >
+                      <div className={`p-2 rounded-lg ${log.event_type === 'login' ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                        {log.event_type === 'login' ? (
+                          <LogIn className="w-4 h-4 text-success" />
+                        ) : (
+                          <LogOut className="w-4 h-4 text-destructive" />
+                        )}
+                      </div>
+                      
+                      {operator && (
+                        <Avatar className="w-10 h-10 border-2 border-border">
+                          <AvatarImage src={operator.avatarUrl} alt={operator.name} />
+                          <AvatarFallback>{operator.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      )}
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-sm">{operator?.name || log.discord_tag || 'Sconosciuto'}</p>
+                          {operator?.qualification && (
+                            <Badge variant="secondary" className="text-xs">
+                              {operator.qualification}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {log.discord_tag || 'N/A'}
+                        </p>
+                      </div>
+                      
+                      <div className="text-right text-xs text-muted-foreground">
+                        <p>{new Date(log.created_at).toLocaleDateString('it-IT')}</p>
+                        <p>{new Date(log.created_at).toLocaleTimeString('it-IT')}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </CardContent>
