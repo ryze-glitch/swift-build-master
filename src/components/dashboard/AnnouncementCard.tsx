@@ -69,7 +69,11 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-2">
           <i className="fas fa-user"></i>
-          {announcement.author}
+          {(() => {
+            const operatori = require('@/data/operatori_reparto.json').operators;
+            const operator = operatori.find((op: any) => op.discordTag === announcement.author);
+            return operator ? operator.name : announcement.author;
+          })()}
         </span>
         <span className="flex items-center gap-2">
           <i className="fas fa-calendar"></i>
