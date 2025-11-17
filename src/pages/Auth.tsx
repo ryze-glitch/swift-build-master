@@ -23,20 +23,53 @@ const Auth = () => {
   }, [user, navigate]);
   
   useEffect(() => {
-    // Controllo sessione in modo proattivo (fallback mobile)
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Fallback mobile + gestione magic link (token_hash)
+    const processMagicLink = async () => {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.slice(1));
+        const tokenHash = hashParams.get("token_hash") || searchParams.get("token_hash");
+        const typeParam = (hashParams.get("type") || searchParams.get("type") || "magiclink") as
+          | "magiclink"
+          | "recovery"
+          | "email_change"
+          | "signup";
+
+        if (tokenHash && !user) {
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            type: typeParam as any,
+            token_hash: tokenHash,
+          });
+          // Pulisci URL da token prima di navigare
+          window.history.replaceState({}, document.title, "/auth");
+          if (!verifyError) {
+            navigate("/dashboard");
+            return;
+          }
+        }
+      } catch (_e) {
+        // Silenzioso: se fallisce, ci pensa onAuthStateChange
+      }
+    };
+
+    // Controllo sessione proattivo e gestione codice Discord
+    const processAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         navigate("/dashboard");
+        return;
       }
-    });
 
-    const code = searchParams.get("code");
-    if (code && !user) {
-      // Clear the URL immediately to prevent reuse
-      window.history.replaceState({}, document.title, "/auth");
-      // Execute callback
-      handleDiscordCallback(code);
-    }
+      const code = searchParams.get("code");
+      if (code && !user) {
+        // Clear the URL immediatamente per evitare riuso
+        window.history.replaceState({}, document.title, "/auth");
+        // Esegui callback Discord
+        handleDiscordCallback(code);
+      }
+    };
+
+    processMagicLink();
+    processAuth();
   }, [searchParams, user, navigate]);
   const handleDiscordLogin = () => {
     const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
