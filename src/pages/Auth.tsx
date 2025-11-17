@@ -47,6 +47,7 @@ const Auth = () => {
   };
   const handleDiscordCallback = async (code: string) => {
     try {
+      console.log("Starting Discord callback with code");
       const {
         data,
         error
@@ -55,8 +56,12 @@ const Auth = () => {
           code
         }
       });
+      
+      console.log("Discord auth response:", { data, error });
+      
       if (error) throw error;
       if (data.error) {
+        console.error("Discord auth error:", data);
         toast({
           title: data.error === "Accesso Negato" ? "Accesso Negato" : "Errore di autenticazione",
           description: data.message || data.error,
@@ -68,9 +73,18 @@ const Auth = () => {
 
       // Use the magic link for instant authentication
       if (data.redirect_url) {
-        window.location.replace(data.redirect_url);
+        console.log("Redirecting to:", data.redirect_url);
+        window.location.href = data.redirect_url;
+      } else {
+        console.error("No redirect_url in response");
+        toast({
+          title: "Errore di autenticazione",
+          description: "Impossibile completare l'autenticazione",
+          variant: "destructive"
+        });
       }
     } catch (error) {
+      console.error("Discord callback error:", error);
       toast({
         title: "Errore durante l'accesso",
         description: "Si è verificato un errore durante l'autenticazione con Discord",
