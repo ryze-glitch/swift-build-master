@@ -104,7 +104,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                       relative flex items-center justify-center font-medium
                       transition-all duration-300 ease-out overflow-hidden
                       ${isDesktop 
-                        ? 'w-[60px] h-[50px] rounded-2xl hover:w-[140px]' 
+                        ? 'w-[60px] h-[50px] rounded-2xl hover:w-[140px] hover:justify-start hover:pl-5' 
                         : 'w-10 h-10 rounded-xl sm:w-12 sm:h-12'
                       }
                       ${currentPage === item.id 
@@ -113,9 +113,9 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                       }
                     `}
                   >
-                    <i className={`fas ${item.icon} text-base sm:text-lg ${isDesktop ? 'absolute left-1/2 -translate-x-1/2 group-hover:relative group-hover:left-auto group-hover:translate-x-0' : ''}`}></i>
+                    <i className={`fas ${item.icon} text-base sm:text-lg flex-shrink-0`}></i>
                     {isDesktop && (
-                      <span className="opacity-0 max-w-0 whitespace-nowrap text-sm ml-2 group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300">
+                      <span className="opacity-0 max-w-0 whitespace-nowrap text-sm ml-2 font-medium group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300 overflow-hidden">
                         {item.label}
                       </span>
                     )}
