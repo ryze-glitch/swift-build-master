@@ -94,33 +94,30 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           </div>
 
           {/* Navigation - Centrata */}
-          <nav className="flex items-center gap-1 sm:gap-2 glass rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-2xl mx-auto">
+          <nav className="flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-3xl mx-auto overflow-x-auto">
             {navItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => onPageChange(item.id)}
                     className={`
-                      relative flex items-center gap-2 px-2 sm:px-3 py-2 rounded-full font-semibold
-                      transition-all duration-300 group whitespace-nowrap
+                      relative flex items-center justify-center gap-2 rounded-2xl font-medium
+                      transition-all duration-300 ease-out group whitespace-nowrap overflow-hidden
+                      ${isDesktop 
+                        ? 'px-3 py-2.5 min-w-[60px]' 
+                        : 'p-2'
+                      }
                       ${currentPage === item.id 
-                        ? 'text-primary' 
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'bg-primary/20 text-primary border border-primary/30 shadow-sm' 
+                        : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground hover:border hover:border-border/50'
                       }
                     `}
                   >
-                    <i className={`fas ${item.icon} text-sm sm:text-base`}></i>
-                    {/* Label visibile solo su desktop con effetto hover animato */}
+                    <i className={`fas ${item.icon} text-sm ${isDesktop ? 'sm:text-base' : ''}`}></i>
+                    {/* Label visibile solo su desktop */}
                     {isDesktop && (
-                      <span className="text-xs sm:text-sm relative">
+                      <span className="text-xs sm:text-sm font-medium">
                         {item.label}
-                        <span 
-                          className={`absolute left-0 bottom-0 h-0.5 bg-primary transition-all duration-300 ease-out ${
-                            currentPage === item.id 
-                              ? 'w-full' 
-                              : 'w-0 group-hover:w-full'
-                          }`}
-                        ></span>
                       </span>
                     )}
                     {/* Badge notifiche solo su announcements */}
