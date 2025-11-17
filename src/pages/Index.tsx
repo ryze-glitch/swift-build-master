@@ -8,9 +8,14 @@ const Index = () => {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    // Redirect directly to auth page
-    navigate("/auth");
-  }, [navigate]);
+    if (!loading) {
+      if (user) {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/auth", { replace: true });
+      }
+    }
+  }, [user, loading, navigate]);
 
   return null;
 };
