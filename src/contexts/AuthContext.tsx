@@ -79,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false); // CRITICAL: Set loading to false here too!
         
         if (session?.user) {
           // Log login event
