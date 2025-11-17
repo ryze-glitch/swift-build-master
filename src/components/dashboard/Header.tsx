@@ -152,7 +152,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                 </div>
                 {/* Pallino online/offline basato su presenza reale */}
                 <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${
-                  isUserOnline ? "bg-success" : "bg-muted-foreground/40"
+                  showGreenDot ? "bg-success" : "bg-muted-foreground/40"
                 }`}></div>
               </div>
 

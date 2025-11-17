@@ -97,102 +97,108 @@ export const HeistActivationForm = ({ onSubmit, onCancel }: HeistActivationFormP
           )}
         </div>
 
-      <div className="space-y-2">
-        <Label>Contrattatore (Max 1)</Label>
-        <Select
-          value={negotiator?.id || ""}
-          onValueChange={(value) => {
-            const person = personnel.find((p) => p.id === value);
-            setNegotiator(person || null);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Seleziona contrattatore" />
-          </SelectTrigger>
-          <SelectContent>
-            {personnel.map((person) => (
-              <SelectItem key={person.id} value={person.id}>
-                {person.name} - {person.role}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {negotiator && (
-          <Badge variant="secondary" className="mt-2">
-            {negotiator.name}
-          </Badge>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="activationTime">Orario di Attivazione</Label>
-        <Input
-          id="activationTime"
-          type="time"
-          value={activationTime}
-          onChange={(e) => setActivationTime(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Tipo di Intervento</Label>
-        <Select value={interventionType} onValueChange={setInterventionType}>
-          <SelectTrigger>
-            <SelectValue placeholder="Seleziona tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="gioielleria">Gioielleria</SelectItem>
-            <SelectItem value="banca_credito_capitolina">
-              Banca di Credito Capitolina
-            </SelectItem>
-            <SelectItem value="banca_roma">Banca di Roma</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Operatori Coinvolti (Min 6, Max 15)</Label>
-        <Select
-          value=""
-          onValueChange={handleAddOperator}
-          disabled={operatorsInvolved.length >= 15}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Aggiungi operatore" />
-          </SelectTrigger>
-          <SelectContent>
-            {personnel
-              .filter((p) => !operatorsInvolved.find((op) => op.id === p.id))
-              .map((person) => (
-                <SelectItem key={person.id} value={person.id}>
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Contrattatore (Max 1)</Label>
+          <Select
+            value={negotiator?.id || ""}
+            onValueChange={(value) => {
+              const person = personnel.find((p) => p.id === value);
+              setNegotiator(person || null);
+            }}
+          >
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Seleziona contrattatore" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {personnel.map((person) => (
+                <SelectItem key={person.id} value={person.id} className="text-sm">
                   {person.name} - {person.role}
                 </SelectItem>
               ))}
-          </SelectContent>
-        </Select>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {operatorsInvolved.map((person) => (
-            <Badge key={person.id} variant="secondary" className="gap-2">
-              {person.name}
-              <X
-                className="h-3 w-3 cursor-pointer"
-                onClick={() => handleRemoveOperator(person.id)}
-              />
+            </SelectContent>
+          </Select>
+          {negotiator && (
+            <Badge variant="secondary" className="mt-2 text-xs">
+              {negotiator.name}
             </Badge>
-          ))}
+          )}
         </div>
-        <p className="text-sm text-muted-foreground">
-          {operatorsInvolved.length}/15 operatori selezionati (minimo 6)
-        </p>
-      </div>
 
-      <div className="flex gap-2 justify-end">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Annulla
-        </Button>
-        <Button type="submit">Salva Modulo</Button>
-      </div>
-    </form>
+        <div className="space-y-2">
+          <Label htmlFor="activationTime" className="text-sm font-medium">Orario di Attivazione</Label>
+          <Input
+            id="activationTime"
+            type="time"
+            value={activationTime}
+            onChange={(e) => setActivationTime(e.target.value)}
+            required
+            className="h-10 sm:h-11"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Tipo di Intervento</Label>
+          <Select value={interventionType} onValueChange={setInterventionType}>
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Seleziona tipo" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              <SelectItem value="rapina_gioielleria" className="text-sm">
+                Rapina Gioielleria
+              </SelectItem>
+              <SelectItem value="rapina_banca" className="text-sm">
+                Rapina Banca Centrale
+              </SelectItem>
+              <SelectItem value="rapina_villa" className="text-sm">
+                Rapina Villa
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Operatori Coinvolti (Min 6, Max 15)</Label>
+          <Select
+            value=""
+            onValueChange={handleAddOperator}
+            disabled={operatorsInvolved.length >= 15}
+          >
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Aggiungi operatore" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {personnel
+                .filter((p) => !operatorsInvolved.find((op) => op.id === p.id))
+                .map((person) => (
+                  <SelectItem key={person.id} value={person.id} className="text-sm">
+                    {person.name} - {person.role}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {operatorsInvolved.map((person) => (
+              <Badge key={person.id} variant="secondary" className="gap-2 text-xs">
+                {person.name}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() => handleRemoveOperator(person.id)}
+                />
+              </Badge>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {operatorsInvolved.length}/15 operatori selezionati (minimo 6)
+          </p>
+        </div>
+
+        <div className="flex gap-2 justify-end pt-4">
+          <Button type="button" variant="outline" onClick={onCancel} className="text-sm">
+            Annulla
+          </Button>
+          <Button type="submit" className="text-sm">Salva Modulo</Button>
+        </div>
+      </form>
+    </div>
   );
 };

@@ -9,7 +9,7 @@ export const useOnlineStatus = () => {
   useEffect(() => {
     if (!user) return;
 
-    const channel = supabase.channel('online-users');
+    const channel = supabase.channel('online-users-presence');
 
     channel
       .on('presence', { event: 'sync' }, () => {
@@ -25,6 +25,27 @@ export const useOnlineStatus = () => {
         });
         
         setOnlineUsers(users);
+        console.log('Online users updated:', users);
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        console.log('User joined:', key, newPresences);
+        newPresences.forEach((presence: any) => {
+          if (presence.user_id) {
+            setOnlineUsers(prev => new Set([...prev, presence.user_id]));
+          }
+        });
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        console.log('User left:', key, leftPresences);
+        leftPresences.forEach((presence: any) => {
+          if (presence.user_id) {
+            setOnlineUsers(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(presence.user_id);
+              return newSet;
+            });
+          }
+        });
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -35,7 +56,18 @@ export const useOnlineStatus = () => {
         }
       });
 
+    // Auto-refresh presence every 30 seconds
+    const refreshInterval = setInterval(async () => {
+      if (channel.state === 'joined') {
+        await channel.track({
+          user_id: user.id,
+          online_at: new Date().toISOString(),
+        });
+      }
+    }, 30000);
+
     return () => {
+      clearInterval(refreshInterval);
       supabase.removeChannel(channel);
     };
   }, [user]);
