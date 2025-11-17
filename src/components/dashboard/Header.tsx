@@ -77,17 +77,17 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
     <header className="sticky top-0 z-50 glass-strong border-b shadow-lg">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
-          {/* Centered Logo - Only UOPI */}
-          <div className="absolute left-1/2 -translate-x-1/2">
+          {/* Logo a sinistra */}
+          <div className="flex-shrink-0">
             <img 
               src="https://i.imgur.com/B6E4u1X.png" 
               alt="UOPI Logo" 
-              className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl shadow-glow transition-transform hover:scale-110"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shadow-glow transition-transform hover:scale-110"
             />
           </div>
 
-          {/* Navigation - Solo icone su mobile */}
-          <nav className="flex items-center gap-1 sm:gap-2 glass rounded-full px-2 py-1.5 sm:px-3 sm:py-2">
+          {/* Navigation - Centrata */}
+          <nav className="flex items-center gap-1 sm:gap-2 glass rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-2xl mx-auto">
             {navItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
@@ -119,7 +119,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           </nav>
 
           {/* User Section - Compatto su mobile */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="flex items-center gap-2 sm:gap-3 glass hover:glass-strong rounded-full pr-2 sm:pr-4 pl-1 sm:pl-2 py-1 sm:py-2 transition-all duration-300 group"
@@ -131,7 +131,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     {userOperator?.avatar ? (
                       <img 
                         src={userOperator.avatar} 
-                        alt={userProfile?.full_name || "User"}
+                        alt={userOperator?.name || "User"}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -146,7 +146,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
               <div className="hidden md:block text-left">
                 <div className="flex items-center gap-1.5">
                   <p className="text-xs sm:text-sm font-bold truncate max-w-[120px]">
-                    {userProfile?.full_name || user?.email}
+                    {userOperator?.name || user?.email}
                   </p>
                   {isAdmin && (
                     <Badge variant="default" className="text-[10px] px-1.5 py-0">
@@ -156,7 +156,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                   )}
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  {isAdmin ? "Administrator" : "Operator"}
+                  {isAdmin ? "Dirigenza" : "Operatore"}
                 </p>
               </div>
 
@@ -166,7 +166,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
 
             {/* Dropdown Menu */}
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 glass-strong rounded-2xl shadow-2xl border overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-56 glass-strong rounded-2xl shadow-2xl border overflow-hidden z-50 animate-scale-in">
                 <div className="p-4 border-b bg-gradient-to-br from-card to-card/50">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
@@ -174,7 +174,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                         {userOperator?.avatar ? (
                           <img 
                             src={userOperator.avatar} 
-                            alt={userProfile?.full_name || "User"}
+                            alt={userOperator?.name || "User"}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -183,7 +183,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm truncate">{userProfile?.full_name || user?.email}</p>
+                      <p className="font-bold text-sm truncate">{userOperator?.name || user?.email}</p>
                       <p className="text-xs text-muted-foreground">{getOperatorInfo()?.matricola || user?.email}</p>
                     </div>
                   </div>

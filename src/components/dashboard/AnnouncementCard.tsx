@@ -32,7 +32,7 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
   const category = categoryConfig[announcement.category];
 
   return (
-    <div className="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all duration-300 space-y-4 relative overflow-hidden border">
+    <div className="glass rounded-2xl p-6 hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 space-y-4 relative overflow-hidden border animate-fade-in-up">
       {/* Category Indicator */}
       <div 
         className="absolute top-0 left-0 right-0 h-1"
