@@ -254,10 +254,13 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate magic link for instant authentication
+    // Generate magic link with correct redirect
     const { data: magicLinkData, error: magicLinkError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: authUser.email || email,
+      options: {
+        redirectTo: `${req.headers.get("origin")}/dashboard`
+      }
     });
 
     if (magicLinkError || !magicLinkData) {
@@ -267,7 +270,7 @@ serve(async (req) => {
 
     const magicLink = magicLinkData.properties.action_link;
     
-    logStep("Magic link generated", { 
+    logStep("Magic link generated with dashboard redirect", { 
       userId: authUser.id,
       isNewUser 
     });
