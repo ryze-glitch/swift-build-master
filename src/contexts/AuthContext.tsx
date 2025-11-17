@@ -81,6 +81,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Log login event
+          if (event === 'SIGNED_IN') {
+            setTimeout(async () => {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('discord_tag')
+                .eq('id', session.user.id)
+                .single();
+              
+              await supabase.from('auth_logs').insert({
+                user_id: session.user.id,
+                discord_tag: profile?.discord_tag || null,
+                event_type: 'login'
+              });
+            }, 0);
+          }
+          
           setTimeout(() => {
             checkSubscription();
           }, 0);
@@ -168,6 +185,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    try {
+      // Log logout event before signing out
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('discord_tag')
+          .eq('id', user.id)
+          .single();
+        
+        await supabase.from('auth_logs').insert({
+          user_id: user.id,
+          discord_tag: profile?.discord_tag || null,
+          event_type: 'logout'
+        });
+      }
+    } catch (error) {
+      console.error('Error logging logout:', error);
+    }
+
     const { error } = await supabase.auth.signOut();
 
     if (error) {

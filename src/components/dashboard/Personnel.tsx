@@ -4,6 +4,8 @@ import operatoriData from "@/data/operatori_reparto.json";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Person {
   id: number;
@@ -27,6 +29,25 @@ export const Personnel = () => {
   const { isAdmin } = useUserRole();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { isOnline } = useOnlineStatus();
+  const [userIdMap, setUserIdMap] = useState<Record<string, string>>({});
+
+  // Map discord tags to user IDs
+  useState(() => {
+    const fetchUserIds = async () => {
+      const { data } = await supabase.from('profiles').select('id, discord_tag');
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach(profile => {
+          if (profile.discord_tag) {
+            map[profile.discord_tag] = profile.id;
+          }
+        });
+        setUserIdMap(map);
+      }
+    };
+    fetchUserIds();
+  });
 
   const filteredPersonnel = mockPersonnel.filter((person) => {
     const matchesFilter = !activeFilter || person.role === activeFilter;
@@ -147,9 +168,16 @@ export const Personnel = () => {
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {people.map((person) => (
-                    <PersonnelCard key={person.id} person={person} />
-                  ))}
+                  {people.map((person) => {
+                    const userId = userIdMap[person.discordTag];
+                    const personIsOnline = userId ? isOnline(userId) : false;
+                    return (
+                      <div key={person.id} className="relative">
+                        <PersonnelCard person={person} />
+                        <div className={`absolute top-2 right-2 w-3 h-3 rounded-full border-2 border-background ${personIsOnline ? 'bg-success' : 'bg-muted-foreground/40'}`} />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -160,9 +188,16 @@ export const Personnel = () => {
         <div>
           {filteredPersonnel.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {filteredPersonnel.map((person) => (
-                <PersonnelCard key={person.id} person={person} />
-              ))}
+              {filteredPersonnel.map((person) => {
+                const userId = userIdMap[person.discordTag];
+                const personIsOnline = userId ? isOnline(userId) : false;
+                return (
+                  <div key={person.id} className="relative">
+                    <PersonnelCard person={person} />
+                    <div className={`absolute top-2 right-2 w-3 h-3 rounded-full border-2 border-background ${personIsOnline ? 'bg-success' : 'bg-muted-foreground/40'}`} />
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="col-span-full text-center py-12 text-muted-foreground">

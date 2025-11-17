@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import operatoriData from "@/data/operatori_reparto.json";
 import { Badge } from "@/components/ui/badge";
 import { Shield, User } from "lucide-react";
@@ -30,6 +31,9 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [userOperator, setUserOperator] = useState<any>(null);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { isOnline } = useOnlineStatus();
+  
+  const isUserOnline = user ? isOnline(user.id) : false;
 
   const getOperatorInfo = () => {
     if (!userOperator) return null;
@@ -145,9 +149,9 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     )}
                   </div>
                 </div>
-                {/* Pallino verde solo se nella dashboard, altrimenti grigio */}
+                {/* Pallino online/offline basato su presenza reale */}
                 <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${
-                  currentPage === "dashboard" ? "bg-success" : "bg-muted-foreground/40"
+                  isUserOnline ? "bg-success" : "bg-muted-foreground/40"
                 }`}></div>
               </div>
 
