@@ -16,7 +16,7 @@ const mockAchievements: Achievement[] = [
     description: "Completata con successo l'operazione di sorveglianza notturna",
     icon: "fa-medal",
     date: "2025-11-10",
-    category: "operational"
+    category: "operational",
   },
   {
     id: "2",
@@ -24,7 +24,7 @@ const mockAchievements: Achievement[] = [
     description: "Superato con eccellenza il corso di addestramento avanzato",
     icon: "fa-graduation-cap",
     date: "2025-11-05",
-    category: "training"
+    category: "training",
   },
   {
     id: "3",
@@ -32,7 +32,7 @@ const mockAchievements: Achievement[] = [
     description: "Riconoscimento per prestazioni eccellenti nel servizio",
     icon: "fa-trophy",
     date: "2025-10-28",
-    category: "excellence"
+    category: "excellence",
   },
 ];
 
@@ -110,11 +110,11 @@ export const Credits = () => {
                 </span>
               </div>
               <div className="h-3 bg-secondary/50 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full transition-all duration-500"
-                  style={{ 
+                  style={{
                     width: `${(progress.current / progress.max) * 100}%`,
-                    background: `linear-gradient(to right, hsl(var(--${progress.color})), hsl(var(--${progress.color})) 50%, hsl(var(--accent)))`
+                    background: `linear-gradient(to right, hsl(var(--${progress.color})), hsl(var(--${progress.color})) 50%, hsl(var(--accent)))`,
                   }}
                 ></div>
               </div>
@@ -134,7 +134,7 @@ export const Credits = () => {
           return (
             <Card key={achievement.id} className="glass p-6 hover:shadow-xl transition-all">
               <div className="flex items-start gap-4">
-                <div 
+                <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: `${category.color}20` }}
                 >
@@ -143,11 +143,11 @@ export const Credits = () => {
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="text-xl font-bold">{achievement.title}</h4>
-                    <span 
+                    <span
                       className="px-3 py-1 rounded-full text-xs font-bold"
-                      style={{ 
-                        backgroundColor: `${category.color}20`, 
-                        color: category.color 
+                      style={{
+                        backgroundColor: `${category.color}20`,
+                        color: category.color,
                       }}
                     >
                       {category.label}
@@ -156,7 +156,7 @@ export const Credits = () => {
                   <p className="text-sm text-muted-foreground mb-2">{achievement.description}</p>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <i className="fas fa-calendar"></i>
-                    {new Date(achievement.date).toLocaleDateString('it-IT')}
+                    {new Date(achievement.date).toLocaleDateString("it-IT")}
                   </div>
                 </div>
               </div>
@@ -180,21 +180,21 @@ export const Credits = () => {
             </div>
           </div>
           <div className="flex-1 text-center sm:text-left">
-            <h4 className="text-xl font-bold mb-1">Gino "BrunoHart" Mancini</h4>
-            <p className="text-muted-foreground mb-3">Lead Developer & System Architect</p>
+            <h4 className="text-xl font-bold mb-1">Ryze 💫</h4>
+            <p className="text-muted-foreground mb-3">Developer e Designer</p>
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-              <a 
-                href="https://github.com/brunohart" 
-                target="_blank" 
+              <a
+                href="https://github.com/brunohart"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent hover:bg-accent/30 transition-colors"
               >
                 <i className="fab fa-github"></i>
                 GitHub
               </a>
-              <a 
-                href="https://discord.gg/yourserver" 
-                target="_blank" 
+              <a
+                href="https://discord.gg/yourserver"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary hover:bg-primary/30 transition-colors"
               >
