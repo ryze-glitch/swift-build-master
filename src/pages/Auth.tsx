@@ -17,9 +17,9 @@ const Auth = () => {
   useEffect(() => {
     // Immediate redirect if user is logged in
     if (user) {
-      window.location.replace("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
-  }, [user]);
+  }, [user, navigate]);
   
   useEffect(() => {
     const code = searchParams.get("code");
