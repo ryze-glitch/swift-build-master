@@ -56,57 +56,60 @@ export const PatrolDeactivationForm = ({ onSubmit, onCancel }: PatrolDeactivatio
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label>Operatori in Rientro (Max 2)</Label>
-        <Select
-          value=""
-          onValueChange={handleAddOperator}
-          disabled={operatorsBack.length >= 2}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Aggiungi operatore" />
-          </SelectTrigger>
-          <SelectContent>
-            {personnel
-              .filter((p) => !operatorsBack.find((op) => op.id === p.id))
-              .map((person) => (
-                <SelectItem key={person.id} value={person.id}>
-                  {person.name} - {person.role}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {operatorsBack.map((person) => (
-            <Badge key={person.id} variant="secondary" className="gap-2">
-              {person.name}
-              <X
-                className="h-3 w-3 cursor-pointer"
-                onClick={() => handleRemoveOperator(person.id)}
-              />
-            </Badge>
-          ))}
+    <div className="max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-4">
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Operatori in Rientro (Max 2)</Label>
+          <Select
+            value=""
+            onValueChange={handleAddOperator}
+            disabled={operatorsBack.length >= 2}
+          >
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Aggiungi operatore" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {personnel
+                .filter((p) => !operatorsBack.find((op) => op.id === p.id))
+                .map((person) => (
+                  <SelectItem key={person.id} value={person.id} className="text-sm">
+                    {person.name} - {person.role}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {operatorsBack.map((person) => (
+              <Badge key={person.id} variant="secondary" className="gap-2 text-xs">
+                {person.name}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() => handleRemoveOperator(person.id)}
+                />
+              </Badge>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="deactivationTime">Orario di Disattivazione</Label>
-        <Input
-          id="deactivationTime"
-          type="time"
-          value={deactivationTime}
-          onChange={(e) => setDeactivationTime(e.target.value)}
-          required
-        />
-      </div>
+        <div className="space-y-2">
+          <Label htmlFor="deactivationTime" className="text-sm font-medium">Orario di Disattivazione</Label>
+          <Input
+            id="deactivationTime"
+            type="time"
+            value={deactivationTime}
+            onChange={(e) => setDeactivationTime(e.target.value)}
+            required
+            className="h-10 sm:h-11"
+          />
+        </div>
 
-      <div className="flex gap-2 justify-end">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Annulla
-        </Button>
-        <Button type="submit">Salva Modulo</Button>
-      </div>
-    </form>
+        <div className="flex gap-2 justify-end pt-4">
+          <Button type="button" variant="outline" onClick={onCancel} className="text-sm">
+            Annulla
+          </Button>
+          <Button type="submit" className="text-sm">Salva Modulo</Button>
+        </div>
+      </form>
+    </div>
   );
 };

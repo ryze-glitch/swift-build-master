@@ -33,7 +33,8 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { isOnline } = useOnlineStatus();
   
-  const isUserOnline = user ? isOnline(user.id) : false;
+  // Show green dot only when on dashboard page and online
+  const showGreenDot = currentPage === "dashboard" && user && isOnline(user.id);
 
   const getOperatorInfo = () => {
     if (!userOperator) return null;

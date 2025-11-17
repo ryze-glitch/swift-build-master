@@ -68,33 +68,34 @@ export const HeistActivationForm = ({ onSubmit, onCancel }: HeistActivationFormP
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label>Coordinatore (Max 1)</Label>
-        <Select
-          value={coordinator?.id || ""}
-          onValueChange={(value) => {
-            const person = personnel.find((p) => p.id === value);
-            setCoordinator(person || null);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Seleziona coordinatore" />
-          </SelectTrigger>
-          <SelectContent>
-            {personnel.map((person) => (
-              <SelectItem key={person.id} value={person.id}>
-                {person.name} - {person.role}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {coordinator && (
-          <Badge variant="secondary" className="mt-2">
-            {coordinator.name}
-          </Badge>
-        )}
-      </div>
+    <div className="max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-4">
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Coordinatore (Max 1)</Label>
+          <Select
+            value={coordinator?.id || ""}
+            onValueChange={(value) => {
+              const person = personnel.find((p) => p.id === value);
+              setCoordinator(person || null);
+            }}
+          >
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Seleziona coordinatore" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {personnel.map((person) => (
+                <SelectItem key={person.id} value={person.id} className="text-sm">
+                  {person.name} - {person.role}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {coordinator && (
+            <Badge variant="secondary" className="mt-2 text-xs">
+              {coordinator.name}
+            </Badge>
+          )}
+        </div>
 
       <div className="space-y-2">
         <Label>Contrattatore (Max 1)</Label>

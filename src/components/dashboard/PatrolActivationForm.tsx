@@ -62,64 +62,66 @@ export const PatrolActivationForm = ({ onSubmit, onCancel }: PatrolActivationFor
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label>Gestito da (Max 1)</Label>
-        <Select
-          value={managedBy?.id || ""}
-          onValueChange={(value) => {
-            const person = personnel.find((p) => p.id === value);
-            setManagedBy(person || null);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Seleziona operatore" />
-          </SelectTrigger>
-          <SelectContent>
-            {personnel.map((person) => (
-              <SelectItem key={person.id} value={person.id}>
-                {person.name} - {person.role}
+    <div className="max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-4">
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Gestito da (Max 1)</Label>
+          <Select
+            value={managedBy?.id || ""}
+            onValueChange={(value) => {
+              const person = personnel.find((p) => p.id === value);
+              setManagedBy(person || null);
+            }}
+          >
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Seleziona operatore" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {personnel.map((person) => (
+                <SelectItem key={person.id} value={person.id} className="text-sm">
+                  {person.name} - {person.role}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {managedBy && (
+            <Badge variant="secondary" className="mt-2 text-xs">
+              {managedBy.name}
+            </Badge>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="activationTime" className="text-sm font-medium">Orario di Attivazione</Label>
+          <Input
+            id="activationTime"
+            type="time"
+            value={activationTime}
+            onChange={(e) => setActivationTime(e.target.value)}
+            required
+            className="h-10 sm:h-11"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Tipo di Intervento</Label>
+          <Select value={interventionType} onValueChange={setInterventionType}>
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Seleziona tipo" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              <SelectItem value="pattugliamento_cittadino" className="text-sm">
+                Pattugliamento Cittadino/Intervento Rapine
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {managedBy && (
-          <Badge variant="secondary" className="mt-2">
-            {managedBy.name}
-          </Badge>
-        )}
-      </div>
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="activationTime">Orario di Attivazione</Label>
-        <Input
-          id="activationTime"
-          type="time"
-          value={activationTime}
-          onChange={(e) => setActivationTime(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Tipo di Intervento</Label>
-        <Select value={interventionType} onValueChange={setInterventionType}>
-          <SelectTrigger>
-            <SelectValue placeholder="Seleziona tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pattugliamento_cittadino">
-              Pattugliamento Cittadino/Intervento Rapine
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Veicolo Utilizzato</Label>
-        <Select value={vehicleUsed} onValueChange={setVehicleUsed}>
-          <SelectTrigger>
-            <SelectValue placeholder="Seleziona veicolo" />
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Veicolo Utilizzato</Label>
+          <Select value={vehicleUsed} onValueChange={setVehicleUsed}>
+            <SelectTrigger className="h-10 sm:h-11">
+              <SelectValue placeholder="Seleziona veicolo" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="jeep_cherokee">Jeep Cherokee</SelectItem>
@@ -162,11 +164,12 @@ export const PatrolActivationForm = ({ onSubmit, onCancel }: PatrolActivationFor
       </div>
 
       <div className="flex gap-2 justify-end">
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button type="button" variant="outline" onClick={onCancel} className="text-sm">
           Annulla
         </Button>
-        <Button type="submit">Salva Modulo</Button>
+        <Button type="submit" className="text-sm">Salva Modulo</Button>
       </div>
     </form>
+  </div>
   );
 };
