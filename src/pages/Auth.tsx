@@ -17,6 +17,7 @@ const Auth = () => {
   useEffect(() => {
     // Immediate redirect if user is logged in
     if (user) {
+      console.log("User authenticated, redirecting to dashboard");
       navigate("/dashboard", { replace: true });
     }
   }, [user, navigate]);
@@ -47,6 +48,7 @@ const Auth = () => {
   };
   const handleDiscordCallback = async (code: string) => {
     try {
+      console.log("Processing Discord callback with code");
       const {
         data,
         error
@@ -55,8 +57,12 @@ const Auth = () => {
           code
         }
       });
-      if (error) throw error;
+      if (error) {
+        console.error("Discord auth error:", error);
+        throw error;
+      }
       if (data.error) {
+        console.error("Discord auth data error:", data.error);
         toast({
           title: data.error === "Accesso Negato" ? "Accesso Negato" : "Errore di autenticazione",
           description: data.message || data.error,
@@ -66,14 +72,13 @@ const Auth = () => {
         return;
       }
 
-      // Use the magic link for instant authentication
+      console.log("Discord auth successful, using magic link");
+      // Use the magic link for instant authentication - it will redirect to /dashboard automatically
       if (data.redirect_url) {
-        // Force redirect to dashboard after magic link auth
-        const url = new URL(data.redirect_url);
-        url.hash = '#/dashboard';
-        window.location.replace(url.toString());
+        window.location.href = data.redirect_url;
       }
     } catch (error) {
+      console.error("Discord callback error:", error);
       toast({
         title: "Errore durante l'accesso",
         description: "Si è verificato un errore durante l'autenticazione con Discord",
