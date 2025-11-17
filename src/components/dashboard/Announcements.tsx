@@ -20,7 +20,7 @@ interface Announcement {
   content: string;
   author: string;
   date: string;
-  category: "urgent" | "info" | "update" | "training";
+  category: "urgent" | "info" | "update" | "training" | "regulation" | "promotion" | "sanction";
   acknowledged: boolean;
   acknowledgedBy?: string[];
   tags: string[];
@@ -34,7 +34,7 @@ export const Announcements = () => {
   const [isComposing, setIsComposing] = useState(false);
   const [newAnnouncementType, setNewAnnouncementType] = useState<"normal" | "training">("normal");
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({ title: "", category: "info", content: "" });
+  const [formData, setFormData] = useState({ title: "", category: "info" as const, content: "" });
   const { markAsRead } = useNotifications();
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
@@ -146,50 +146,57 @@ export const Announcements = () => {
   };
 
   const handleTrainingVote = async (announcementId: string, choice: "presenza" | "assenza" | null) => {
-    if (!user) return;
-
-    const announcement = announcements.find(a => a.id === announcementId);
-    if (!announcement || !announcement.isTraining) return;
-
-    // Get current votes from database
-    const { data: currentData } = await supabase
-      .from("announcements")
-      .select("training_votes")
-      .eq("id", announcementId)
-      .single();
-
-    const currentVotes: any = currentData?.training_votes || { presenza: [], assenza: [] };
-    
-    // Remove user from both arrays
-    const newPresenza = (Array.isArray(currentVotes.presenza) ? currentVotes.presenza : []).filter((id: string) => id !== user.id);
-    const newAssenza = (Array.isArray(currentVotes.assenza) ? currentVotes.assenza : []).filter((id: string) => id !== user.id);
-
-    // Add user to selected choice if not null (null means remove vote)
-    if (choice === "presenza") {
-      newPresenza.push(user.id);
-    } else if (choice === "assenza") {
-      newAssenza.push(user.id);
+    if (!user) {
+      toast.error("Devi essere autenticato per votare");
+      return;
     }
 
-    const newVotes = {
-      presenza: newPresenza,
-      assenza: newAssenza
-    };
+    const announcement = announcements.find(a => a.id === announcementId);
+    if (!announcement || !announcement.isTraining) {
+      toast.error("Comunicato non valido");
+      return;
+    }
 
-    const { error } = await supabase
-      .from("announcements")
-      .update({ training_votes: newVotes })
-      .eq("id", announcementId);
+    try {
+      // Get current votes from database
+      const { data: currentData, error: fetchError } = await supabase
+        .from("announcements")
+        .select("training_votes")
+        .eq("id", announcementId)
+        .single();
 
-    if (error) {
-      console.error("Error voting:", error);
-      toast.error("Errore nella votazione");
-    } else {
-      if (choice === null) {
-        toast.success("Voto rimosso");
-      } else {
-        toast.success("Voto registrato");
+      if (fetchError) throw fetchError;
+
+      const currentVotes: any = currentData?.training_votes || { presenza: [], assenza: [] };
+      
+      // Ensure arrays exist and are valid
+      const presenzaArray = Array.isArray(currentVotes.presenza) ? currentVotes.presenza : [];
+      const assenzaArray = Array.isArray(currentVotes.assenza) ? currentVotes.assenza : [];
+      
+      // Remove user from both arrays (filter out the current user)
+      const newPresenza = presenzaArray.filter((id: string) => id !== user.id);
+      const newAssenza = assenzaArray.filter((id: string) => id !== user.id);
+
+      // Add user to selected choice if not null (null means remove vote)
+      if (choice === "presenza") {
+        newPresenza.push(user.id);
+      } else if (choice === "assenza") {
+        newAssenza.push(user.id);
       }
+
+      const newVotes = {
+        presenza: newPresenza,
+        assenza: newAssenza
+      };
+
+      const { error: updateError } = await supabase
+        .from("announcements")
+        .update({ training_votes: newVotes })
+        .eq("id", announcementId);
+
+      if (updateError) throw updateError;
+
+      // Update local state immediately for better UX
       setAnnouncements(prev => prev.map(a => {
         if (a.id !== announcementId) return a;
         return {
@@ -200,6 +207,15 @@ export const Announcements = () => {
           ]
         };
       }));
+
+      if (choice === null) {
+        toast.success("Voto rimosso");
+      } else {
+        toast.success(choice === "presenza" ? "Presenza confermata" : "Assenza confermata");
+      }
+    } catch (error) {
+      console.error("Error voting:", error);
+      toast.error("Errore nella votazione. Riprova.");
     }
   };
 
@@ -457,13 +473,16 @@ export const Announcements = () => {
               <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Categoria</label>
               <select 
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
                 className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
               >
                 <option value="info">Info</option>
-                <option value="urgent">Urgente</option>
-                <option value="update">Aggiornamento</option>
+                <option value="update">Aggiornamenti</option>
+                <option value="regulation">Regolamento</option>
                 {newAnnouncementType === "training" && <option value="training">Addestramento</option>}
+                <option value="promotion">Promozioni</option>
+                <option value="sanction">Sanzioni</option>
+                <option value="urgent">Urgente</option>
               </select>
             </div>
           </div>
@@ -541,31 +560,29 @@ export const Announcements = () => {
 
                     {/* Vote Buttons */}
                     <div className="space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => handleTrainingVote(announcement.id, "presenza")}
-                          className={`px-3 py-2 rounded-lg font-medium text-sm transition-all ${
+                          disabled={loading}
+                          className={`px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
                             getUserVote(announcement) === "presenza"
-                              ? "bg-green-500 text-white shadow-md"
-                              : "bg-secondary/30 hover:bg-secondary/50 border border-border"
+                              ? "bg-success text-success-foreground shadow-lg hover:shadow-xl scale-105"
+                              : "bg-card/50 hover:bg-success/20 border-2 border-success/30 hover:border-success text-success hover:scale-102"
                           }`}
                         >
-                          <i className={`fas fa-check mr-1.5 text-xs ${
-                            getUserVote(announcement) === "presenza" ? "text-white" : "text-green-500"
-                          }`}></i>
+                          <i className={`fas fa-check mr-2`}></i>
                           Presenza
                         </button>
                         <button
                           onClick={() => handleTrainingVote(announcement.id, "assenza")}
-                          className={`px-3 py-2 rounded-lg font-medium text-sm transition-all ${
+                          disabled={loading}
+                          className={`px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
                             getUserVote(announcement) === "assenza"
-                              ? "bg-red-500 text-white shadow-md"
-                              : "bg-secondary/30 hover:bg-secondary/50 border border-border"
+                              ? "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl scale-105"
+                              : "bg-card/50 hover:bg-destructive/20 border-2 border-destructive/30 hover:border-destructive text-destructive hover:scale-102"
                           }`}
                         >
-                          <i className={`fas fa-times mr-1.5 text-xs ${
-                            getUserVote(announcement) === "assenza" ? "text-white" : "text-red-500"
-                          }`}></i>
+                          <i className={`fas fa-times mr-2`}></i>
                           Assenza
                         </button>
                       </div>
@@ -574,16 +591,17 @@ export const Announcements = () => {
                       {getUserVote(announcement) && (
                         <button
                           onClick={() => handleTrainingVote(announcement.id, null)}
-                          className="w-full px-2 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                          disabled={loading}
+                          className="w-full px-3 py-2 rounded-xl bg-secondary/60 hover:bg-secondary text-sm font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                         >
-                          <i className="fas fa-undo text-xs"></i>
+                          <i className="fas fa-undo"></i>
                           Rimuovi voto
                         </button>
                       )}
                     </div>
 
                     {/* Results */}
-                    <div className="space-y-3">
+                    <div className="space-y-3 mt-4">
                       {(() => {
                         const stats = getTrainingStats(announcement.trainingVotes);
                         return (
@@ -591,13 +609,13 @@ export const Announcements = () => {
                             <div>
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-semibold">Presenza</span>
-                                <span className="text-sm font-bold text-green-500">
+                                <span className="text-sm font-bold text-success">
                                   {stats.presenzaCount} ({stats.presenzaPercentage}%)
                                 </span>
                               </div>
                               <div className="h-3 bg-secondary/50 rounded-full overflow-hidden">
                                 <div 
-                                  className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500"
+                                  className="h-full bg-gradient-to-r from-success/80 to-success transition-all duration-500 ease-out"
                                   style={{ width: `${stats.presenzaPercentage}%` }}
                                 ></div>
                               </div>
@@ -605,13 +623,13 @@ export const Announcements = () => {
                             <div>
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-semibold">Assenza</span>
-                                <span className="text-sm font-bold text-red-500">
+                                <span className="text-sm font-bold text-destructive">
                                   {stats.assenzaCount} ({stats.assenzaPercentage}%)
                                 </span>
                               </div>
                               <div className="h-3 bg-secondary/50 rounded-full overflow-hidden">
                                 <div 
-                                  className="h-full bg-gradient-to-r from-red-400 to-red-600 transition-all duration-500"
+                                  className="h-full bg-gradient-to-r from-destructive/80 to-destructive transition-all duration-500 ease-out"
                                   style={{ width: `${stats.assenzaPercentage}%` }}
                                 ></div>
                               </div>
