@@ -84,25 +84,32 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
     <header className="sticky top-0 z-50 glass-strong border-b shadow-lg">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
-          {/* Logo a sinistra */}
-          <div className="flex-shrink-0">
+          {/* Logo e Titolo a sinistra - Stile nuovo */}
+          <div className="flex items-center gap-3 flex-shrink-0">
             <img 
               src="https://i.imgur.com/B6E4u1X.png" 
               alt="UOPI Logo" 
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shadow-glow transition-transform hover:scale-110"
             />
+            {isDesktop && (
+              <div className="flex flex-col">
+                <h1 className="text-lg font-bold text-foreground leading-tight">U.O.P.I. - IPRP X</h1>
+                <p className="text-xs text-muted-foreground">Unità Operativa di Primo Intervento</p>
+              </div>
+            )}
           </div>
 
-          {/* Navigation - Centrata */}
-          <nav className="flex items-center gap-1 sm:gap-2 glass rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-2xl mx-auto">
-            {navItems.map((item) => (
-              <Tooltip key={item.id}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => onPageChange(item.id)}
-                    className={`
-                      relative flex items-center gap-2 px-2 sm:px-3 py-2 rounded-full font-semibold
-                      transition-all duration-300 group whitespace-nowrap
+          {/* Navigation - Centrata su Desktop, Mobile menu */}
+          {isDesktop ? (
+            <nav className="flex items-center gap-1 glass rounded-xl px-3 py-2 flex-1 justify-center max-w-3xl mx-auto border border-border/50">
+              {navItems.map((item) => (
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => onPageChange(item.id)}
+                      className={`
+                        relative flex items-center gap-2 px-3 py-2 rounded-lg font-medium text-sm
+                        transition-all duration-300 group whitespace-nowrap
                       ${currentPage === item.id 
                         ? 'bg-primary text-primary-foreground shadow-md scale-105' 
                         : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
