@@ -50,49 +50,43 @@ const Auth = () => {
   };
   const handleDiscordCallback = async (code: string) => {
     try {
-      console.log("Processing Discord callback with code");
+      console.log("Processing Discord callback");
       const { data, error } = await supabase.functions.invoke("discord-auth", {
         body: { code }
       });
       
-      if (error) {
-        console.error("Discord auth error:", error);
-        throw error;
-      }
+      if (error) throw error;
       
       if (data.error) {
-        console.error("Discord auth data error:", data.error);
         toast({
-          title: data.error === "Accesso Negato" ? "Accesso Negato" : "Errore di autenticazione",
+          title: data.error === "Accesso Negato" ? "Accesso Negato" : "Errore",
           description: data.message || data.error,
           variant: "destructive",
         });
-        navigate("/auth");
         return;
       }
 
-      console.log("Discord auth successful, setting session");
+      console.log("Verifying OTP");
       
-      // Set the session directly with the tokens received
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
+      // Verify the OTP token
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: data.token_hash,
+        type: data.type,
       });
 
-      if (sessionError) {
-        console.error("Session error:", sessionError);
-        throw sessionError;
+      if (verifyError) {
+        console.error("OTP verification error:", verifyError);
+        throw verifyError;
       }
 
-      console.log("Session set successfully, redirecting to dashboard");
-      // Navigate to dashboard
+      console.log("OTP verified, redirecting to dashboard");
       navigate("/dashboard", { replace: true });
       
     } catch (error) {
-      console.error("Discord callback error:", error);
+      console.error("Auth error:", error);
       toast({
         title: "Errore durante l'accesso",
-        description: "Si è verificato un errore durante l'autenticazione con Discord",
+        description: "Riprova",
         variant: "destructive"
       });
     }

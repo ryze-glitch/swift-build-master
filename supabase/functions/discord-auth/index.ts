@@ -254,34 +254,38 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate a magic link but extract the session from it
-    const { data: linkData, error: linkError } = await supabaseClient.auth.admin.generateLink({
+    // Generate OTP for email verification
+    const { data: otpData, error: otpError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: authUser.email || email,
+      options: {
+        redirectTo: `${req.headers.get("origin")}/dashboard`
+      }
     });
 
-    if (linkError || !linkData) {
-      logStep("Error generating link", { error: linkError?.message });
-      throw new Error("Failed to generate auth link");
+    if (otpError || !otpData) {
+      logStep("Error generating OTP", { error: otpError?.message });
+      throw new Error("Failed to generate OTP");
     }
 
-    logStep("Session created successfully", { 
+    logStep("Auth successful", { 
       userId: authUser.id,
       isNewUser 
     });
 
-    // Return the session tokens for direct client-side authentication
+    // Extract token hash from the action link
+    const actionLink = otpData.properties.action_link;
+    const url = new URL(actionLink);
+    const tokenHash = url.searchParams.get('token_hash');
+    const type = url.searchParams.get('type');
+
+    // Return tokens for client verification
     return new Response(
       JSON.stringify({
-        access_token: linkData.properties.hashed_token,
-        refresh_token: linkData.properties.hashed_token,
-        user: {
-          id: authUser.id,
-          email: authUser.email,
-          discord_tag: discordTag,
-          discord_id: discordId,
-          role: roleData.role,
-        },
+        token_hash: tokenHash,
+        type: type,
+        email: authUser.email || email,
+        redirect_to: '/dashboard'
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
