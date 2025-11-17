@@ -98,7 +98,7 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
 
       {/* Content */}
       <div 
-        className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap"
+        className="text-sm text-foreground/90 leading-relaxed prose prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: announcement.content }}
       />
 
