@@ -261,6 +261,30 @@ export const Shifts = () => {
 
       if (error) throw error;
 
+      // Notify Discord if status changed to completed
+      if (shiftData.status === 'completed' && editingShift.status !== 'completed') {
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('discord_tag')
+            .eq('id', user?.id || '')
+            .single();
+
+          await supabase.functions.invoke('notify-discord-shift', {
+            body: {
+              action: 'completed',
+              shift_name: shiftData.name,
+              module_type: editingShift.module_type,
+              created_by_name: profileData?.discord_tag || user?.email,
+              start_time: shiftData.start_time,
+              end_time: shiftData.end_time
+            }
+          });
+        } catch (err) {
+          console.error('Failed to send Discord notification:', err);
+        }
+      }
+
       toast.success("Turno aggiornato con successo");
       setIsDialogOpen(false);
       setEditingShift(null);
