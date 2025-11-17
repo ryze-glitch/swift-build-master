@@ -128,9 +128,9 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
               <div className="relative">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
                   <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
-                    {userOperator?.avatar ? (
+                    {userOperator?.avatarUrl ? (
                       <img 
-                        src={userOperator.avatar} 
+                        src={userOperator.avatarUrl} 
                         alt={userOperator?.name || "User"}
                         className="w-full h-full object-cover"
                       />
@@ -167,13 +167,13 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
             {/* Dropdown Menu */}
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-56 glass-strong rounded-2xl shadow-2xl border overflow-hidden z-50 animate-scale-in">
-                <div className="p-4 border-b bg-gradient-to-br from-card to-card/50">
+                  <div className="p-4 border-b bg-gradient-to-br from-card to-card/50">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
                       <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
-                        {userOperator?.avatar ? (
+                        {userOperator?.avatarUrl ? (
                           <img 
-                            src={userOperator.avatar} 
+                            src={userOperator.avatarUrl} 
                             alt={userOperator?.name || "User"}
                             className="w-full h-full object-cover"
                           />
