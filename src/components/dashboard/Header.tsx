@@ -94,7 +94,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           </div>
 
           {/* Navigation - Centrata */}
-          <nav className="flex items-center gap-1.5 glass rounded-3xl px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-4xl mx-auto border border-border/50">
+          <nav className="flex items-center gap-1.5 glass rounded-3xl px-2 py-1.5 sm:px-3 sm:py-2 border border-border/50">
             {navItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
@@ -113,7 +113,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                       }
                     `}
                   >
-                    <i className={`fas ${item.icon} text-base sm:text-lg flex-shrink-0`}></i>
+                    <i className={`fas ${item.icon} text-base sm:text-lg flex-shrink-0 flex items-center justify-center`}></i>
                     {isDesktop && (
                       <span className="opacity-0 max-w-0 whitespace-nowrap text-sm ml-2 font-medium group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300 overflow-hidden">
                         {item.label}
