@@ -9,6 +9,7 @@ import { Shifts } from "@/components/dashboard/Shifts";
 import { Credits } from "@/components/dashboard/Credits";
 import { NotificationSystem } from "@/components/dashboard/NotificationSystem";
 import { PremiumModal } from "@/components/dashboard/PremiumModal";
+import { Footer } from "@/components/dashboard/Footer";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import Dirigenza from "./Dirigenza";
@@ -293,6 +294,7 @@ const Dashboard = () => {
 
       <NotificationSystem />
       <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
+      <Footer />
     </div>
   );
 };

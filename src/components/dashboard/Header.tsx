@@ -12,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useMediaQuery } from "@/hooks/use-mobile";
 
 type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits" | "dirigenza";
 
@@ -28,6 +29,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const { unreadCount } = useNotifications();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [userOperator, setUserOperator] = useState<any>(null);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const getOperatorInfo = () => {
     if (!userOperator) return null;
@@ -94,8 +96,8 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                   <button
                     onClick={() => onPageChange(item.id)}
                     className={`
-                      relative flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-full font-semibold
-                      transition-all duration-300 group
+                      relative flex items-center gap-2 px-2 sm:px-3 py-2 rounded-full font-semibold
+                      transition-all duration-300 group whitespace-nowrap
                       ${currentPage === item.id 
                         ? 'bg-primary text-primary-foreground shadow-md scale-105' 
                         : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
@@ -103,6 +105,10 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     `}
                   >
                     <i className={`fas ${item.icon} text-sm sm:text-base`}></i>
+                    {/* Label visibile solo su desktop e solo se il menu è aperto */}
+                    {isDesktop && (
+                      <span className="text-xs sm:text-sm">{item.label}</span>
+                    )}
                     {/* Badge notifiche solo su announcements */}
                     {item.id === "announcements" && unreadCount > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
@@ -139,7 +145,10 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     )}
                   </div>
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-card"></div>
+                {/* Pallino verde solo se nella dashboard, altrimenti grigio */}
+                <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${
+                  currentPage === "dashboard" ? "bg-success" : "bg-muted-foreground/40"
+                }`}></div>
               </div>
 
               {/* User Info - Hidden su mobile molto piccolo */}
@@ -155,9 +164,20 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     </Badge>
                   )}
                 </div>
-                <p className="text-[10px] text-muted-foreground">
-                  {isAdmin ? "Dirigenza" : "Operatore"}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-[10px] text-muted-foreground">
+                    {isAdmin ? "Dirigenza" : "Operatore"}
+                  </p>
+                  {/* Mostra il grado solo da desktop */}
+                  {isDesktop && userOperator?.rank && (
+                    <>
+                      <span className="text-[10px] text-muted-foreground">•</span>
+                      <p className="text-[10px] text-muted-foreground font-semibold">
+                        {userOperator.rank}
+                      </p>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Dropdown Icon */}
