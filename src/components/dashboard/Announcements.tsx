@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnnouncementCard } from "./AnnouncementCard";
+import { RichTextEditor } from "./RichTextEditor";
 import { Card } from "@/components/ui/card";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -468,11 +469,10 @@ export const Announcements = () => {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Contenuto</label>
-            <textarea 
-              rows={4} 
+            <RichTextEditor
               value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+              onChange={(value) => setFormData({ ...formData, content: value })}
+              placeholder="Scrivi il contenuto del comunicato..."
             />
           </div>
           <div className="flex gap-3 justify-end">

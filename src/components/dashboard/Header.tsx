@@ -29,6 +29,11 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [userOperator, setUserOperator] = useState<any>(null);
 
+  const getOperatorInfo = () => {
+    if (!userOperator) return null;
+    return userOperator;
+  };
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user) return;
@@ -72,27 +77,13 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
     <header className="sticky top-0 z-50 glass-strong border-b shadow-lg">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
-          {/* Logo Section - Compatto su mobile */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Left Emblem */}
-            <img 
-              src="https://i.imgur.com/4T6qvKV.png" 
-              alt="U.O.P.I. Emblem" 
-              className="w-8 h-8 sm:w-12 sm:h-12 rounded-full shadow-lg transition-transform hover:scale-110"
-            />
-
-            {/* Logo */}
+          {/* Centered Logo - Only UOPI */}
+          <div className="absolute left-1/2 -translate-x-1/2">
             <img 
               src="https://i.imgur.com/B6E4u1X.png" 
-              alt="IPRP Logo" 
+              alt="UOPI Logo" 
               className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl shadow-glow transition-transform hover:scale-110"
             />
-
-            {/* Brand - Hidden on very small screens */}
-            <div className="hidden sm:block">
-              <h1 className="text-lg sm:text-2xl font-extrabold">U.O.P.I.</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground font-semibold">IPRP X</p>
-            </div>
           </div>
 
           {/* Navigation - Solo icone su mobile */}
@@ -193,13 +184,18 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm truncate">{userProfile?.full_name || user?.email}</p>
-                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      <p className="text-xs text-muted-foreground">{getOperatorInfo()?.matricola || user?.email}</p>
                     </div>
                   </div>
-                  {isAdmin && (
+                  {isAdmin ? (
+                    <Badge variant="default" className="text-xs bg-amber-500/20 text-amber-500 border-amber-500/30">
+                      <i className="fas fa-crown w-3 h-3 mr-1"></i>
+                      Dirigenza
+                    </Badge>
+                  ) : (
                     <Badge variant="default" className="text-xs">
-                      <Shield className="w-3 h-3 mr-1" />
-                      Administrator
+                      <User className="w-3 h-3 mr-1" />
+                      Operatore
                     </Badge>
                   )}
                 </div>

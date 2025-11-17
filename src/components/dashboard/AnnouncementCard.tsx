@@ -41,7 +41,7 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
 
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-xl font-bold flex-1">{announcement.title}</h3>
+        <h3 className="text-2xl sm:text-3xl font-bold flex-1 leading-tight">{announcement.title}</h3>
         <div className="flex items-center gap-2">
           <span 
             className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
@@ -90,9 +90,10 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
       </div>
 
       {/* Content */}
-      <p className="text-sm text-foreground/90 leading-relaxed">
-        {announcement.content}
-      </p>
+      <div 
+        className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap"
+        dangerouslySetInnerHTML={{ __html: announcement.content }}
+      />
 
       {/* Acknowledgment */}
       <div className="glass rounded-xl p-4 flex items-center justify-between gap-4">
@@ -124,22 +125,6 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
         />
       </div>
 
-      {/* Lista di chi ha preso visione - solo per dirigenza */}
-      {showAcknowledgmentList && announcement.acknowledgedBy && announcement.acknowledgedBy.length > 0 && (
-        <div className="glass rounded-xl p-4 mt-4">
-          <div className="text-sm font-semibold mb-2 text-muted-foreground">
-            <i className="fas fa-users mr-2"></i>
-            Presa visione da:
-          </div>
-          <div className="space-y-1">
-            {announcement.acknowledgedBy.map((userId: string, idx: number) => (
-              <div key={idx} className="text-xs text-muted-foreground">
-                {userId}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
