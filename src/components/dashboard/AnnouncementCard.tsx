@@ -1,4 +1,5 @@
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
+import operatoriData from "@/data/operatori_reparto.json";
 
 interface Announcement {
   id: string;
@@ -70,8 +71,7 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
         <span className="flex items-center gap-2">
           <i className="fas fa-user"></i>
           {(() => {
-            const operatori = require('@/data/operatori_reparto.json').operators;
-            const operator = operatori.find((op: any) => op.discordTag === announcement.author);
+            const operator = operatoriData.operators.find((op: any) => op.discordTag === announcement.author);
             return operator ? operator.name : announcement.author;
           })()}
         </span>
