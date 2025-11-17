@@ -163,17 +163,9 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
 
               {/* User Info - Hidden su mobile molto piccolo */}
               <div className="hidden md:block text-left">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs sm:text-sm font-bold truncate max-w-[120px]">
-                    {userOperator?.name || user?.email}
-                  </p>
-                  {isAdmin && (
-                    <Badge variant="default" className="text-[10px] px-1.5 py-0">
-                      <Shield className="w-3 h-3 mr-0.5" />
-                      Admin
-                    </Badge>
-                  )}
-                </div>
+                <p className="text-xs sm:text-sm font-bold truncate max-w-[120px]">
+                  {userOperator?.name || user?.email}
+                </p>
                 <div className="flex items-center gap-2">
                   <p className="text-[10px] text-muted-foreground">
                     {isAdmin ? "Dirigenza" : "Operatore"}
