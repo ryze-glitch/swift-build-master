@@ -7,7 +7,7 @@ interface Announcement {
   content: string;
   author: string;
   date: string;
-  category: "urgent" | "info" | "update" | "training";
+  category: "urgent" | "info" | "update" | "training" | "regulation" | "promotion" | "sanction";
   acknowledged: boolean;
   tags: string[];
   created_by?: string;
@@ -23,10 +23,13 @@ interface AnnouncementCardProps {
 }
 
 const categoryConfig = {
-  urgent: { color: "hsl(var(--danger))", icon: "fa-exclamation-triangle", label: "Urgente" },
   info: { color: "hsl(var(--primary))", icon: "fa-info-circle", label: "Info" },
-  update: { color: "hsl(var(--accent))", icon: "fa-sync-alt", label: "Aggiornamento" },
+  update: { color: "hsl(var(--accent))", icon: "fa-sync-alt", label: "Aggiornamenti" },
+  regulation: { color: "hsl(217 91% 75%)", icon: "fa-book", label: "Regolamento" },
   training: { color: "hsl(var(--warning))", icon: "fa-graduation-cap", label: "Addestramento" },
+  promotion: { color: "hsl(142 71% 70%)", icon: "fa-star", label: "Promozioni" },
+  sanction: { color: "hsl(0 84% 78%)", icon: "fa-gavel", label: "Sanzioni" },
+  urgent: { color: "hsl(var(--danger))", icon: "fa-exclamation-triangle", label: "Urgente" },
 };
 
 export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDelete, showAcknowledgmentList }: AnnouncementCardProps) => {
