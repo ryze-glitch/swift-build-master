@@ -25,8 +25,8 @@ const Auth = () => {
   useEffect(() => {
     const code = searchParams.get("code");
     
+    // Check if we're coming back from Discord OAuth
     if (code && !user) {
-      console.log("Discord callback detected");
       // Clear the URL immediately to prevent reuse
       window.history.replaceState({}, document.title, "/auth");
       // Execute callback
@@ -65,13 +65,13 @@ const Auth = () => {
         return;
       }
 
-      // Redirect to magic link - Supabase handles the rest
+      // Follow the magic link - it will authenticate and come back here
       if (data.magic_link) {
+        // The magic link will redirect back and Supabase will handle the session
         window.location.href = data.magic_link;
       }
       
     } catch (error) {
-      console.error("Auth error:", error);
       toast({
         title: "Errore durante l'accesso",
         description: "Riprova",
