@@ -24,11 +24,14 @@ const Auth = () => {
   
   useEffect(() => {
     const code = searchParams.get("code");
+    const token = searchParams.get("token");
     const type = searchParams.get("type");
     
-    // Handle magic link verification
-    if (type === "recovery" || type === "magiclink") {
-      console.log("Magic link detected, auth will be handled automatically");
+    // Handle Supabase auth token in URL (from magic link)
+    if (token && type) {
+      console.log("Auth token detected in URL, Supabase will handle authentication");
+      // Supabase client will automatically handle the token
+      // Just wait for the session to be established
       return;
     }
     

@@ -254,18 +254,15 @@ serve(async (req) => {
       logStep("Error updating user role", { error: updateTagError.message });
     }
 
-    // Generate OTP for instant sign-in
-    const { data: otpData, error: otpError } = await supabaseClient.auth.admin.generateLink({
+    // Create a session for the user instead of using magic link
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.admin.generateLink({
       type: 'magiclink',
       email: authUser.email || email,
-      options: {
-        redirectTo: `${req.headers.get("origin")}/dashboard`
-      }
     });
 
-    if (otpError) {
-      logStep("Error generating OTP", { error: otpError.message });
-      throw otpError;
+    if (sessionError) {
+      logStep("Error generating session", { error: sessionError.message });
+      throw sessionError;
     }
 
     logStep("Auth link generated successfully", { 
@@ -273,10 +270,19 @@ serve(async (req) => {
       isNewUser 
     });
 
-    // Return the instant redirect URL
+    // Extract the token from the magic link and build the redirect URL
+    const actionLink = sessionData.properties.action_link;
+    const url = new URL(actionLink);
+    const token = url.searchParams.get('token');
+    const type = url.searchParams.get('type');
+    
+    // Build the redirect URL with the token that will auto-login
+    const redirectUrl = `${req.headers.get("origin")}/auth?token=${token}&type=${type}#access_token=${token}&type=${type}`;
+
+    // Return the redirect URL that will complete authentication
     return new Response(
       JSON.stringify({
-        redirect_url: otpData.properties.action_link,
+        redirect_url: redirectUrl,
         user: {
           id: authUser.id,
           email: authUser.email,
