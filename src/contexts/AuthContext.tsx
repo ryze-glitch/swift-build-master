@@ -95,6 +95,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 discord_tag: profile?.discord_tag || null,
                 event_type: 'login'
               });
+
+              // Notify Discord
+              try {
+                await supabase.functions.invoke('notify-discord-auth', {
+                  body: {
+                    discord_tag: profile?.discord_tag || session.user.email,
+                    event_type: 'login',
+                    user_name: profile?.discord_tag || session.user.email,
+                    qualification: 'N/A'
+                  }
+                });
+              } catch (err) {
+                console.error('Failed to notify Discord:', err);
+              }
+            }, 0);
+          }
+          
+          // Log logout event
+          if (event === 'SIGNED_OUT') {
+            setTimeout(async () => {
+              const userId = session?.user?.id || user?.id;
+              if (!userId) return;
+
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('discord_tag')
+                .eq('id', userId)
+                .single();
+              
+              await supabase.from('auth_logs').insert({
+                user_id: userId,
+                discord_tag: profile?.discord_tag || null,
+                event_type: 'logout'
+              });
+
+              // Notify Discord
+              try {
+                await supabase.functions.invoke('notify-discord-auth', {
+                  body: {
+                    discord_tag: profile?.discord_tag || session?.user?.email,
+                    event_type: 'logout',
+                    user_name: profile?.discord_tag || session?.user?.email,
+                    qualification: 'N/A'
+                  }
+                });
+              } catch (err) {
+                console.error('Failed to notify Discord:', err);
+              }
             }, 0);
           }
           
