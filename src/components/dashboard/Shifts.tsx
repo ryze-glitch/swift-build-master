@@ -286,15 +286,15 @@ export const Shifts = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h2 className="text-2xl font-bold">Turni di Servizio</h2>
         {isAdmin && (
-          <div className="flex gap-2">
-            <Button variant="outline">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto">
               <Sparkles className="mr-2 h-4 w-4" />
               AI Planner
             </Button>
-            <Button onClick={openCreateDialog}>
+            <Button onClick={openCreateDialog} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Nuovo Turno
             </Button>
@@ -335,20 +335,20 @@ export const Shifts = () => {
       </div>
 
       {/* Premium AI Banner */}
-      <div className="bg-gradient-to-r from-warning/10 to-transparent border border-warning/30 rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-lg bg-warning/20 flex items-center justify-center">
-              <Sparkles className="h-6 w-6 text-warning" />
+      <div className="bg-gradient-to-r from-warning/10 to-transparent border border-warning/30 rounded-lg p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-warning/20 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">Ottimizzazione AI dei Turni</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-semibold text-base sm:text-lg">Ottimizzazione AI dei Turni</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Lascia che l'AI organizzi automaticamente i turni
               </p>
             </div>
           </div>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 w-full sm:w-auto">
             <Crown className="h-4 w-4" />
             Sblocca Premium
           </Button>
