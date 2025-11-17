@@ -35,24 +35,24 @@ export const ModuleSelector = ({ onSelectModule }: ModuleSelectorProps) => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-lg mx-auto">
       <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold mb-2">Seleziona Tipo di Modulo</h3>
+        <h3 className="text-xl font-semibold mb-2">Seleziona Tipo di Modulo</h3>
         <p className="text-sm text-muted-foreground">
           Scegli il tipo di turno da creare
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-3">
         {modules.map((module) => (
           <Card
             key={module.type}
-            className={`p-6 cursor-pointer transition-all border-2 ${module.color} hover:shadow-lg`}
+            className={`p-4 sm:p-6 cursor-pointer transition-all border-2 ${module.color} hover:shadow-lg`}
             onClick={() => onSelectModule(module.type)}
           >
-            <div className="flex items-center gap-4">
-              <module.icon className="h-7 w-7" />
-              <span className="font-semibold text-lg">{module.title}</span>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <module.icon className="h-5 w-5 sm:h-7 sm:w-7 flex-shrink-0" />
+              <span className="font-semibold text-sm sm:text-lg leading-tight">{module.title}</span>
             </div>
           </Card>
         ))}
