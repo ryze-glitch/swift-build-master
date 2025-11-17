@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useMediaQuery } from "@/hooks/use-mobile";
 
-type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "credits" | "dirigenza";
+type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "dirigenza";
 
 interface HeaderProps {
   currentPage: Page;
@@ -76,7 +76,6 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
     { id: "shifts" as Page, icon: "fa-calendar-alt", label: "Turni" },
     { id: "announcements" as Page, icon: "fa-bullhorn", label: "Comunicati" },
     { id: "status" as Page, icon: "fa-wave-square", label: "Status" },
-    { id: "credits" as Page, icon: "fa-award", label: "Crediti" },
     ...(isAdmin ? [{ id: "dirigenza" as Page, icon: "fa-lock", label: "Dirigenza" }] : []),
   ];
 
