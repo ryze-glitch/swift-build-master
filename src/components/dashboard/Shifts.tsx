@@ -180,8 +180,6 @@ export const Shifts = () => {
 
       if (error) throw error;
 
-      // Webhook disabilitato temporaneamente
-
       toast.success("Modulo creato con successo");
       setIsDialogOpen(false);
       setSelectedModuleType(null);
@@ -226,8 +224,6 @@ export const Shifts = () => {
         .eq("id", editingShift.id);
 
       if (error) throw error;
-
-      // Webhook disabilitato temporaneamente per completamento turno
 
       toast.success("Turno aggiornato con successo");
       setIsDialogOpen(false);

@@ -461,11 +461,9 @@ export const Announcements = () => {
                 className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
               >
                 <option value="info">Info</option>
-                <option value="update">Aggiornamenti</option>
-                <option value="regulation">Regolamento</option>
-                <option value="training">Addestramento</option>
-                <option value="promotion">Promozioni</option>
-                <option value="sanction">Sanzioni</option>
+                <option value="urgent">Urgente</option>
+                <option value="update">Aggiornamento</option>
+                {newAnnouncementType === "training" && <option value="training">Addestramento</option>}
               </select>
             </div>
           </div>

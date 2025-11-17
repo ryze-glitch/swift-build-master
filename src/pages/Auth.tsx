@@ -17,19 +17,11 @@ const Auth = () => {
   useEffect(() => {
     // Immediate redirect if user is logged in
     if (user) {
-      console.log("User detected, redirecting to dashboard");
-      navigate("/dashboard");
+      window.location.replace("/dashboard");
     }
-  }, [user, navigate]);
+  }, [user]);
   
   useEffect(() => {
-    // Controllo sessione in modo proattivo (fallback mobile)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/dashboard");
-      }
-    });
-
     const code = searchParams.get("code");
     if (code && !user) {
       // Clear the URL immediately to prevent reuse
@@ -37,7 +29,7 @@ const Auth = () => {
       // Execute callback
       handleDiscordCallback(code);
     }
-  }, [searchParams, user, navigate]);
+  }, [searchParams, user]);
   const handleDiscordLogin = () => {
     const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
     if (!clientId) {
@@ -63,7 +55,6 @@ const Auth = () => {
           code
         }
       });
-      
       if (error) throw error;
       if (data.error) {
         toast({
@@ -75,7 +66,7 @@ const Auth = () => {
         return;
       }
 
-      // Use the magic link for instant authentication - will redirect back to /auth with session
+      // Use the magic link for instant authentication
       if (data.redirect_url) {
         window.location.replace(data.redirect_url);
       }

@@ -76,9 +76,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Log login event
+          if (event === 'SIGNED_IN') {
+            setTimeout(async () => {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('discord_tag')
+                .eq('id', session.user.id)
+                .single();
+              
+              await supabase.from('auth_logs').insert({
+                user_id: session.user.id,
+                discord_tag: profile?.discord_tag || null,
+                event_type: 'login'
+              });
+            }, 0);
+          }
+          
+          setTimeout(() => {
+            checkSubscription();
+          }, 0);
+        } else {
+          setSubscribed(false);
+          setSubscriptionEnd(null);
+        }
       }
     );
 

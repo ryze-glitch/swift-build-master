@@ -1,10 +1,1 @@
 project_id = "mdalzdfseeqrnnkxnonm"
-
-[functions.discord-auth]
-verify_jwt = false
-
-[functions.notify-discord-auth]
-verify_jwt = false
-
-[functions.notify-discord-shift]
-verify_jwt = false

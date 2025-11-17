@@ -250,7 +250,7 @@ serve(async (req) => {
       type: 'magiclink',
       email: authUser.email || email,
       options: {
-        redirectTo: `${req.headers.get("origin")}/auth`
+        redirectTo: `${req.headers.get("origin")}/dashboard`
       }
     });
 
