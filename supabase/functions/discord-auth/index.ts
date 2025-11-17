@@ -63,11 +63,20 @@ serve(async (req) => {
         status: tokenResponse.status, 
         statusText: tokenResponse.statusText,
         error: errorText,
-        redirectUri: redirectUri
+        redirectUri: redirectUri,
+        origin: req.headers.get("origin")
       });
+      
+      // More helpful error message
+      let userMessage = "Errore nell'autenticazione con Discord.";
+      if (errorText.includes("invalid_client")) {
+        userMessage = "Configurazione Discord non valida. Verifica che il Redirect URI sia corretto nell'app Discord.";
+      }
+      
       return new Response(
         JSON.stringify({ 
-          error: "Errore nell'autenticazione con Discord. Riprova o contatta l'amministratore." 
+          error: userMessage,
+          details: `Redirect URI: ${redirectUri}`
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
