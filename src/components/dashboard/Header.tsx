@@ -101,7 +101,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                   <button
                     onClick={() => onPageChange(item.id)}
                     className={`
-                      relative flex items-center justify-center font-medium
+                      group relative flex items-center justify-center font-medium
                       transition-all duration-300 ease-out overflow-hidden
                       ${isDesktop 
                         ? 'w-[60px] h-[50px] rounded-2xl hover:w-[140px] hover:justify-start hover:pl-5' 
