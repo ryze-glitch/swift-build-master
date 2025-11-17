@@ -102,21 +102,20 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                     onClick={() => onPageChange(item.id)}
                     className={`
                       relative flex items-center justify-center font-medium
-                      transition-all duration-300 ease-out group overflow-hidden
+                      transition-all duration-300 ease-out overflow-hidden
                       ${isDesktop 
-                        ? 'w-[60px] hover:w-auto h-[50px] rounded-2xl px-0 hover:px-4 hover:gap-2' 
-                        : 'p-2 rounded-xl'
+                        ? 'w-[60px] h-[50px] rounded-2xl hover:w-[140px]' 
+                        : 'w-10 h-10 rounded-xl sm:w-12 sm:h-12'
                       }
                       ${currentPage === item.id 
-                        ? 'bg-primary/20 text-primary border border-primary/30' 
-                        : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground'
+                        ? 'bg-primary/20 text-primary shadow-glow' 
+                        : 'bg-background/50 hover:bg-primary/10 text-muted-foreground hover:text-primary'
                       }
                     `}
                   >
-                    <i className={`fas ${item.icon} text-base ${isDesktop ? 'group-hover:mr-2' : ''}`}></i>
-                    {/* Label visibile solo su desktop al hover */}
+                    <i className={`fas ${item.icon} text-base sm:text-lg ${isDesktop ? 'absolute left-1/2 -translate-x-1/2 group-hover:relative group-hover:left-auto group-hover:translate-x-0' : ''}`}></i>
                     {isDesktop && (
-                      <span className="text-sm font-medium whitespace-nowrap opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[200px] transition-all duration-300 ease-out overflow-hidden">
+                      <span className="opacity-0 max-w-0 whitespace-nowrap text-sm ml-2 group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300">
                         {item.label}
                       </span>
                     )}
