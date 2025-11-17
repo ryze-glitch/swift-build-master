@@ -7,7 +7,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import operatoriData from "@/data/operatori_reparto.json";
 import { Badge } from "@/components/ui/badge";
-import { Shield, User } from "lucide-react";
+import { Shield, User, Menu, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -27,6 +27,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [userOperator, setUserOperator] = useState<any>(null);
@@ -82,162 +83,214 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 glass-strong border-b shadow-lg">
-      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
-          {/* Logo a sinistra */}
-          <div className="flex-shrink-0">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo e titolo a sinistra */}
+          <div className="flex items-center gap-3">
             <img 
               src="https://i.imgur.com/B6E4u1X.png" 
               alt="UOPI Logo" 
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shadow-glow transition-transform hover:scale-110"
+              className="w-12 h-12 rounded-xl shadow-glow"
             />
-          </div>
-
-          {/* Navigation - Centrata */}
-          <nav className="flex items-center gap-1 sm:gap-2 glass rounded-full px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-2xl mx-auto">
-            {navItems.map((item) => (
-              <Tooltip key={item.id}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => onPageChange(item.id)}
-                    className={`
-                      relative flex items-center gap-2 px-2 sm:px-3 py-2 rounded-full font-semibold
-                      transition-all duration-300 group whitespace-nowrap
-                      ${currentPage === item.id 
-                        ? 'bg-primary text-primary-foreground shadow-md scale-105' 
-                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                      }
-                    `}
-                  >
-                    <i className={`fas ${item.icon} text-sm sm:text-base`}></i>
-                    {/* Label visibile solo su desktop e solo se il menu è aperto */}
-                    {isDesktop && (
-                      <span className="text-xs sm:text-sm">{item.label}</span>
-                    )}
-                    {/* Badge notifiche solo su announcements */}
-                    {item.id === "announcements" && unreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">{item.label}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </nav>
-
-          {/* User Section - Compatto su mobile */}
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 sm:gap-3 glass hover:glass-strong rounded-full pr-2 sm:pr-4 pl-1 sm:pl-2 py-1 sm:py-2 transition-all duration-300 group"
-            >
-              {/* Avatar */}
-              <div className="relative">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
-                  <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
-                    {userOperator?.avatarUrl ? (
-                      <img 
-                        src={userOperator.avatarUrl} 
-                        alt={userOperator?.name || "User"}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    )}
-                  </div>
-                </div>
-                {/* Pallino online/offline basato su presenza reale */}
-                <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${
-                  showGreenDot ? "bg-success" : "bg-muted-foreground/40"
-                }`}></div>
-              </div>
-
-              {/* User Info - Hidden su mobile molto piccolo */}
-              <div className="hidden md:block text-left">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs sm:text-sm font-bold truncate max-w-[120px]">
-                    {userOperator?.name || user?.email}
-                  </p>
-                  {isAdmin && (
-                    <Badge variant="default" className="text-[10px] px-1.5 py-0">
-                      <Shield className="w-3 h-3 mr-0.5" />
-                      Admin
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-[10px] text-muted-foreground">
-                    {isAdmin ? "Dirigenza" : "Operatore"}
-                  </p>
-                  {/* Mostra il grado solo da desktop */}
-                  {isDesktop && userOperator?.rank && (
-                    <>
-                      <span className="text-[10px] text-muted-foreground">•</span>
-                      <p className="text-[10px] text-muted-foreground font-semibold">
-                        {userOperator.rank}
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Dropdown Icon */}
-              <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${isUserMenuOpen ? 'rotate-180' : ''} hidden sm:block`}></i>
-            </button>
-
-            {/* Dropdown Menu */}
-            {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 glass-strong rounded-2xl shadow-2xl border overflow-hidden z-50 animate-scale-in">
-                  <div className="p-4 border-b bg-gradient-to-br from-card to-card/50">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
-                      <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
-                        {userOperator?.avatarUrl ? (
-                          <img 
-                            src={userOperator.avatarUrl} 
-                            alt={userOperator?.name || "User"}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <User className="w-6 h-6 text-primary" />
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm truncate">{userOperator?.name || user?.email}</p>
-                      <p className="text-xs text-muted-foreground">{getOperatorInfo()?.matricola || user?.email}</p>
-                    </div>
-                  </div>
-                  {isAdmin ? (
-                    <Badge variant="default" className="text-xs bg-amber-500/20 text-amber-500 border-amber-500/30">
-                      <i className="fas fa-crown w-3 h-3 mr-1"></i>
-                      Dirigenza
-                    </Badge>
-                  ) : (
-                    <Badge variant="default" className="text-xs">
-                      <User className="w-3 h-3 mr-1" />
-                      Operatore
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="p-2">
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors text-left group"
-                  >
-                    <i className="fas fa-sign-out-alt text-sm group-hover:scale-110 transition-transform"></i>
-                    <span className="text-sm font-semibold">Logout</span>
-                  </button>
-                </div>
+            {isDesktop && (
+              <div className="flex flex-col">
+                <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  U.O.P.I. - IPRP X
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Unità Operativa di Primo Intervento
+                </span>
               </div>
             )}
           </div>
+
+          {/* Desktop Navigation */}
+          {isDesktop ? (
+            <nav className="flex items-center gap-2">
+              {navItems.map((item) => (
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => onPageChange(item.id)}
+                      className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 group whitespace-nowrap ${
+                        currentPage === item.id
+                          ? "text-primary bg-primary/10 shadow-glow"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      <i className={`fas ${item.icon}`}></i>
+                      <span className="text-sm">{item.label}</span>
+                      {item.id === "announcements" && unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-danger text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p className="text-xs">{item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </nav>
+          ) : (
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-lg glass hover:bg-muted/50 transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          )}
+
+          {/* User Info a destra - Solo Desktop */}
+          {isDesktop && (
+            <div className="relative">
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-3 glass rounded-lg px-3 py-2 hover:bg-muted/50 transition-all duration-300"
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold shadow-glow">
+                    {userProfile?.discord_tag?.charAt(0) || "U"}
+                  </div>
+                  {showGreenDot && (
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-background shadow-glow"></div>
+                  )}
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-semibold text-foreground">
+                    {userProfile?.discord_tag || "Caricamento..."}
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    {isAdmin ? (
+                      <>
+                        <Shield className="h-3 w-3" />
+                        Admin
+                      </>
+                    ) : (
+                      <>
+                        <User className="h-3 w-3" />
+                        Operatore
+                      </>
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 glass-strong rounded-2xl shadow-2xl border border-border overflow-hidden z-50 animate-fade-in">
+                  <div className="p-4 border-b border-border">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg shadow-glow">
+                        {userProfile?.discord_tag?.charAt(0) || "U"}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-foreground">
+                          {userProfile?.discord_tag || "Utente"}
+                        </div>
+                        <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs mt-1">
+                          {isAdmin ? "Admin" : "Operatore"}
+                        </Badge>
+                      </div>
+                    </div>
+                    {getOperatorInfo() && (
+                      <div className="space-y-1 text-xs text-muted-foreground pt-2 border-t border-border/50">
+                        <div><span className="font-semibold">Reparto:</span> {getOperatorInfo().reparto}</div>
+                        <div><span className="font-semibold">Qualifica:</span> {getOperatorInfo().qualifica}</div>
+                        <div><span className="font-semibold">Badge:</span> {getOperatorInfo().badge}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-3 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                    >
+                      <i className="fas fa-sign-out-alt"></i>
+                      Esci
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {!isDesktop && isMobileMenuOpen && (
+          <div className="mt-3 glass-strong rounded-2xl p-3 animate-fade-in">
+            <nav className="space-y-1">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onPageChange(item.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-300 relative ${
+                    currentPage === item.id
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  <i className={`fas ${item.icon}`}></i>
+                  <span className="text-sm">{item.label}</span>
+                  {item.id === "announcements" && unreadCount > 0 && (
+                    <span className="ml-auto bg-danger text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            {/* User Info Mobile */}
+            <div className="mt-3 pt-3 border-t border-border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold shadow-glow">
+                    {userProfile?.discord_tag?.charAt(0) || "U"}
+                  </div>
+                  {showGreenDot && (
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-background"></div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-foreground">
+                    {userProfile?.discord_tag || "Caricamento..."}
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    {isAdmin ? (
+                      <>
+                        <Shield className="h-3 w-3" />
+                        Admin
+                      </>
+                    ) : (
+                      <>
+                        <User className="h-3 w-3" />
+                        Operatore
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {getOperatorInfo() && (
+                <div className="space-y-1 text-xs text-muted-foreground mb-3">
+                  <div><span className="font-semibold">Reparto:</span> {getOperatorInfo().reparto}</div>
+                  <div><span className="font-semibold">Qualifica:</span> {getOperatorInfo().qualifica}</div>
+                  <div><span className="font-semibold">Badge:</span> {getOperatorInfo().badge}</div>
+                </div>
+              )}
+              <button
+                onClick={handleSignOut}
+                className="w-full px-4 py-3 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors duration-200 flex items-center gap-2"
+              >
+                <i className="fas fa-sign-out-alt"></i>
+                Esci
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
