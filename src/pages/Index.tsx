@@ -8,10 +8,16 @@ const Index = () => {
   const { user, loading } = useAuth();
 
   useEffect(() => {
+    console.log("Index - loading:", loading, "user:", !!user);
     if (!loading) {
       if (user) {
-        navigate("/dashboard", { replace: true });
+        console.log("User found, redirecting to dashboard");
+        // Use replace to avoid back button issues
+        setTimeout(() => {
+          navigate("/dashboard", { replace: true });
+        }, 0);
       } else {
+        console.log("No user, redirecting to auth");
         navigate("/auth", { replace: true });
       }
     }

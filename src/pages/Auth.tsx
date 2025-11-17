@@ -24,7 +24,16 @@ const Auth = () => {
   
   useEffect(() => {
     const code = searchParams.get("code");
+    const type = searchParams.get("type");
+    
+    // Handle magic link verification
+    if (type === "recovery" || type === "magiclink") {
+      console.log("Magic link detected, auth will be handled automatically");
+      return;
+    }
+    
     if (code && !user) {
+      console.log("Discord callback detected");
       // Clear the URL immediately to prevent reuse
       window.history.replaceState({}, document.title, "/auth");
       // Execute callback
