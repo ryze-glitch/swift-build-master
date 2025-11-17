@@ -164,6 +164,47 @@ export const Credits = () => {
           );
         })}
       </div>
+
+      {/* Developer Credits */}
+      <Card className="glass-strong p-6">
+        <h3 className="text-2xl font-bold mb-4">
+          <i className="fas fa-code mr-2 text-accent"></i>
+          Sviluppatori
+        </h3>
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex-shrink-0">
+            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-accent p-1">
+              <div className="w-full h-full rounded-2xl bg-card flex items-center justify-center">
+                <i className="fas fa-user-tie text-4xl text-primary"></i>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h4 className="text-xl font-bold mb-1">Gino "BrunoHart" Mancini</h4>
+            <p className="text-muted-foreground mb-3">Lead Developer & System Architect</p>
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+              <a 
+                href="https://github.com/brunohart" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent hover:bg-accent/30 transition-colors"
+              >
+                <i className="fab fa-github"></i>
+                GitHub
+              </a>
+              <a 
+                href="https://discord.gg/yourserver" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary hover:bg-primary/30 transition-colors"
+              >
+                <i className="fab fa-discord"></i>
+                Discord
+              </a>
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };
