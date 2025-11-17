@@ -24,16 +24,6 @@ const Auth = () => {
   
   useEffect(() => {
     const code = searchParams.get("code");
-    const token = searchParams.get("token");
-    const type = searchParams.get("type");
-    
-    // Handle Supabase auth token in URL (from magic link)
-    if (token && type) {
-      console.log("Auth token detected in URL, Supabase will handle authentication");
-      // Supabase client will automatically handle the token
-      // Just wait for the session to be established
-      return;
-    }
     
     if (code && !user) {
       console.log("Discord callback detected");
@@ -61,18 +51,15 @@ const Auth = () => {
   const handleDiscordCallback = async (code: string) => {
     try {
       console.log("Processing Discord callback with code");
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke("discord-auth", {
-        body: {
-          code
-        }
+      const { data, error } = await supabase.functions.invoke("discord-auth", {
+        body: { code }
       });
+      
       if (error) {
         console.error("Discord auth error:", error);
         throw error;
       }
+      
       if (data.error) {
         console.error("Discord auth data error:", data.error);
         toast({
@@ -84,11 +71,23 @@ const Auth = () => {
         return;
       }
 
-      console.log("Discord auth successful, using magic link");
-      // Use the magic link for instant authentication - it will redirect to /dashboard automatically
-      if (data.redirect_url) {
-        window.location.href = data.redirect_url;
+      console.log("Discord auth successful, setting session");
+      
+      // Set the session directly with the tokens received
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw sessionError;
       }
+
+      console.log("Session set successfully, redirecting to dashboard");
+      // Navigate to dashboard
+      navigate("/dashboard", { replace: true });
+      
     } catch (error) {
       console.error("Discord callback error:", error);
       toast({
