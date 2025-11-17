@@ -22,11 +22,13 @@ interface AnnouncementCardProps {
   showAcknowledgmentList?: boolean;
 }
 
-const categoryConfig = {
-  urgent: { color: "hsl(var(--danger))", icon: "fa-exclamation-triangle", label: "Urgente" },
+const categoryConfig: Record<string, { color: string; icon: string; label: string }> = {
   info: { color: "hsl(var(--primary))", icon: "fa-info-circle", label: "Info" },
-  update: { color: "hsl(var(--accent))", icon: "fa-sync-alt", label: "Aggiornamento" },
-  training: { color: "hsl(var(--warning))", icon: "fa-graduation-cap", label: "Addestramento" },
+  update: { color: "hsl(var(--accent))", icon: "fa-sync-alt", label: "Aggiornamenti" },
+  regulation: { color: "hsl(var(--warning))", icon: "fa-book", label: "Regolamento" },
+  training: { color: "hsl(var(--success))", icon: "fa-graduation-cap", label: "Addestramento" },
+  promotion: { color: "hsl(220 70% 50%)", icon: "fa-arrow-up", label: "Promozioni" },
+  sanction: { color: "hsl(var(--danger))", icon: "fa-exclamation-triangle", label: "Sanzioni" },
 };
 
 export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDelete, showAcknowledgmentList }: AnnouncementCardProps) => {
