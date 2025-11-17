@@ -31,7 +31,6 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -86,7 +85,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Quick Access Grid */}
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-8">
                     {[
@@ -100,11 +99,17 @@ const Dashboard = () => {
                         onClick={() => setCurrentPage(stat.page as Page)}
                         className="glass rounded-xl sm:rounded-2xl p-3 sm:p-5 hover:scale-105 transition-all text-left group relative overflow-hidden"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
-                             style={{ background: `linear-gradient(135deg, hsl(var(--${stat.color})) 0%, transparent 100%)` }}></div>
+                        <div
+                          className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
+                          style={{
+                            background: `linear-gradient(135deg, hsl(var(--${stat.color})) 0%, transparent 100%)`,
+                          }}
+                        ></div>
                         <div className="relative z-10">
-                          <i className={`fas ${stat.icon} text-xl sm:text-3xl mb-2 sm:mb-3 transition-transform group-hover:scale-110`}
-                             style={{ color: `hsl(var(--${stat.color}))` }}></i>
+                          <i
+                            className={`fas ${stat.icon} text-xl sm:text-3xl mb-2 sm:mb-3 transition-transform group-hover:scale-110`}
+                            style={{ color: `hsl(var(--${stat.color}))` }}
+                          ></i>
                           <div className="text-xl sm:text-3xl font-extrabold mb-0.5 sm:mb-1">{stat.value}</div>
                           <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
                         </div>
@@ -117,32 +122,42 @@ const Dashboard = () => {
               {/* Premium Features Sidebar */}
               <div className="space-y-4">
                 {/* Premium Badge */}
-                <div className={`glass-strong rounded-3xl p-6 relative overflow-hidden border-2 ${
-                  subscribed ? 'border-success/50' : 'border-warning/50'
-                }`}>
-                  <div className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${
-                    subscribed ? 'from-success/20 via-transparent to-success/10' : 'from-warning/20 via-transparent to-warning/10'
-                  }`}></div>
+                <div
+                  className={`glass-strong rounded-3xl p-6 relative overflow-hidden border-2 ${
+                    subscribed ? "border-success/50" : "border-warning/50"
+                  }`}
+                >
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${
+                      subscribed
+                        ? "from-success/20 via-transparent to-success/10"
+                        : "from-warning/20 via-transparent to-warning/10"
+                    }`}
+                  ></div>
                   <div className="relative z-10 text-center">
-                    <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
-                      subscribed ? 'bg-gradient-to-br from-success to-success/50' : 'bg-gradient-to-br from-warning to-warning/50'
-                    }`}>
-                      <i className={`fas ${subscribed ? 'fa-check-circle' : 'fa-crown'} text-3xl ${
-                        subscribed ? 'text-success-foreground' : 'text-warning-foreground'
-                      }`}></i>
+                    <div
+                      className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+                        subscribed
+                          ? "bg-gradient-to-br from-success to-success/50"
+                          : "bg-gradient-to-br from-warning to-warning/50"
+                      }`}
+                    >
+                      <i
+                        className={`fas ${subscribed ? "fa-check-circle" : "fa-crown"} text-3xl ${
+                          subscribed ? "text-success-foreground" : "text-warning-foreground"
+                        }`}
+                      ></i>
                     </div>
-                    <h3 className="text-2xl font-extrabold mb-2">
-                      {subscribed ? 'Piano Premium Attivo' : 'Premium'}
-                    </h3>
+                    <h3 className="text-2xl font-extrabold mb-2">{subscribed ? "Piano Premium Attivo" : "Premium"}</h3>
                     <p className="text-sm text-muted-foreground mb-6">
-                      {subscribed ? 'Accesso completo alle funzionalità' : 'Sblocca funzionalità avanzate'}
+                      {subscribed ? "Accesso completo alle funzionalità" : "Sblocca funzionalità avanzate"}
                     </p>
-                    <Button 
+                    <Button
                       onClick={() => setPremiumModalOpen(true)}
                       className={`w-full ${
-                        subscribed 
-                          ? 'bg-gradient-to-r from-success to-success/80 hover:shadow-lg hover:shadow-success/50' 
-                          : 'bg-gradient-to-r from-warning to-warning/80 hover:shadow-lg hover:shadow-warning/50'
+                        subscribed
+                          ? "bg-gradient-to-r from-success to-success/80 hover:shadow-lg hover:shadow-success/50"
+                          : "bg-gradient-to-r from-warning to-warning/80 hover:shadow-lg hover:shadow-warning/50"
                       }`}
                       size="lg"
                     >
@@ -174,7 +189,7 @@ const Dashboard = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">Versione</span>
-                      <span className="font-mono text-sm font-bold">v2.1.0</span>
+                      <span className="font-mono text-sm font-bold">v1.0</span>
                     </div>
                   </div>
                 </div>
@@ -192,52 +207,63 @@ const Dashboard = () => {
                   Richiede Premium
                 </span>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
                   {
                     icon: "fa-chart-line",
                     title: "Analytics Avanzati",
                     description: "Grafici dettagliati e report personalizzati",
-                    color: "primary"
+                    color: "primary",
                   },
                   {
                     icon: "fa-robot",
                     title: "AI Assistant",
                     description: "Assistente intelligente per ottimizzazione turni",
-                    color: "accent"
+                    color: "accent",
                   },
                   {
                     icon: "fa-clock-rotate-left",
                     title: "Storico Completo",
                     description: "Accesso illimitato a tutti i dati storici",
-                    color: "success"
+                    color: "success",
                   },
                   {
                     icon: "fa-file-export",
                     title: "Export Avanzato",
                     description: "Esporta in Excel, PDF e formati personalizzati",
-                    color: "warning"
+                    color: "warning",
                   },
                   {
                     icon: "fa-bell",
                     title: "Notifiche Push",
                     description: "Notifiche real-time via email e mobile",
-                    color: "danger"
+                    color: "danger",
                   },
                   {
                     icon: "fa-shield-halved",
                     title: "Sicurezza Avanzata",
                     description: "Autenticazione a due fattori e audit log",
-                    color: "primary"
+                    color: "primary",
                   },
                 ].map((feature, idx) => (
-                  <div key={idx} className="glass rounded-2xl p-6 hover:scale-105 transition-all group cursor-pointer relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
-                         style={{ background: `linear-gradient(135deg, hsl(var(--${feature.color})) 0%, transparent 100%)` }}></div>
+                  <div
+                    key={idx}
+                    className="glass rounded-2xl p-6 hover:scale-105 transition-all group cursor-pointer relative overflow-hidden"
+                  >
+                    <div
+                      className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
+                      style={{
+                        background: `linear-gradient(135deg, hsl(var(--${feature.color})) 0%, transparent 100%)`,
+                      }}
+                    ></div>
                     <div className="relative z-10">
-                      <div className="w-14 h-14 mb-4 bg-gradient-to-br rounded-2xl flex items-center justify-center"
-                           style={{ background: `linear-gradient(135deg, hsl(var(--${feature.color})) 0%, hsl(var(--${feature.color})) 100%)` }}>
+                      <div
+                        className="w-14 h-14 mb-4 bg-gradient-to-br rounded-2xl flex items-center justify-center"
+                        style={{
+                          background: `linear-gradient(135deg, hsl(var(--${feature.color})) 0%, hsl(var(--${feature.color})) 100%)`,
+                        }}
+                      >
                         <i className={`fas ${feature.icon} text-2xl text-white`}></i>
                       </div>
                       <h4 className="font-bold text-lg mb-2">{feature.title}</h4>
@@ -289,10 +315,8 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen">
       <Header currentPage={currentPage} onPageChange={setCurrentPage} />
-      
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        {renderContent()}
-      </main>
+
+      <main className="container mx-auto px-4 py-8 max-w-7xl">{renderContent()}</main>
 
       <NotificationSystem />
       <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
