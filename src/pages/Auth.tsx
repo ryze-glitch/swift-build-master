@@ -23,6 +23,13 @@ const Auth = () => {
   }, [user, navigate]);
   
   useEffect(() => {
+    // Controllo sessione in modo proattivo (fallback mobile)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate("/dashboard");
+      }
+    });
+
     const code = searchParams.get("code");
     if (code && !user) {
       // Clear the URL immediately to prevent reuse
@@ -30,7 +37,7 @@ const Auth = () => {
       // Execute callback
       handleDiscordCallback(code);
     }
-  }, [searchParams, user]);
+  }, [searchParams, user, navigate]);
   const handleDiscordLogin = () => {
     const clientId = import.meta.env.VITE_DISCORD_CLIENT_ID;
     if (!clientId) {

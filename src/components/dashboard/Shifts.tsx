@@ -180,41 +180,7 @@ export const Shifts = () => {
 
       if (error) throw error;
 
-      // Notify Discord webhook
-      try {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('discord_tag')
-          .eq('id', user?.id || '')
-          .single();
-
-        const personnelNames: string[] = [];
-        if (moduleData.managed_by) {
-          personnelNames.push(`Gestito da: ${moduleData.managed_by}`);
-        }
-        if (moduleData.coordinator) {
-          personnelNames.push(`Coordinatore: ${moduleData.coordinator}`);
-        }
-        if (moduleData.operators_out) {
-          personnelNames.push(`Operatori esterni: ${moduleData.operators_out}`);
-        }
-
-        await supabase.functions.invoke('notify-discord-shift', {
-          body: {
-            action: moduleData.activation_time ? 'activated' : 'created',
-            shift_name: getModuleName(moduleData.module_type),
-            module_type: moduleData.module_type,
-            created_by_name: profileData?.discord_tag || user?.email,
-            personnel: personnelNames,
-            coordinator: moduleData.coordinator,
-            vehicle_used: moduleData.vehicle_used,
-            intervention_type: moduleData.intervention_type,
-            activation_time: moduleData.activation_time
-          }
-        });
-      } catch (err) {
-        console.error('Failed to send Discord notification:', err);
-      }
+      // Webhook disabilitato temporaneamente
 
       toast.success("Modulo creato con successo");
       setIsDialogOpen(false);
@@ -261,29 +227,7 @@ export const Shifts = () => {
 
       if (error) throw error;
 
-      // Notify Discord if status changed to completed
-      if (shiftData.status === 'completed' && editingShift.status !== 'completed') {
-        try {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('discord_tag')
-            .eq('id', user?.id || '')
-            .single();
-
-          await supabase.functions.invoke('notify-discord-shift', {
-            body: {
-              action: 'completed',
-              shift_name: shiftData.name,
-              module_type: editingShift.module_type,
-              created_by_name: profileData?.discord_tag || user?.email,
-              start_time: shiftData.start_time,
-              end_time: shiftData.end_time
-            }
-          });
-        } catch (err) {
-          console.error('Failed to send Discord notification:', err);
-        }
-      }
+      // Webhook disabilitato temporaneamente per completamento turno
 
       toast.success("Turno aggiornato con successo");
       setIsDialogOpen(false);
