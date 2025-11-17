@@ -94,35 +94,35 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           </div>
 
           {/* Navigation - Centrata */}
-          <nav className="flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-3xl mx-auto overflow-x-auto">
+          <nav className="flex items-center gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 flex-1 justify-center max-w-4xl mx-auto overflow-visible">
             {navItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => onPageChange(item.id)}
                     className={`
-                      relative flex items-center justify-center gap-2 rounded-2xl font-medium
-                      transition-all duration-300 ease-out group whitespace-nowrap overflow-hidden
+                      relative flex items-center justify-center font-medium
+                      transition-all duration-300 ease-out group overflow-hidden
                       ${isDesktop 
-                        ? 'px-3 py-2.5 min-w-[60px]' 
-                        : 'p-2'
+                        ? 'w-[60px] hover:w-auto h-[50px] rounded-2xl px-0 hover:px-4 hover:gap-2' 
+                        : 'p-2 rounded-xl'
                       }
                       ${currentPage === item.id 
-                        ? 'bg-primary/20 text-primary border border-primary/30 shadow-sm' 
-                        : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground hover:border hover:border-border/50'
+                        ? 'bg-primary/20 text-primary border border-primary/30' 
+                        : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground'
                       }
                     `}
                   >
-                    <i className={`fas ${item.icon} text-sm ${isDesktop ? 'sm:text-base' : ''}`}></i>
-                    {/* Label visibile solo su desktop */}
+                    <i className={`fas ${item.icon} text-base ${isDesktop ? 'group-hover:mr-2' : ''}`}></i>
+                    {/* Label visibile solo su desktop al hover */}
                     {isDesktop && (
-                      <span className="text-xs sm:text-sm font-medium">
+                      <span className="text-sm font-medium whitespace-nowrap opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[200px] transition-all duration-300 ease-out overflow-hidden">
                         {item.label}
                       </span>
                     )}
                     {/* Badge notifiche solo su announcements */}
                     {item.id === "announcements" && unreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                      <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground z-10">
                         {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
