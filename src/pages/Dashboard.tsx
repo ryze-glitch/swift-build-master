@@ -385,18 +385,18 @@ const Dashboard = () => {
     <div className="min-h-screen flex">
       <OrgSidebar />
       
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-screen">
         <Header currentPage={currentPage} onPageChange={setCurrentPage} />
 
-        <main className="container mx-auto px-4 py-8 max-w-7xl animate-fade-in">
+        <main className="container mx-auto px-4 py-8 max-w-7xl flex-1">
           <div className="animate-scale-in">
             {renderContent()}
           </div>
         </main>
 
+        <Footer />
         <NotificationSystem />
         <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
-        <Footer />
       </div>
     </div>
   );
