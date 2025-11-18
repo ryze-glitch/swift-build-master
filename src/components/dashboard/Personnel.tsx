@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Person {
   id: number;
@@ -31,6 +32,7 @@ export const Personnel = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isOnline } = useOnlineStatus();
   const [userIdMap, setUserIdMap] = useState<Record<string, string>>({});
+  const isMobile = useIsMobile();
 
   // Map discord tags to user IDs
   useState(() => {
@@ -78,7 +80,7 @@ export const Personnel = () => {
             Gestisci il personale organizzato per ruolo
           </p>
         </div>
-        {isAdmin && (
+        {isAdmin && !isMobile && (
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Aggiungi
@@ -86,23 +88,25 @@ export const Personnel = () => {
         )}
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Totale", value: stats.total, icon: "fa-users", color: "primary" },
-          { label: "Dirigenziale", value: stats.dirigenziale, icon: "fa-crown", color: "role-dirigenziale" },
-          { label: "Amministrativo", value: stats.amministrativo, icon: "fa-file-alt", color: "role-amministrativo" },
-          { label: "Operativo", value: stats.operativo, icon: "fa-shield-alt", color: "role-operativo" },
-        ].map((stat) => (
-          <div key={stat.label} className="glass rounded-2xl p-6 hover:scale-105 transition-all">
-            <div className="flex items-center justify-between mb-3">
-              <i className={`fas ${stat.icon} text-3xl`} style={{ color: `hsl(var(--${stat.color}))` }}></i>
-              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{stat.label}</span>
+      {/* Stats Cards - Hidden on mobile */}
+      {!isMobile && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Totale", value: stats.total, icon: "fa-users", color: "primary" },
+            { label: "Dirigenziale", value: stats.dirigenziale, icon: "fa-crown", color: "role-dirigenziale" },
+            { label: "Amministrativo", value: stats.amministrativo, icon: "fa-file-alt", color: "role-amministrativo" },
+            { label: "Operativo", value: stats.operativo, icon: "fa-shield-alt", color: "role-operativo" },
+          ].map((stat) => (
+            <div key={stat.label} className="glass rounded-2xl p-6 hover:scale-105 transition-all">
+              <div className="flex items-center justify-between mb-3">
+                <i className={`fas ${stat.icon} text-3xl`} style={{ color: `hsl(var(--${stat.color}))` }}></i>
+                <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{stat.label}</span>
+              </div>
+              <div className="text-4xl font-extrabold">{stat.value}</div>
             </div>
-            <div className="text-4xl font-extrabold">{stat.value}</div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Filters & Search */}
       <div className="glass rounded-2xl p-6">
