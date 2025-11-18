@@ -93,10 +93,17 @@ export const ShiftDetailsCard = ({
   const [acknowledgedBy, setAcknowledgedBy] = useState<any[]>(initialAcknowledgedBy);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [localRejectedBy, setLocalRejectedBy] = useState<any | null>(rejectedBy);
+  const [localRejectedReason, setLocalRejectedReason] = useState<string | null>(rejectedReason ?? null);
   
   useEffect(() => {
     setAcknowledgedBy(initialAcknowledgedBy || []);
   }, [initialAcknowledgedBy]);
+  
+  useEffect(() => {
+    setLocalRejectedBy(rejectedBy ?? null);
+    setLocalRejectedReason(rejectedReason ?? null);
+  }, [rejectedBy, rejectedReason]);
   
   const isAcknowledgedByUser = acknowledgedBy.some((ack: any) => ack.userId === user?.id);
   
@@ -201,6 +208,10 @@ export const ShiftDetailsCard = ({
         .eq('id', shiftId);
       
       if (error) throw error;
+      
+      setLocalRejectedBy(rejectionData);
+      setLocalRejectedReason(rejectReason.trim());
+      if (onReject) onReject();
       
       setShowRejectDialog(false);
       setRejectReason("");
@@ -367,18 +378,18 @@ export const ShiftDetailsCard = ({
       </div>
       
       {/* Stato di rifiuto / presa visione */}
-      {rejectedBy ? (
+      {localRejectedBy ? (
         <div className="mt-4 space-y-2">
           <div className="p-3 border border-destructive/40 bg-destructive/10 rounded-lg text-sm text-destructive flex items-center gap-2">
             <X className="w-4 h-4 flex-shrink-0" />
             <span className="font-medium">
-              Rifiutato da: {rejectedBy.userName || "Dirigenza"}
+              Rifiutato da: {localRejectedBy.userName || "Dirigenza"}
             </span>
           </div>
-          {rejectedReason && (
+          {localRejectedReason && (
             <div className="p-3 border border-destructive/40 bg-destructive/10 rounded-lg text-sm text-destructive">
               <span className="font-medium">Motivo: </span>
-              <span>{rejectedReason}</span>
+              <span>{localRejectedReason}</span>
             </div>
           )}
         </div>
