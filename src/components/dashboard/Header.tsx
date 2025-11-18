@@ -157,7 +157,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
               className="flex items-center gap-2 sm:gap-3 glass hover:glass-strong rounded-full pr-2 sm:pr-4 pl-1 sm:pl-2 py-1 sm:py-2 transition-all duration-300 group max-w-full"
             >
               {/* Avatar */}
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary to-accent p-[2px]">
                   <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
                     {userOperator?.avatarUrl ? (
@@ -172,7 +172,7 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
                   </div>
                 </div>
                 {/* Pallino online/offline basato su presenza reale */}
-                <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${
+                <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-card ${
                   showGreenDot ? "bg-success" : "bg-muted-foreground/40"
                 }`}></div>
               </div>
