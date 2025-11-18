@@ -289,19 +289,45 @@ export const ShiftDetailsCard = ({
       )}
       </div>
       
-      {/* Pulsante di presa visione o conferma */}
-      {!isAcknowledgedByUser ? (
-        <Button 
-          onClick={handleAcknowledge}
-          className="w-full mt-4"
-        >
-          <CheckCircle className="w-4 h-4 mr-2" />
-          Presa Visione
-        </Button>
-      ) : (
-        <div className="mt-4 p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
+      {/* Stato di rifiuto / presa visione */}
+      {rejectedBy ? (
+        <div className="mt-4 p-3 border border-destructive/40 bg-destructive/10 rounded-lg text-sm text-destructive flex items-center gap-2">
           <CheckCircle className="w-4 h-4 flex-shrink-0" />
-          <span className="font-medium">Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}</span>
+          <span className="font-medium">
+            Modulo Rifiutato da: {rejectedBy.userName || "Dirigenza"}
+          </span>
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-col sm:flex-row gap-2">
+          <div className="flex-1">
+            {!isAcknowledgedByUser ? (
+              <Button 
+                onClick={handleAcknowledge}
+                className="w-full"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Presa Visione
+              </Button>
+            ) : (
+              <div className="p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="font-medium">
+                  Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {isAdmin && !rejectedBy && (
+            <Button
+              type="button"
+              variant="outline"
+              className="sm:w-auto w-full border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={onReject}
+            >
+              Rifiuto del Modulo
+            </Button>
+          )}
         </div>
       )}
     </div>
