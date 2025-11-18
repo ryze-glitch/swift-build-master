@@ -1,13 +1,24 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, X } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import operatoriData from "@/data/operatori_reparto.json";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Person {
   id: string;
@@ -33,6 +44,7 @@ interface ShiftDetailsProps {
   onAcknowledgeUpdate?: () => void;
   rejectedBy?: any | null;
   rejectedAt?: string | null;
+  rejectedReason?: string | null;
   onReject?: () => void;
 }
 
@@ -72,12 +84,15 @@ export const ShiftDetailsCard = ({
   onAcknowledgeUpdate,
   rejectedBy = null,
   rejectedAt = null,
+  rejectedReason = null,
   onReject,
 }: ShiftDetailsProps) => {
   const { isAdmin } = useUserRole();
   const { user } = useAuth();
   const { toast } = useToast();
   const [acknowledgedBy, setAcknowledgedBy] = useState<any[]>(initialAcknowledgedBy);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
   
   useEffect(() => {
     setAcknowledgedBy(initialAcknowledgedBy || []);
@@ -138,6 +153,68 @@ export const ShiftDetailsCard = ({
       toast({
         title: "Errore",
         description: "Non è stato possibile salvare la presa visione.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRejectConfirm = async () => {
+    if (!user || !rejectReason.trim()) {
+      toast({
+        title: "Errore",
+        description: "Il motivo del rifiuto è obbligatorio.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('discord_tag')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+      }
+
+      const operator = operatoriData.operators.find(
+        op => op.discordTag === profileData?.discord_tag
+      );
+
+      const userName = operator?.name || profileData?.discord_tag || user.email || "Dirigenza";
+      
+      const rejectionData = {
+        userId: user.id,
+        userName: userName,
+        timestamp: new Date().toISOString(),
+      };
+      
+      const { error } = await supabase
+        .from('shifts')
+        .update({
+          rejected_by: rejectionData,
+          rejected_at: new Date().toISOString(),
+          rejected_reason: rejectReason.trim()
+        })
+        .eq('id', shiftId);
+      
+      if (error) throw error;
+      
+      setShowRejectDialog(false);
+      setRejectReason("");
+      if (onAcknowledgeUpdate) onAcknowledgeUpdate();
+      
+      toast({
+        title: "Modulo rifiutato",
+        description: "Il modulo è stato rifiutato con successo.",
+      });
+    } catch (error) {
+      console.error("Errore nel rifiuto del modulo:", error);
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile rifiutare il modulo.",
         variant: "destructive",
       });
     }
@@ -291,11 +368,19 @@ export const ShiftDetailsCard = ({
       
       {/* Stato di rifiuto / presa visione */}
       {rejectedBy ? (
-        <div className="mt-4 p-3 border border-destructive/40 bg-destructive/10 rounded-lg text-sm text-destructive flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 flex-shrink-0" />
-          <span className="font-medium">
-            Modulo Rifiutato da: {rejectedBy.userName || "Dirigenza"}
-          </span>
+        <div className="mt-4 space-y-2">
+          <div className="p-3 border border-destructive/40 bg-destructive/10 rounded-lg text-sm text-destructive flex items-center gap-2">
+            <X className="w-4 h-4 flex-shrink-0" />
+            <span className="font-medium">
+              Rifiutato da: {rejectedBy.userName || "Dirigenza"}
+            </span>
+          </div>
+          {rejectedReason && (
+            <div className="p-3 border border-destructive/40 bg-destructive/10 rounded-lg text-sm text-destructive">
+              <span className="font-medium">Motivo: </span>
+              <span>{rejectedReason}</span>
+            </div>
+          )}
         </div>
       ) : (
         <div className="mt-4 flex flex-col sm:flex-row gap-2">
@@ -321,15 +406,44 @@ export const ShiftDetailsCard = ({
           {isAdmin && !rejectedBy && (
             <Button
               type="button"
-              variant="outline"
-              className="sm:w-auto w-full border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={onReject}
+              variant="default"
+              className="sm:w-auto w-full"
+              onClick={() => setShowRejectDialog(true)}
             >
+              <X className="w-4 h-4 mr-2" />
               Rifiuto del Modulo
             </Button>
           )}
         </div>
       )}
+
+      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rifiuto del Modulo</AlertDialogTitle>
+            <AlertDialogDescription>
+              Inserisci il motivo del rifiuto. Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Textarea
+            placeholder="Motivo del rifiuto..."
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            className="min-h-[100px]"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRejectReason("")}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRejectConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Conferma Rifiuto
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

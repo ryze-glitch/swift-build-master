@@ -61,6 +61,7 @@ interface Shift {
   acknowledged_by?: any[];
   rejected_by?: any | null;
   rejected_at?: string | null;
+  rejected_reason?: string | null;
 }
 
 const statusConfig = {
@@ -404,36 +405,7 @@ export const Shifts = () => {
                             onAcknowledgeUpdate={loadShifts}
                             rejectedBy={shift.rejected_by}
                             rejectedAt={shift.rejected_at}
-                            onReject={async () => {
-                              try {
-                                const { data: profileData } = await supabase
-                                  .from('profiles')
-                                  .select('discord_tag')
-                                  .eq('id', user?.id)
-                                  .single();
-
-                                const operator = operatoriData.operators.find(
-                                  op => op.discordTag === profileData?.discord_tag
-                                );
-
-                                const userName = operator?.name || profileData?.discord_tag || user?.email || "Dirigenza";
-                                
-                                const { error } = await supabase
-                                  .from('shifts')
-                                  .update({
-                                    rejected_by: { userName, userId: user?.id },
-                                    rejected_at: new Date().toISOString()
-                                  })
-                                  .eq('id', shift.id);
-                                
-                                if (error) throw error;
-                                loadShifts();
-                                toast.success("Modulo rifiutato con successo");
-                              } catch (error) {
-                                console.error("Errore nel rifiuto:", error);
-                                toast.error("Errore nel rifiuto del modulo");
-                              }
-                            }}
+                            rejectedReason={shift.rejected_reason}
                           />
                         </div>
                       )}
