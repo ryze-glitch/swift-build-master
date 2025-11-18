@@ -549,8 +549,8 @@ export const Announcements = () => {
                   {/* Voting Section */}
                   <div className="border-t border-border pt-4">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-bold text-lg">
-                        <i className="fas fa-vote-yea mr-2 text-primary"></i>
+                      <h4 className="font-bold text-lg flex items-center gap-2">
+                        <i className="fas fa-vote-yea text-primary"></i>
                         Conferma Presenza
                       </h4>
                       <span className="text-sm text-muted-foreground">
@@ -559,31 +559,37 @@ export const Announcements = () => {
                     </div>
 
                     {/* Vote Buttons */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => handleTrainingVote(announcement.id, "presenza")}
                           disabled={loading}
-                          className={`px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                          className={`group relative px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden ${
                             getUserVote(announcement) === "presenza"
-                              ? "bg-success text-success-foreground shadow-lg hover:shadow-xl scale-105"
-                              : "bg-card/50 hover:bg-success/20 border-2 border-success/30 hover:border-success text-success hover:scale-102"
+                              ? "bg-gradient-to-br from-success to-success/80 text-white shadow-lg shadow-success/30 scale-[1.02]"
+                              : "bg-card hover:bg-success/10 border-2 border-success/40 hover:border-success text-success"
                           }`}
                         >
-                          <i className={`fas fa-check mr-2`}></i>
-                          Presenza
+                          <div className="absolute inset-0 bg-gradient-to-t from-white/0 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="relative flex items-center justify-center gap-2">
+                            <i className="fas fa-check text-lg"></i>
+                            Presenza
+                          </div>
                         </button>
                         <button
                           onClick={() => handleTrainingVote(announcement.id, "assenza")}
                           disabled={loading}
-                          className={`px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                          className={`group relative px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden ${
                             getUserVote(announcement) === "assenza"
-                              ? "bg-destructive text-destructive-foreground shadow-lg hover:shadow-xl scale-105"
-                              : "bg-card/50 hover:bg-destructive/20 border-2 border-destructive/30 hover:border-destructive text-destructive hover:scale-102"
+                              ? "bg-gradient-to-br from-destructive to-destructive/80 text-white shadow-lg shadow-destructive/30 scale-[1.02]"
+                              : "bg-card hover:bg-destructive/10 border-2 border-destructive/40 hover:border-destructive text-destructive"
                           }`}
                         >
-                          <i className={`fas fa-times mr-2`}></i>
-                          Assenza
+                          <div className="absolute inset-0 bg-gradient-to-t from-white/0 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="relative flex items-center justify-center gap-2">
+                            <i className="fas fa-times text-lg"></i>
+                            Assenza
+                          </div>
                         </button>
                       </div>
                       
@@ -592,7 +598,7 @@ export const Announcements = () => {
                         <button
                           onClick={() => handleTrainingVote(announcement.id, null)}
                           disabled={loading}
-                          className="w-full px-3 py-2 rounded-xl bg-secondary/60 hover:bg-secondary text-sm font-medium transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                          className="w-full px-4 py-2.5 rounded-xl bg-secondary/70 hover:bg-secondary text-sm font-semibold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           <i className="fas fa-undo"></i>
                           Rimuovi voto
@@ -601,14 +607,17 @@ export const Announcements = () => {
                     </div>
 
                     {/* Results */}
-                    <div className="space-y-3 mt-4">
+                    <div className="space-y-3 mt-5">
                       {(() => {
                         const stats = getTrainingStats(announcement.trainingVotes);
                         return (
                           <>
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-semibold">Presenza</span>
+                                <span className="text-sm font-semibold flex items-center gap-2">
+                                  <i className="fas fa-check-circle text-success"></i>
+                                  Presenza
+                                </span>
                                 <span className="text-sm font-bold text-success">
                                   {stats.presenzaCount} ({stats.presenzaPercentage}%)
                                 </span>
@@ -622,7 +631,10 @@ export const Announcements = () => {
                             </div>
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-semibold">Assenza</span>
+                                <span className="text-sm font-semibold flex items-center gap-2">
+                                  <i className="fas fa-times-circle text-destructive"></i>
+                                  Assenza
+                                </span>
                                 <span className="text-sm font-bold text-destructive">
                                   {stats.assenzaCount} ({stats.assenzaPercentage}%)
                                 </span>
@@ -638,6 +650,67 @@ export const Announcements = () => {
                         );
                       })()}
                     </div>
+
+                    {/* Admin: View Voters */}
+                    {isAdmin && announcement.trainingVotes && announcement.trainingVotes.length > 0 && (
+                      <div className="mt-5 pt-4 border-t border-border">
+                        <details className="group">
+                          <summary className="cursor-pointer flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                            <span className="font-semibold text-sm flex items-center gap-2">
+                              <i className="fas fa-users text-primary"></i>
+                              Dettagli Votanti (Solo Dirigenza)
+                            </span>
+                            <i className="fas fa-chevron-down text-sm group-open:rotate-180 transition-transform"></i>
+                          </summary>
+                          <div className="mt-3 space-y-3">
+                            <div className="glass rounded-lg p-3">
+                              <h5 className="font-semibold text-xs uppercase tracking-wide text-success mb-2 flex items-center gap-2">
+                                <i className="fas fa-check"></i>
+                                Presenza ({announcement.trainingVotes.filter(v => v.choice === "presenza").length})
+                              </h5>
+                              <div className="space-y-1">
+                                {announcement.trainingVotes
+                                  .filter(v => v.choice === "presenza")
+                                  .map((vote, idx) => {
+                                    const operator = operatoriData.operators.find((op: any) => op.discordId === vote.userId);
+                                    return (
+                                      <div key={idx} className="text-sm flex items-center gap-2 py-1">
+                                        <i className="fas fa-user text-xs text-muted-foreground"></i>
+                                        <span>{operator?.name || "Utente sconosciuto"}</span>
+                                      </div>
+                                    );
+                                  })}
+                                {announcement.trainingVotes.filter(v => v.choice === "presenza").length === 0 && (
+                                  <p className="text-xs text-muted-foreground italic">Nessun voto</p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="glass rounded-lg p-3">
+                              <h5 className="font-semibold text-xs uppercase tracking-wide text-destructive mb-2 flex items-center gap-2">
+                                <i className="fas fa-times"></i>
+                                Assenza ({announcement.trainingVotes.filter(v => v.choice === "assenza").length})
+                              </h5>
+                              <div className="space-y-1">
+                                {announcement.trainingVotes
+                                  .filter(v => v.choice === "assenza")
+                                  .map((vote, idx) => {
+                                    const operator = operatoriData.operators.find((op: any) => op.discordId === vote.userId);
+                                    return (
+                                      <div key={idx} className="text-sm flex items-center gap-2 py-1">
+                                        <i className="fas fa-user text-xs text-muted-foreground"></i>
+                                        <span>{operator?.name || "Utente sconosciuto"}</span>
+                                      </div>
+                                    );
+                                  })}
+                                {announcement.trainingVotes.filter(v => v.choice === "assenza").length === 0 && (
+                                  <p className="text-xs text-muted-foreground italic">Nessun voto</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </details>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -648,6 +721,7 @@ export const Announcements = () => {
                 onDelete={() => handleDeleteAnnouncement(announcement.id)}
                 canDelete={user ? (user.id === announcement.created_by || isAdmin) : false}
                 showAcknowledgmentList={isAdmin}
+                isAdmin={isAdmin}
               />
             )}
           </div>

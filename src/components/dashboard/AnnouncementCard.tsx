@@ -20,6 +20,7 @@ interface AnnouncementCardProps {
   onDelete?: () => void;
   canDelete?: boolean;
   showAcknowledgmentList?: boolean;
+  isAdmin?: boolean;
 }
 
 const categoryConfig = {
@@ -32,7 +33,7 @@ const categoryConfig = {
   urgent: { color: "hsl(var(--danger))", icon: "fa-exclamation-triangle", label: "Urgente" },
 };
 
-export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDelete, showAcknowledgmentList }: AnnouncementCardProps) => {
+export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDelete, showAcknowledgmentList, isAdmin }: AnnouncementCardProps) => {
   const category = categoryConfig[announcement.category];
 
   return (
@@ -131,6 +132,32 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
           size={1.5}
         />
       </div>
+
+      {/* Admin: Show who acknowledged */}
+      {isAdmin && showAcknowledgmentList && announcement.acknowledgedBy && announcement.acknowledgedBy.length > 0 && (
+        <div className="glass rounded-xl p-4 mt-4">
+          <details className="group">
+            <summary className="cursor-pointer flex items-center justify-between hover:text-primary transition-colors">
+              <span className="font-semibold text-sm flex items-center gap-2">
+                <i className="fas fa-eye text-primary"></i>
+                Hanno preso visione (Solo Dirigenza)
+              </span>
+              <i className="fas fa-chevron-down text-sm group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div className="mt-3 space-y-2">
+              {announcement.acknowledgedBy.map((userId, idx) => {
+                const operator = operatoriData.operators.find((op: any) => op.discordId === userId);
+                return (
+                  <div key={idx} className="flex items-center gap-2 text-sm py-1.5 px-2 rounded-lg hover:bg-primary/5">
+                    <i className="fas fa-user text-xs text-muted-foreground"></i>
+                    <span>{operator?.name || "Utente sconosciuto"}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </details>
+        </div>
+      )}
 
     </div>
   );
