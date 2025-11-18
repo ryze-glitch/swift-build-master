@@ -72,6 +72,7 @@ export default function Dirigenza() {
         .from("shifts")
         .select("*")
         .in("module_type", ["patrol_activation", "patrol_deactivation", "heist_activation", "heist_deactivation"])
+        .is("rejected_by", null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

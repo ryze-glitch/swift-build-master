@@ -31,6 +31,9 @@ interface ShiftDetailsProps {
   onAcknowledge?: (shiftId: string) => void;
   initialAcknowledgedBy?: any[];
   onAcknowledgeUpdate?: () => void;
+  rejectedBy?: any | null;
+  rejectedAt?: string | null;
+  onReject?: () => void;
 }
 
 const formatInterventionType = (type: string): string => {
@@ -67,6 +70,9 @@ export const ShiftDetailsCard = ({
   onAcknowledge,
   initialAcknowledgedBy = [],
   onAcknowledgeUpdate,
+  rejectedBy = null,
+  rejectedAt = null,
+  onReject,
 }: ShiftDetailsProps) => {
   const { isAdmin } = useUserRole();
   const { user } = useAuth();

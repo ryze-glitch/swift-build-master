@@ -30,6 +30,7 @@ import { PatrolDeactivationForm } from "./PatrolDeactivationForm";
 import { HeistActivationForm } from "./HeistActivationForm";
 import { HeistDeactivationForm } from "./HeistDeactivationForm";
 import { ShiftDetailsCard } from "./ShiftDetailsCard";
+import operatoriData from "@/data/operatori_reparto.json";
 
 interface Person {
   id: string;
@@ -58,6 +59,8 @@ interface Shift {
   negotiator?: Person | null;
   operators_involved?: Person[] | null;
   acknowledged_by?: any[];
+  rejected_by?: any | null;
+  rejected_at?: string | null;
 }
 
 const statusConfig = {
@@ -302,37 +305,6 @@ export const Shifts = () => {
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-card rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <Users className="h-5 w-5 text-primary" />
-            <span className="text-2xl font-bold">{stats.total}</span>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">Totali</p>
-        </div>
-        <div className="bg-card rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <Clock className="h-5 w-5 text-success" />
-            <span className="text-2xl font-bold">{stats.active}</span>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">In Corso</p>
-        </div>
-        <div className="bg-card rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
-            <span className="text-2xl font-bold">{stats.completed}</span>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">Completati</p>
-        </div>
-        <div className="bg-card rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <Calendar className="h-5 w-5 text-warning" />
-            <span className="text-2xl font-bold">{stats.scheduled}</span>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">Programmati</p>
-        </div>
-      </div>
 
       {/* Premium AI Banner */}
       <div className="bg-gradient-to-r from-warning/10 to-transparent border border-warning/30 rounded-lg p-4 sm:p-6">
@@ -430,6 +402,38 @@ export const Shifts = () => {
                             onAcknowledge={handleAcknowledge}
                             initialAcknowledgedBy={shift.acknowledged_by}
                             onAcknowledgeUpdate={loadShifts}
+                            rejectedBy={shift.rejected_by}
+                            rejectedAt={shift.rejected_at}
+                            onReject={async () => {
+                              try {
+                                const { data: profileData } = await supabase
+                                  .from('profiles')
+                                  .select('discord_tag')
+                                  .eq('id', user?.id)
+                                  .single();
+
+                                const operator = operatoriData.operators.find(
+                                  op => op.discordTag === profileData?.discord_tag
+                                );
+
+                                const userName = operator?.name || profileData?.discord_tag || user?.email || "Dirigenza";
+                                
+                                const { error } = await supabase
+                                  .from('shifts')
+                                  .update({
+                                    rejected_by: { userName, userId: user?.id },
+                                    rejected_at: new Date().toISOString()
+                                  })
+                                  .eq('id', shift.id);
+                                
+                                if (error) throw error;
+                                loadShifts();
+                                toast.success("Modulo rifiutato con successo");
+                              } catch (error) {
+                                console.error("Errore nel rifiuto:", error);
+                                toast.error("Errore nel rifiuto del modulo");
+                              }
+                            }}
                           />
                         </div>
                       )}
