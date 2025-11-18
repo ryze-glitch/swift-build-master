@@ -35,9 +35,31 @@ export const Announcements = () => {
   const [newAnnouncementType, setNewAnnouncementType] = useState<"normal" | "training">("normal");
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ title: "", category: "info" as const, content: "" });
+  const [userDiscordTag, setUserDiscordTag] = useState<string | null>(null);
   const { markAsRead } = useNotifications();
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
+
+
+  // Fetch user's discord tag
+  useEffect(() => {
+    const fetchUserDiscordTag = async () => {
+      if (!user) {
+        setUserDiscordTag(null);
+        return;
+      }
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("discord_tag")
+        .eq("id", user.id)
+        .single();
+
+      setUserDiscordTag(profileData?.discord_tag || null);
+    };
+
+    fetchUserDiscordTag();
+  }, [user]);
 
   // Fetch announcements from database
   useEffect(() => {
@@ -146,7 +168,7 @@ export const Announcements = () => {
   };
 
   const handleTrainingVote = async (announcementId: string, choice: "presenza" | "assenza" | null) => {
-    if (!user) {
+    if (!user || !userDiscordTag) {
       toast.error("Devi essere autenticato per votare");
       return;
     }
@@ -173,15 +195,15 @@ export const Announcements = () => {
       const presenzaArray = Array.isArray(currentVotes.presenza) ? currentVotes.presenza : [];
       const assenzaArray = Array.isArray(currentVotes.assenza) ? currentVotes.assenza : [];
       
-      // Remove user from both arrays (filter out the current user)
-      const newPresenza = presenzaArray.filter((id: string) => id !== user.id);
-      const newAssenza = assenzaArray.filter((id: string) => id !== user.id);
+      // Remove user from both arrays (filter out the current user by discord tag)
+      const newPresenza = presenzaArray.filter((tag: string) => tag !== userDiscordTag);
+      const newAssenza = assenzaArray.filter((tag: string) => tag !== userDiscordTag);
 
       // Add user to selected choice if not null (null means remove vote)
       if (choice === "presenza") {
-        newPresenza.push(user.id);
+        newPresenza.push(userDiscordTag);
       } else if (choice === "assenza") {
-        newAssenza.push(user.id);
+        newAssenza.push(userDiscordTag);
       }
 
       const newVotes = {
@@ -253,8 +275,8 @@ export const Announcements = () => {
   };
 
   const getUserVote = (announcement: Announcement): "presenza" | "assenza" | null => {
-    if (!announcement.isTraining || !announcement.trainingVotes || !user) return null;
-    const vote = announcement.trainingVotes.find(v => v.userId === user.id);
+    if (!announcement.isTraining || !announcement.trainingVotes || !userDiscordTag) return null;
+    const vote = announcement.trainingVotes.find(v => v.userId === userDiscordTag);
     return vote ? vote.choice : null;
   };
 
