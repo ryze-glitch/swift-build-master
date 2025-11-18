@@ -151,10 +151,10 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           </nav>
 
           {/* User Section - Compatto su mobile */}
-          <div className="relative flex-shrink-0">
+          <div className="relative flex-shrink-0 min-w-0">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 sm:gap-3 glass hover:glass-strong rounded-full pr-2 sm:pr-4 pl-1 sm:pl-2 py-1 sm:py-2 transition-all duration-300 group"
+              className="flex items-center gap-2 sm:gap-3 glass hover:glass-strong rounded-full pr-2 sm:pr-4 pl-1 sm:pl-2 py-1 sm:py-2 transition-all duration-300 group max-w-full"
             >
               {/* Avatar */}
               <div className="relative">
@@ -178,19 +178,19 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
               </div>
 
               {/* User Info - Hidden su mobile molto piccolo */}
-              <div className="hidden md:block text-left">
-                <p className="text-xs sm:text-sm font-bold truncate max-w-[120px]">
+              <div className="hidden md:block text-left min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-bold truncate">
                   {userOperator?.name || user?.email}
                 </p>
                 <div className="flex items-center gap-2">
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[10px] text-muted-foreground truncate">
                     {isAdmin ? "Dirigenza" : "Operatore"}
                   </p>
                   {/* Mostra il grado solo da desktop */}
                   {isDesktop && userOperator?.rank && (
                     <>
                       <span className="text-[10px] text-muted-foreground">•</span>
-                      <p className="text-[10px] text-muted-foreground font-semibold">
+                      <p className="text-[10px] text-muted-foreground font-semibold truncate">
                         {userOperator.rank}
                       </p>
                     </>
