@@ -383,32 +383,28 @@ export const ShiftDetailsCard = ({
           )}
         </div>
       ) : (
-        <div className="mt-4 flex flex-col sm:flex-row gap-2">
-          <div className="flex-1">
-            {!isAcknowledgedByUser ? (
-              <Button 
-                onClick={handleAcknowledge}
-                className="w-full"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Presa Visione
-              </Button>
-            ) : (
-              <div className="p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium">
-                  Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}
-                </span>
-              </div>
-            )}
-          </div>
+        <div className="mt-4 space-y-2">
+          {!isAcknowledgedByUser ? (
+            <Button 
+              onClick={handleAcknowledge}
+              className="w-full"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Presa Visione
+            </Button>
+          ) : (
+            <div className="p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="font-medium">
+                Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}
+              </span>
+            </div>
+          )}
 
-          {isAdmin && !rejectedBy && (
+          {isAdmin && (
             <Button
-              type="button"
-              variant="default"
-              className="sm:w-auto w-full"
               onClick={() => setShowRejectDialog(true)}
+              className="w-full"
             >
               <X className="w-4 h-4 mr-2" />
               Rifiuto del Modulo
