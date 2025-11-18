@@ -4,17 +4,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/dashboard/Header";
+import { OrgSidebar } from "@/components/dashboard/OrgSidebar";
 import { Personnel } from "@/components/dashboard/Personnel";
 import { Announcements } from "@/components/dashboard/Announcements";
 import { Status } from "@/components/dashboard/Status";
 import { Shifts } from "@/components/dashboard/Shifts";
-
 import { NotificationSystem } from "@/components/dashboard/NotificationSystem";
 import { PremiumModal } from "@/components/dashboard/PremiumModal";
 import { Footer } from "@/components/dashboard/Footer";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import Dirigenza from "./Dirigenza";
+import operatoriData from "@/data/operatori_reparto.json";
 
 type Page = "dashboard" | "personnel" | "shifts" | "announcements" | "status" | "dirigenza";
 
@@ -24,12 +25,74 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const [stats, setStats] = useState({
+    personnel: 0,
+    shifts: 0,
+    announcements: 0,
+    onlineCount: 0,
+  });
+
 
   useEffect(() => {
     if (!user && !loading) {
       navigate("/auth", { replace: true });
     }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Count personnel from operatori_reparto.json
+        const personnelCount = operatoriData.operators.length;
+
+        // Count shifts from database
+        const { count: shiftsCount } = await supabase
+          .from("shifts")
+          .select("*", { count: "exact", head: true });
+
+        // Count announcements from database
+        const { count: announcementsCount } = await supabase
+          .from("announcements")
+          .select("*", { count: "exact", head: true });
+
+        // Count online users (simplified - you can enhance this with real presence logic)
+        const onlineCount = Math.floor(personnelCount * 0.6); // 60% online as example
+
+        setStats({
+          personnel: personnelCount,
+          shifts: shiftsCount || 0,
+          announcements: announcementsCount || 0,
+          onlineCount,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+
+    if (user) {
+      fetchStats();
+      
+      // Setup realtime subscription for updates
+      const channel = supabase
+        .channel("dashboard-stats")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "shifts" },
+          () => fetchStats()
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "announcements" },
+          () => fetchStats()
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user]);
+
 
   if (loading) {
     return (
@@ -47,18 +110,19 @@ const Dashboard = () => {
   }
 
   const renderContent = () => {
-    switch (currentPage) {
-      case "personnel":
-        return <Personnel />;
-      case "shifts":
-        return <Shifts />;
-      case "announcements":
-        return <Announcements />;
-      case "status":
-        return <Status />;
-      case "dirigenza":
-        return <Dirigenza />;
-      default:
+    const content = (() => {
+      switch (currentPage) {
+        case "personnel":
+          return <Personnel />;
+        case "shifts":
+          return <Shifts />;
+        case "announcements":
+          return <Announcements />;
+        case "status":
+          return <Status />;
+        case "dirigenza":
+          return <Dirigenza />;
+        default:
         return (
           <div className="space-y-6 sm:space-y-8 px-3 sm:px-4 py-4 sm:py-6">
             {/* Hero with Quick Stats */}
@@ -87,10 +151,10 @@ const Dashboard = () => {
                   {/* Quick Access Grid */}
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-8">
                     {[
-                      { icon: "fa-users", label: "Personale", value: "24", page: "personnel", color: "primary" },
-                      { icon: "fa-calendar-alt", label: "Turni", value: "8", page: "shifts", color: "success" },
-                      { icon: "fa-bullhorn", label: "Comunicati", value: "12", page: "announcements", color: "accent" },
-                      { icon: "fa-wave-square", label: "Status", value: "100%", page: "status", color: "warning" },
+                      { icon: "fa-users", label: "Personale", value: stats.personnel, page: "personnel", color: "primary" },
+                      { icon: "fa-calendar-alt", label: "Turni", value: stats.shifts, page: "shifts", color: "success" },
+                      { icon: "fa-bullhorn", label: "Comunicati", value: stats.announcements, page: "announcements", color: "accent" },
+                      { icon: "fa-wave-square", label: "Status", value: `${Math.round((stats.onlineCount / stats.personnel) * 100)}%`, page: "status", color: "warning" },
                     ].map((stat) => (
                       <button
                         key={stat.page}
@@ -307,18 +371,33 @@ const Dashboard = () => {
             </div>
           </div>
         );
-    }
+      }
+    })();
+
+    return (
+      <div key={currentPage} className="animate-fade-in">
+        {content}
+      </div>
+    );
   };
 
   return (
-    <div className="min-h-screen">
-      <Header currentPage={currentPage} onPageChange={setCurrentPage} />
+    <div className="min-h-screen flex">
+      <OrgSidebar />
+      
+      <div className="flex-1 flex flex-col">
+        <Header currentPage={currentPage} onPageChange={setCurrentPage} />
 
-      <main className="container mx-auto px-4 py-8 max-w-7xl">{renderContent()}</main>
+        <main className="container mx-auto px-4 py-8 max-w-7xl animate-fade-in">
+          <div className="animate-scale-in">
+            {renderContent()}
+          </div>
+        </main>
 
-      <NotificationSystem />
-      <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
-      <Footer />
+        <NotificationSystem />
+        <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
+        <Footer />
+      </div>
     </div>
   );
 };
