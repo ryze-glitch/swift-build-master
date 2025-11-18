@@ -417,22 +417,6 @@ export const Announcements = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: "Totali", value: stats.total, icon: "fa-list", color: "primary" },
-          { label: "Da Leggere", value: stats.unread, icon: "fa-envelope", color: "warning" },
-          { label: "Urgenti", value: stats.urgent, icon: "fa-exclamation-triangle", color: "danger" },
-        ].map((stat) => (
-          <div key={stat.label} className="glass rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{stat.label}</span>
-              <i className={`fas ${stat.icon} text-2xl`} style={{ color: `hsl(var(--${stat.color}))` }}></i>
-            </div>
-            <div className="text-3xl font-extrabold">{stat.value}</div>
-          </div>
-        ))}
-      </div>
 
       {/* Compose Button - Only for admins */}
       {isAdmin && (

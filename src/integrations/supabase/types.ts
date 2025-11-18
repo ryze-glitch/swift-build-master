@@ -136,6 +136,8 @@ export type Database = {
           operators_back: Json | null
           operators_involved: Json | null
           operators_out: Json | null
+          rejected_at: string | null
+          rejected_by: Json | null
           role: string
           start_time: string
           status: string
@@ -161,6 +163,8 @@ export type Database = {
           operators_back?: Json | null
           operators_involved?: Json | null
           operators_out?: Json | null
+          rejected_at?: string | null
+          rejected_by?: Json | null
           role: string
           start_time: string
           status?: string
@@ -186,6 +190,8 @@ export type Database = {
           operators_back?: Json | null
           operators_involved?: Json | null
           operators_out?: Json | null
+          rejected_at?: string | null
+          rejected_by?: Json | null
           role?: string
           start_time?: string
           status?: string
