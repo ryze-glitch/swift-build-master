@@ -84,17 +84,17 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo e Info Organizzazione - Desktop only */}
-          <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+          <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
             <img 
               src="https://i.imgur.com/B6E4u1X.png" 
               alt="UOPI Logo" 
-              className="w-10 h-10 rounded-xl shadow-glow"
+              className="w-14 h-14 rounded-xl shadow-glow"
             />
             <div>
-              <h2 className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight">
+              <h2 className="text-base font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight">
                 U.O.P.I. - IPRP X
               </h2>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Unità Operativa di Primo Intervento
               </p>
             </div>
