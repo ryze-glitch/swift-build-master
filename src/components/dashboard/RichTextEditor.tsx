@@ -60,8 +60,8 @@ export const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorP
   }, [value]);
 
   return (
-    <div className="rich-text-editor">
-      <div ref={editorRef} className="min-h-[200px]" />
+    <div className="rich-text-editor min-h-[200px]">
+      <div ref={editorRef} className="w-full h-full" />
       <style>{`
         .ql-toolbar {
           background: hsl(var(--background));
