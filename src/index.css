@@ -82,6 +82,19 @@ All colors MUST be HSL.
     overflow-x: hidden;
   }
 
+  @media (max-width: 767px) {
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+      position: relative;
+    }
+    
+    #root {
+      overflow-x: hidden;
+      width: 100%;
+    }
+  }
+
   body::before {
     content: '';
     position: fixed;
