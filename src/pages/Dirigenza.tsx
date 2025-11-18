@@ -226,46 +226,46 @@ export default function Dirigenza() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 md:py-10 max-w-6xl space-y-8">
-        {/* Header con gradiente */}
-        <div className="space-y-3">
+    <div className="min-h-screen p-4 md:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
-              <Users className="w-7 h-7 text-primary" />
+            <div className="p-3 rounded-2xl glass">
+              <Users className="w-6 h-6 md:w-7 md:h-7 text-primary" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-lexend font-bold text-foreground tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Dirigenza
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground">
                 Statistiche di attivazione degli operatori ordinate per grado
               </p>
             </div>
           </div>
         </div>
 
-        {/* Stats Card con design migliorato */}
-        <Card className="glass-strong border-border/50 shadow-xl overflow-hidden">
-          <CardHeader className="pb-6 bg-gradient-to-br from-card to-card/50">
+        {/* Stats Card */}
+        <div className="glass rounded-2xl border border-border/50 overflow-hidden">
+          <div className="p-4 md:p-6 border-b border-border/50">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="p-2.5 rounded-xl glass">
                 <Users className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-xl md:text-2xl font-semibold">Classifica Operatori</CardTitle>
-                <CardDescription className="text-sm md:text-base">
+                <h2 className="text-lg md:text-xl font-bold">Classifica Operatori</h2>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Tempi totali di attivazione e numero di interventi
-                </CardDescription>
+                </p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-4 md:p-6">
+          </div>
+          <div className="p-4 md:p-6">
             {loading ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-card/30">
-                    <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+                  <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-card/30">
+                    <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
                     <Skeleton className="h-12 w-12 rounded-full flex-shrink-0" />
                     <div className="flex-1 space-y-2">
                       <Skeleton className="h-4 w-32" />
@@ -278,70 +278,67 @@ export default function Dirigenza() {
                 ))}
               </div>
             ) : stats.length === 0 ? (
-              <div className="text-center py-16 space-y-4">
-                <div className="inline-flex p-4 rounded-2xl bg-muted/30">
-                  <Users className="w-16 h-16 text-muted-foreground/50" />
+              <div className="text-center py-12 space-y-4">
+                <div className="inline-flex p-4 rounded-2xl glass">
+                  <Users className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground/50" />
                 </div>
                 <div className="space-y-2">
-                  <p className="text-lg font-medium text-muted-foreground">
+                  <p className="text-base md:text-lg font-medium text-muted-foreground">
                     Nessuna statistica disponibile
                   </p>
-                  <p className="text-sm text-muted-foreground/70 max-w-md mx-auto">
+                  <p className="text-xs md:text-sm text-muted-foreground/70 max-w-md mx-auto px-4">
                     Le statistiche verranno generate automaticamente quando gli operatori completano attivazioni con orari registrati
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {stats.map((stat, index) => (
                   <div
                     key={index}
-                    className="group relative flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 rounded-xl bg-gradient-to-br from-card to-card/50 border border-border/40 hover:border-primary/40 hover:shadow-lg transition-all duration-300"
+                    className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-card/50 hover:bg-card border border-border/30 hover:border-primary/30 transition-all"
                   >
-                    {/* Decorazione gradiente su hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
-                    
-                    <div className="relative flex items-center gap-3 md:gap-4 flex-1">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       {/* Position Badge */}
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 font-bold text-primary border border-primary/20 flex-shrink-0">
+                      <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full glass font-bold text-sm text-primary flex-shrink-0">
                         #{index + 1}
                       </div>
 
                       {/* Avatar */}
-                      <Avatar className="w-12 h-12 md:w-14 md:h-14 border-2 border-border shadow-md flex-shrink-0">
+                      <Avatar className="w-10 h-10 md:w-12 md:h-12 border-2 border-primary/20 flex-shrink-0">
                         <AvatarImage src={stat.avatarUrl} alt={stat.operator} />
-                        <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                        <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xs">
                           {stat.operator.split(" ").map(n => n[0]).join("").toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
 
                       {/* Operator Info */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-base md:text-lg text-foreground truncate">
+                        <p className="font-semibold text-sm md:text-base truncate">
                           {stat.operator}
                         </p>
-                        <Badge variant="outline" className="text-xs mt-1 border-primary/30">
+                        <Badge variant="outline" className="text-[10px] md:text-xs mt-0.5 border-primary/30">
                           ⭐ {stat.qualification}
                         </Badge>
                       </div>
                     </div>
 
-                    {/* Stats - Layout migliorato per mobile */}
-                    <div className="relative flex items-center gap-4 md:gap-6 justify-between md:justify-end ml-14 md:ml-0">
-                      <div className="text-center md:text-right">
-                        <div className="font-bold text-primary text-xl md:text-2xl">
+                    {/* Stats */}
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="text-right">
+                        <div className="font-bold text-primary text-base md:text-lg">
                           {formatTime(stat.hours, stat.minutes)}
                         </div>
-                        <div className="text-xs text-muted-foreground font-medium">
-                          Tempo Totale
+                        <div className="text-[10px] md:text-xs text-muted-foreground">
+                          Tempo
                         </div>
                       </div>
-                      <div className="h-10 w-px bg-border/50 hidden md:block"></div>
-                      <div className="text-center md:text-right min-w-[60px]">
-                        <div className="font-bold text-foreground text-xl md:text-2xl">
+                      <div className="h-8 w-px bg-border/50"></div>
+                      <div className="text-right min-w-[50px]">
+                        <div className="font-bold text-base md:text-lg">
                           {stat.activations}
                         </div>
-                        <div className="text-xs text-muted-foreground font-medium">
+                        <div className="text-[10px] md:text-xs text-muted-foreground">
                           Interventi
                         </div>
                       </div>
@@ -350,78 +347,82 @@ export default function Dirigenza() {
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Auth Logs Section */}
-        <Card className="glass-strong border-border/50 shadow-xl overflow-hidden">
-          <CardHeader className="pb-6 bg-gradient-to-br from-card to-card/50">
+        <div className="glass rounded-2xl border border-border/50 overflow-hidden">
+          <div className="p-4 md:p-6 border-b border-border/50">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="p-2.5 rounded-xl glass">
                 <LogIn className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-xl md:text-2xl font-semibold">Log Accessi</CardTitle>
-                <CardDescription className="text-sm md:text-base">
+                <h2 className="text-lg md:text-xl font-bold">Log Accessi</h2>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Cronologia login e logout degli operatori
-                </CardDescription>
+                </p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-4 md:p-6">
+          </div>
+          <div className="p-4 md:p-6">
             {authLogs.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 text-muted-foreground text-sm">
                 <p>Nessun log disponibile</p>
               </div>
             ) : (
               <div className="space-y-2">
                 {authLogs.map((log) => {
                   const operator = getOperatorByDiscordTag(log.discord_tag);
+                  const isLogin = log.event_type === 'login';
+                  
                   return (
                     <div
                       key={log.id}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-card/50 border border-border/40 hover:border-primary/40 transition-all"
+                      className="flex items-center justify-between p-3 md:p-4 rounded-xl bg-card/50 hover:bg-card border border-border/30 transition-all"
                     >
-                      <div className={`p-2 rounded-lg ${log.event_type === 'login' ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                        {log.event_type === 'login' ? (
-                          <LogIn className="w-4 h-4 text-success" />
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {isLogin ? (
+                          <LogIn className="w-4 h-4 md:w-5 md:h-5 text-success flex-shrink-0" />
                         ) : (
-                          <LogOut className="w-4 h-4 text-destructive" />
+                          <LogOut className="w-4 h-4 md:w-5 md:h-5 text-destructive flex-shrink-0" />
                         )}
-                      </div>
-                      
-                      {operator && (
-                        <Avatar className="w-10 h-10 border-2 border-border">
-                          <AvatarImage src={operator.avatarUrl} alt={operator.name} />
-                          <AvatarFallback>{operator.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      )}
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-sm">{operator?.name || log.discord_tag || 'Sconosciuto'}</p>
-                          {operator?.qualification && (
-                            <Badge variant="secondary" className="text-xs">
-                              {operator.qualification}
-                            </Badge>
-                          )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm md:text-base truncate">
+                              {operator?.name || log.discord_tag || 'Utente sconosciuto'}
+                            </p>
+                            {operator && (
+                              <Badge variant="outline" className="text-[10px] border-primary/30 flex-shrink-0">
+                                {operator.qualification}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {log.discord_tag}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {log.discord_tag || 'N/A'}
-                        </p>
                       </div>
-                      
-                      <div className="text-right text-xs text-muted-foreground">
-                        <p>{new Date(log.created_at).toLocaleDateString('it-IT')}</p>
-                        <p>{new Date(log.created_at).toLocaleTimeString('it-IT')}</p>
+                      <div className="text-right flex-shrink-0">
+                        <Badge variant={isLogin ? "default" : "destructive"} className="text-[10px] md:text-xs">
+                          {isLogin ? 'Login' : 'Logout'}
+                        </Badge>
+                        <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
+                          {new Date(log.created_at).toLocaleString('it-IT', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
                       </div>
                     </div>
                   );
                 })}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
