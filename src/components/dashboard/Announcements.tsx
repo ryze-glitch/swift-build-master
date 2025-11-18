@@ -527,7 +527,10 @@ export const Announcements = () => {
                         <span className="text-sm text-muted-foreground">{new Date(announcement.date).toLocaleDateString('it-IT')}</span>
                       </div>
                       <h3 className="text-2xl font-bold mb-2">{announcement.title}</h3>
-                      <p className="text-muted-foreground">{announcement.content}</p>
+                      <div 
+                        className="text-muted-foreground prose prose-sm max-w-none dark:prose-invert"
+                        dangerouslySetInnerHTML={{ __html: announcement.content }}
+                      />
                       <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
                         <i className="fas fa-user"></i>
                         <span>{getUserDisplayName(announcement.author)}</span>
@@ -672,7 +675,7 @@ export const Announcements = () => {
                                 {announcement.trainingVotes
                                   .filter(v => v.choice === "presenza")
                                   .map((vote, idx) => {
-                                    const operator = operatoriData.operators.find((op: any) => op.discordId === vote.userId);
+                                    const operator = operatoriData.operators.find((op: any) => op.discordTag === vote.userId);
                                     return (
                                       <div key={idx} className="text-sm flex items-center gap-2 py-1">
                                         <i className="fas fa-user text-xs text-muted-foreground"></i>
@@ -694,7 +697,7 @@ export const Announcements = () => {
                                 {announcement.trainingVotes
                                   .filter(v => v.choice === "assenza")
                                   .map((vote, idx) => {
-                                    const operator = operatoriData.operators.find((op: any) => op.discordId === vote.userId);
+                                    const operator = operatoriData.operators.find((op: any) => op.discordTag === vote.userId);
                                     return (
                                       <div key={idx} className="text-sm flex items-center gap-2 py-1">
                                         <i className="fas fa-user text-xs text-muted-foreground"></i>
