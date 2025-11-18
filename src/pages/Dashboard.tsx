@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/dashboard/Header";
-import { OrgSidebar } from "@/components/dashboard/OrgSidebar";
 import { Personnel } from "@/components/dashboard/Personnel";
 import { Announcements } from "@/components/dashboard/Announcements";
 import { Status } from "@/components/dashboard/Status";
@@ -382,22 +381,18 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      <OrgSidebar />
-      
-      <div className="flex-1 flex flex-col min-h-screen">
-        <Header currentPage={currentPage} onPageChange={setCurrentPage} />
+    <div className="min-h-screen flex flex-col">
+      <Header currentPage={currentPage} onPageChange={setCurrentPage} />
 
-        <main className="container mx-auto px-4 py-8 max-w-7xl flex-1">
-          <div className="animate-scale-in">
-            {renderContent()}
-          </div>
-        </main>
+      <main className="container mx-auto px-4 py-8 max-w-7xl flex-1">
+        <div className="animate-scale-in">
+          {renderContent()}
+        </div>
+      </main>
 
-        <Footer />
-        <NotificationSystem />
-        <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
-      </div>
+      <Footer />
+      <NotificationSystem />
+      <PremiumModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
     </div>
   );
 };
