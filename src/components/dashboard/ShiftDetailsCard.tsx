@@ -383,7 +383,7 @@ export const ShiftDetailsCard = ({
           )}
         </div>
       ) : (
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 flex flex-col gap-2">
           {!isAcknowledgedByUser ? (
             <Button 
               onClick={handleAcknowledge}
