@@ -110,28 +110,28 @@ export const Header = ({ currentPage, onPageChange }: HeaderProps) => {
           </div>
 
           {/* Navigation - Centrata */}
-          <nav className="flex items-center gap-1.5 glass rounded-3xl px-2 py-1.5 sm:px-3 sm:py-2 border border-border/50">
+          <nav className="flex items-center gap-3.5 glass rounded-2xl px-4 py-4 border border-border/50 shadow-lg backdrop-blur-xl">
             {navItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => onPageChange(item.id)}
                     className={`
-                      group relative flex items-center font-medium
+                      group relative flex items-center justify-flex-start font-medium
                       transition-all duration-300 ease-out overflow-hidden
                       ${isDesktop 
-                        ? 'w-[60px] h-[50px] rounded-2xl hover:w-[140px] hover:justify-start hover:pl-5 justify-center' 
+                        ? 'w-[60px] h-[50px] rounded-2xl hover:w-[150px]' 
                         : 'w-10 h-10 rounded-xl sm:w-12 sm:h-12 justify-center'
                       }
                       ${currentPage === item.id 
-                        ? 'bg-primary/20 text-primary shadow-glow' 
-                        : 'bg-background/50 hover:bg-primary/10 text-muted-foreground hover:text-primary'
+                        ? 'bg-primary text-primary-foreground shadow-[0_4px_12px_rgba(var(--primary),0.4)]' 
+                        : 'bg-transparent hover:bg-primary hover:text-primary-foreground text-muted-foreground hover:shadow-[0_4px_12px_rgba(var(--primary),0.4)]'
                       }
                     `}
                   >
-                    <i className={`fas ${item.icon} text-base sm:text-lg flex-shrink-0 flex items-center justify-center`}></i>
+                    <i className={`fas ${item.icon} text-xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${isDesktop ? 'ml-4' : ''}`}></i>
                     {isDesktop && (
-                      <span className="opacity-0 max-w-0 whitespace-nowrap text-sm ml-2 font-medium group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300 overflow-hidden">
+                      <span className="opacity-0 transform translate-x-2.5 whitespace-nowrap text-sm ml-3 font-medium group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                         {item.label}
                       </span>
                     )}
