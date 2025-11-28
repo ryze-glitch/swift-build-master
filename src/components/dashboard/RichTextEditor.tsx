@@ -34,6 +34,7 @@ export const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorP
               modules: {
                 toolbar: [
                   ['bold', 'italic', 'underline'],
+                  ['link'],
                   [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                   ['clean']
                 ]
@@ -99,6 +100,21 @@ export const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorP
         .ql-toolbar button:hover .ql-fill,
         .ql-toolbar button.ql-active .ql-fill {
           fill: hsl(var(--primary));
+        }
+        .ql-editor a {
+          color: hsl(var(--primary));
+          text-decoration: underline;
+        }
+        .ql-snow .ql-tooltip {
+          background: hsl(var(--background));
+          border: 1px solid hsl(var(--border));
+          color: hsl(var(--foreground));
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .ql-snow .ql-tooltip input[type=text] {
+          background: hsl(var(--secondary));
+          border: 1px solid hsl(var(--border));
+          color: hsl(var(--foreground));
         }
       `}</style>
     </div>

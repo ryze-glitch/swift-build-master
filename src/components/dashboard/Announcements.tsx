@@ -729,7 +729,6 @@ export const Announcements = () => {
                 onAcknowledge={() => handleAcknowledge(announcement.id)}
                 onDelete={() => handleDeleteAnnouncement(announcement.id)}
                 canDelete={user ? (user.id === announcement.created_by || isAdmin) : false}
-                showAcknowledgmentList={isAdmin}
                 isAdmin={isAdmin}
               />
             )}
