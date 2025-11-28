@@ -18,11 +18,25 @@ export const useUserRole = () => {
       }
 
       try {
-        // Server-side role validation via RLS-protected query
+        // First get the user's discord_id from their profile
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("discord_id")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError || !profileData?.discord_id) {
+          console.error("Error fetching profile:", profileError);
+          setRole(null);
+          setLoading(false);
+          return;
+        }
+
+        // Then fetch the role using discord_id
         const { data, error } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", user.id)
+          .eq("discord_id", profileData.discord_id)
           .single();
 
         if (error) {
