@@ -292,18 +292,16 @@ export const Shifts = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h2 className="text-2xl font-bold">Turni di Servizio</h2>
-        {isAdmin && (
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Button variant="outline" className="w-full sm:w-auto">
-              <Sparkles className="mr-2 h-4 w-4" />
-              AI Planner
-            </Button>
-            <Button onClick={openCreateDialog} className="w-full sm:w-auto">
-              <Plus className="mr-2 h-4 w-4" />
-              Nuovo Turno
-            </Button>
-          </div>
-        )}
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto">
+            <Sparkles className="mr-2 h-4 w-4" />
+            AI Planner
+          </Button>
+          <Button onClick={openCreateDialog} className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" />
+            Nuovo Turno
+          </Button>
+        </div>
       </div>
 
 
