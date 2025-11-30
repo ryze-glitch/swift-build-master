@@ -274,6 +274,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acknowledge_announcement: {
+        Args: { _announcement_id: string; _user_id: string }
+        Returns: undefined
+      }
       get_user_discord_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {

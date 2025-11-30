@@ -141,29 +141,28 @@ export const Announcements = () => {
   const handleAcknowledge = async (id: string) => {
     if (!user) return;
 
-    // Fetch current acknowledgments
-    const { data: currentData } = await supabase
-      .from("announcements")
-      .select("acknowledged_by")
-      .eq("id", id)
-      .single();
+    try {
+      // Use the database function to acknowledge (bypasses RLS)
+      const { error } = await supabase.rpc('acknowledge_announcement', {
+        _announcement_id: id,
+        _user_id: user.id
+      });
 
-    const currentAcknowledgedBy = Array.isArray(currentData?.acknowledged_by) ? currentData.acknowledged_by : [];
-    const newAcknowledgedBy = [...currentAcknowledgedBy, user.id];
+      if (error) throw error;
 
-    const { error } = await supabase
-      .from("announcements")
-      .update({ acknowledged_by: newAcknowledgedBy })
-      .eq("id", id);
-
-    if (error) {
-      console.error("Error acknowledging announcement:", error);
-      toast.error("Errore nell'aggiornamento");
-    } else {
+      // Update local state
       setAnnouncements(prev => 
-        prev.map(a => a.id === id ? { ...a, acknowledged: true } : a)
+        prev.map(a => a.id === id ? { 
+          ...a, 
+          acknowledged: true,
+          acknowledgedBy: [...(a.acknowledgedBy || []), user.id]
+        } : a)
       );
       markAsRead(id);
+      toast.success("Presa visione confermata");
+    } catch (error) {
+      console.error("Error acknowledging announcement:", error);
+      toast.error("Errore nell'aggiornamento");
     }
   };
 
