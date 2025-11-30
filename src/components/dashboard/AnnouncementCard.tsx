@@ -149,13 +149,12 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
               <span className="font-semibold">Presa visione da ({announcement.acknowledgedBy.length}):</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {announcement.acknowledgedBy.map((userId, idx) => {
-                // Find the operator by matching user ID through profiles
+            {announcement.acknowledgedBy.map((discordTag, idx) => {
+                // Find the operator by matching discord tag
                 const operatorName = (() => {
-                  // Try to find operator name - for now show a shortened ID
-                  const operator = operatoriData.operators.find((op: any) => op.id === userId);
+                  const operator = operatoriData.operators.find((op: any) => op.discordTag === discordTag);
                   if (operator) return operator.name;
-                  return `Utente ${userId.slice(0, 8)}...`;
+                  return discordTag; // fallback to discord tag if not found
                 })();
                 return (
                   <span 
