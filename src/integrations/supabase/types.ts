@@ -282,6 +282,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      vote_training_announcement: {
+        Args: {
+          _announcement_id: string
+          _discord_tag: string
+          _vote_choice: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
