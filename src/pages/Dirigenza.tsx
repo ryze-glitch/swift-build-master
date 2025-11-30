@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, LogIn, LogOut } from "lucide-react";
 import operatoriData from "@/data/operatori_reparto.json";
-import { Separator } from "@/components/ui/separator";
 
 interface Person {
   id: string;
@@ -32,9 +30,18 @@ interface AuthLog {
   created_at: string;
 }
 
+interface AuthStats {
+  discordTag: string;
+  operatorName: string;
+  qualification: string;
+  avatarUrl: string;
+  logins: number;
+  logouts: number;
+}
+
 export default function Dirigenza() {
   const [stats, setStats] = useState<ActivationStats[]>([]);
-  const [authLogs, setAuthLogs] = useState<AuthLog[]>([]);
+  const [authStats, setAuthStats] = useState<AuthStats[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,12 +57,40 @@ export default function Dirigenza() {
     try {
       const { data, error } = await supabase
         .from('auth_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .select('*');
 
       if (error) throw error;
-      setAuthLogs((data || []) as AuthLog[]);
+      
+      // Aggregate logs by discord_tag
+      const statsMap = new Map<string, AuthStats>();
+      
+      (data || []).forEach((log: AuthLog) => {
+        if (!log.discord_tag) return;
+        
+        const existing = statsMap.get(log.discord_tag);
+        const operator = operatoriData.operators.find(op => op.discordTag === log.discord_tag);
+        
+        if (existing) {
+          if (log.event_type === 'login') existing.logins++;
+          else existing.logouts++;
+        } else {
+          statsMap.set(log.discord_tag, {
+            discordTag: log.discord_tag,
+            operatorName: operator?.name || log.discord_tag,
+            qualification: operator?.qualification || '',
+            avatarUrl: operator?.avatarUrl || '',
+            logins: log.event_type === 'login' ? 1 : 0,
+            logouts: log.event_type === 'logout' ? 1 : 0,
+          });
+        }
+      });
+      
+      // Sort by total activity (logins + logouts)
+      const sortedStats = Array.from(statsMap.values()).sort((a, b) => 
+        (b.logins + b.logouts) - (a.logins + a.logouts)
+      );
+      
+      setAuthStats(sortedStats);
     } catch (error) {
       console.error('Errore caricamento log:', error);
     }
@@ -359,67 +394,75 @@ export default function Dirigenza() {
                 <LogIn className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg md:text-xl font-bold">Log Accessi</h2>
+                <h2 className="text-lg md:text-xl font-bold">Statistiche Accessi</h2>
                 <p className="text-xs md:text-sm text-muted-foreground">
-                  Cronologia login e logout degli operatori
+                  Conteggio login e logout per operatore
                 </p>
               </div>
             </div>
           </div>
           <div className="p-4 md:p-6">
-            {authLogs.length === 0 ? (
+            {authStats.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm">
                 <p>Nessun log disponibile</p>
               </div>
             ) : (
               <div className="space-y-2">
-                {authLogs.map((log) => {
-                  const operator = getOperatorByDiscordTag(log.discord_tag);
-                  const isLogin = log.event_type === 'login';
-                  
-                  return (
-                    <div
-                      key={log.id}
-                      className="flex items-center justify-between p-3 md:p-4 rounded-xl bg-card/50 hover:bg-card border border-border/30 transition-all"
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        {isLogin ? (
-                          <LogIn className="w-4 h-4 md:w-5 md:h-5 text-success flex-shrink-0" />
-                        ) : (
-                          <LogOut className="w-4 h-4 md:w-5 md:h-5 text-destructive flex-shrink-0" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-sm md:text-base truncate">
-                              {operator?.name || log.discord_tag || 'Utente sconosciuto'}
-                            </p>
-                            {operator && (
-                              <Badge variant="outline" className="text-[10px] border-primary/30 flex-shrink-0">
-                                {operator.qualification}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {log.discord_tag}
+                {authStats.map((stat) => (
+                  <div
+                    key={stat.discordTag}
+                    className="flex items-center justify-between p-3 md:p-4 rounded-xl bg-card/50 hover:bg-card border border-border/30 transition-all"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <Avatar className="w-10 h-10 md:w-12 md:h-12 border-2 border-primary/20 flex-shrink-0">
+                        <AvatarImage src={stat.avatarUrl} alt={stat.operatorName} />
+                        <AvatarFallback className="bg-primary/20 text-primary font-semibold text-xs">
+                          {stat.operatorName.split(" ").map(n => n[0]).join("").toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm md:text-base truncate">
+                            {stat.operatorName}
                           </p>
+                          {stat.qualification && (
+                            <Badge variant="outline" className="text-[10px] border-primary/30 flex-shrink-0">
+                              {stat.qualification}
+                            </Badge>
+                          )}
                         </div>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <Badge variant={isLogin ? "default" : "destructive"} className="text-[10px] md:text-xs">
-                          {isLogin ? 'Login' : 'Logout'}
-                        </Badge>
-                        <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
-                          {new Date(log.created_at).toLocaleString('it-IT', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                        <p className="text-xs text-muted-foreground truncate">
+                          {stat.discordTag}
                         </p>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="flex items-center gap-1.5 text-right">
+                        <LogIn className="w-4 h-4 text-success" />
+                        <div>
+                          <div className="font-bold text-success text-base md:text-lg">
+                            {stat.logins}
+                          </div>
+                          <div className="text-[10px] md:text-xs text-muted-foreground">
+                            Login
+                          </div>
+                        </div>
+                      </div>
+                      <div className="h-8 w-px bg-border/50"></div>
+                      <div className="flex items-center gap-1.5 text-right">
+                        <LogOut className="w-4 h-4 text-destructive" />
+                        <div>
+                          <div className="font-bold text-destructive text-base md:text-lg">
+                            {stat.logouts}
+                          </div>
+                          <div className="text-[10px] md:text-xs text-muted-foreground">
+                            Logout
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

@@ -141,34 +141,6 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
           />
         </div>
 
-        {/* Show who acknowledged */}
-        {announcement.acknowledgedBy && announcement.acknowledgedBy.length > 0 && (
-          <div className="pt-2 border-t border-border/50">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-              <i className="fas fa-users"></i>
-              <span className="font-semibold">Presa visione da ({announcement.acknowledgedBy.length}):</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-            {announcement.acknowledgedBy.map((discordTag, idx) => {
-                // Find the operator by matching discord tag
-                const operatorName = (() => {
-                  const operator = operatoriData.operators.find((op: any) => op.discordTag === discordTag);
-                  if (operator) return operator.name;
-                  return discordTag; // fallback to discord tag if not found
-                })();
-                return (
-                  <span 
-                    key={idx}
-                    className="px-2 py-0.5 rounded-full text-xs font-medium bg-success/15 text-success"
-                  >
-                    <i className="fas fa-check mr-1"></i>
-                    {operatorName}
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
