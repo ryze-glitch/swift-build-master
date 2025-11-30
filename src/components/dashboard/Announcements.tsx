@@ -660,14 +660,14 @@ export const Announcements = () => {
                       })()}
                     </div>
 
-                    {/* Admin: View Voters */}
-                    {isAdmin && announcement.trainingVotes && announcement.trainingVotes.length > 0 && (
+                    {/* View Voters - visible to everyone for training announcements */}
+                    {announcement.trainingVotes && announcement.trainingVotes.length > 0 && (
                       <div className="mt-5 pt-4 border-t border-border">
                         <details className="group">
                           <summary className="cursor-pointer flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 transition-colors">
                             <span className="font-semibold text-sm flex items-center gap-2">
                               <i className="fas fa-users text-primary"></i>
-                              Dettagli Votanti (Solo Dirigenza)
+                              Dettagli Votanti
                             </span>
                             <i className="fas fa-chevron-down text-sm group-open:rotate-180 transition-transform"></i>
                           </summary>
@@ -685,7 +685,7 @@ export const Announcements = () => {
                                     return (
                                       <div key={idx} className="text-sm flex items-center gap-2 py-1">
                                         <i className="fas fa-user text-xs text-muted-foreground"></i>
-                                        <span>{operator?.name || "Utente sconosciuto"}</span>
+                                        <span>{operator?.name || vote.userId}</span>
                                       </div>
                                     );
                                   })}
@@ -707,7 +707,7 @@ export const Announcements = () => {
                                     return (
                                       <div key={idx} className="text-sm flex items-center gap-2 py-1">
                                         <i className="fas fa-user text-xs text-muted-foreground"></i>
-                                        <span>{operator?.name || "Utente sconosciuto"}</span>
+                                        <span>{operator?.name || vote.userId}</span>
                                       </div>
                                     );
                                   })}

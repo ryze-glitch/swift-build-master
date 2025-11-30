@@ -395,7 +395,15 @@ export const ShiftDetailsCard = ({
         </div>
       ) : (
         <div className="mt-4 flex flex-col gap-2">
-          {!isAcknowledgedByUser ? (
+          {/* Show acknowledgment status or button (only admins can acknowledge) */}
+          {acknowledgedBy.length > 0 ? (
+            <div className="p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="font-medium">
+                Presa Visione Confermata da: {acknowledgedBy[0]?.userName || "Dirigenza"}
+              </span>
+            </div>
+          ) : isAdmin ? (
             <Button 
               onClick={handleAcknowledge}
               className="w-full"
@@ -404,11 +412,9 @@ export const ShiftDetailsCard = ({
               Presa Visione
             </Button>
           ) : (
-            <div className="p-3 bg-success/10 border border-success/20 rounded-lg text-sm text-success flex items-center gap-2">
+            <div className="p-3 bg-muted/50 border border-border rounded-lg text-sm text-muted-foreground flex items-center gap-2">
               <CheckCircle className="w-4 h-4 flex-shrink-0" />
-              <span className="font-medium">
-                Presa Visione Confermata da: {acknowledgedBy.find((ack: any) => ack.userId === user?.id)?.userName || "Tu"}
-              </span>
+              <span>In attesa di presa visione dalla Dirigenza</span>
             </div>
           )}
 
