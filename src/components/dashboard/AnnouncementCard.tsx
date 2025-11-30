@@ -111,36 +111,66 @@ export const AnnouncementCard = ({ announcement, onAcknowledge, onDelete, canDel
       />
 
       {/* Acknowledgment */}
-      <div className="glass rounded-xl p-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1">
-          <div 
-            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              announcement.acknowledged 
-                ? 'bg-success/20 text-success' 
-                : 'bg-primary/20 text-primary'
-            }`}
-          >
-            <i className={`fas ${announcement.acknowledged ? 'fa-check-circle' : 'fa-envelope'} text-lg`}></i>
-          </div>
-          <div className="flex-1">
-            <div className="font-semibold text-sm">
-              {announcement.acknowledged ? 'Presa Visione' : 'Conferma Lettura'}
+      <div className="glass rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div 
+              className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                announcement.acknowledged 
+                  ? 'bg-success/20 text-success' 
+                  : 'bg-primary/20 text-primary'
+              }`}
+            >
+              <i className={`fas ${announcement.acknowledged ? 'fa-check-circle' : 'fa-envelope'} text-lg`}></i>
             </div>
-            <div className="text-xs text-muted-foreground">
-              {announcement.acknowledged ? 'Letto e confermato' : 'Spunta per confermare'}
+            <div className="flex-1">
+              <div className="font-semibold text-sm">
+                {announcement.acknowledged ? 'Presa Visione' : 'Conferma Lettura'}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {announcement.acknowledged ? 'Letto e confermato' : 'Spunta per confermare'}
+              </div>
             </div>
           </div>
+
+          <CustomCheckbox
+            id={`acknowledge-${announcement.id}`}
+            checked={announcement.acknowledged}
+            onChange={onAcknowledge}
+            size={1.5}
+          />
         </div>
 
-        <CustomCheckbox
-          id={`acknowledge-${announcement.id}`}
-          checked={announcement.acknowledged}
-          onChange={onAcknowledge}
-          size={1.5}
-        />
+        {/* Show who acknowledged */}
+        {announcement.acknowledgedBy && announcement.acknowledgedBy.length > 0 && (
+          <div className="pt-2 border-t border-border/50">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+              <i className="fas fa-users"></i>
+              <span className="font-semibold">Presa visione da ({announcement.acknowledgedBy.length}):</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {announcement.acknowledgedBy.map((userId, idx) => {
+                // Find the operator by matching user ID through profiles
+                const operatorName = (() => {
+                  // Try to find operator name - for now show a shortened ID
+                  const operator = operatoriData.operators.find((op: any) => op.id === userId);
+                  if (operator) return operator.name;
+                  return `Utente ${userId.slice(0, 8)}...`;
+                })();
+                return (
+                  <span 
+                    key={idx}
+                    className="px-2 py-0.5 rounded-full text-xs font-medium bg-success/15 text-success"
+                  >
+                    <i className="fas fa-check mr-1"></i>
+                    {operatorName}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
-
-
     </div>
   );
 };
