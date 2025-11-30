@@ -180,8 +180,19 @@ export const Announcements = () => {
     }
 
     try {
-      // Get current votes from database
-      const { data: currentData, error: fetchError } = await supabase
+      // Use the database function to vote (bypasses RLS)
+      const voteChoice = choice === null ? 'remove' : choice;
+      
+      const { error: voteError } = await supabase.rpc('vote_training_announcement', {
+        _announcement_id: announcementId,
+        _discord_tag: userDiscordTag,
+        _vote_choice: voteChoice
+      });
+
+      if (voteError) throw voteError;
+
+      // Fetch updated votes to update local state
+      const { data: updatedData, error: fetchError } = await supabase
         .from("announcements")
         .select("training_votes")
         .eq("id", announcementId)
@@ -189,36 +200,11 @@ export const Announcements = () => {
 
       if (fetchError) throw fetchError;
 
-      const currentVotes: any = currentData?.training_votes || { presenza: [], assenza: [] };
-      
-      // Ensure arrays exist and are valid
-      const presenzaArray = Array.isArray(currentVotes.presenza) ? currentVotes.presenza : [];
-      const assenzaArray = Array.isArray(currentVotes.assenza) ? currentVotes.assenza : [];
-      
-      // Remove user from both arrays (filter out the current user by discord tag)
-      const newPresenza = presenzaArray.filter((tag: string) => tag !== userDiscordTag);
-      const newAssenza = assenzaArray.filter((tag: string) => tag !== userDiscordTag);
+      const updatedVotes = updatedData?.training_votes as any || { presenza: [], assenza: [] };
+      const newPresenza = Array.isArray(updatedVotes.presenza) ? updatedVotes.presenza : [];
+      const newAssenza = Array.isArray(updatedVotes.assenza) ? updatedVotes.assenza : [];
 
-      // Add user to selected choice if not null (null means remove vote)
-      if (choice === "presenza") {
-        newPresenza.push(userDiscordTag);
-      } else if (choice === "assenza") {
-        newAssenza.push(userDiscordTag);
-      }
-
-      const newVotes = {
-        presenza: newPresenza,
-        assenza: newAssenza
-      };
-
-      const { error: updateError } = await supabase
-        .from("announcements")
-        .update({ training_votes: newVotes })
-        .eq("id", announcementId);
-
-      if (updateError) throw updateError;
-
-      // Update local state immediately for better UX
+      // Update local state
       setAnnouncements(prev => prev.map(a => {
         if (a.id !== announcementId) return a;
         return {
